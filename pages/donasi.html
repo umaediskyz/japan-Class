@@ -3,148 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nihongo Trinity | Donasi</title>
+    <title>Nihongo Trinity | Dukungan Donasi (サポート)</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/donasi.css">
 </head>
 <body class="main-page">
     
-    <section class="content page-content donasi-page">
+    <section class="content page-content donasi-page" style="max-width: 900px; margin: 0 auto; padding: 40px 20px 120px; text-align: center;">
         <!-- Tombol Kembali -->
         <a href="../index.html" class="back-btn">
             <span class="back-icon">←</span> Dashboard
         </a>
 
-        <p class="eyebrow">【 サポート · Support Us 】</p>
-        <h1 class="page-title">Dukung Perjalanan Kami</h1>
-        <p class="subtitle">Terima kasih atas apresiasi dan dukunganmu. Kontribusimu sangat berarti untuk pemeliharaan dan pengembangan sistem Nihongo Trinity.</p>
+        <p class="eyebrow">【 サポート · Support Our Journey 】</p>
+        <h1 class="page-title" style="color: #fff; font-size: clamp(2rem, 4vw, 3rem); margin: 12px 0 8px; font-weight: 700; font-family: 'Noto Serif JP', serif;">Dukung Perjalanan Kami</h1>
+        <p class="subtitle">Apresiasi dan kontribusimu sangat berarti untuk pemeliharaan server database, penambahan fitur pembelajaran baru, dan operasional Nihongo Trinity.</p>
 
-        <!-- KARTU QRIS -->
-        <div class="qris-container">
-            <div class="qris-card">
-                <div class="qris-header">
-                    <h3>Scan QRIS</h3>
-                    <p>Menerima dari semua aplikasi pembayaran</p>
+        <!-- KARTU QRIS INTERAKTIF -->
+        <div class="qris-container" style="max-width: 360px; margin: 0 auto 35px;">
+            <div class="qris-card" style="background: var(--panel); border: 2px solid var(--japan-gold); border-radius: 16px; padding: 25px; box-shadow: var(--box-shadow-md); backdrop-filter: var(--glass-blur);">
+                <div class="qris-header" style="margin-bottom: 15px;">
+                    <h3 style="color: #fff; font-size: 1.3rem; margin: 0 0 4px; font-family: 'Noto Serif JP', serif;">Scan QRIS Nasional</h3>
+                    <p style="color: var(--japan-gold); font-size: 12px; margin: 0;">Mendukung BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay</p>
                 </div>
-                <div class="qris-image-wrapper">
-                    <!-- Path gambar QRIS kamu -->
-                    <img src="../gambar/qris.png" alt="QRIS Nihongo Trinity" onerror="this.src='https://via.placeholder.com/250?text=QRIS+Belum+Ada'">
+                <div class="qris-image-wrapper" style="width: 220px; height: 220px; margin: 0 auto; background: #fff; padding: 10px; border-radius: 10px; cursor: zoom-in;" onclick="zoomQris()">
+                    <img id="qrisImg" src="../gambar/qris.png" alt="QRIS Nihongo Trinity" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.src='https://via.placeholder.com/220?text=QRIS+Nihongo+Trinity'">
                 </div>
-                <div class="qris-footer">
-                    <span>a.n. Umaedi Digital / Nihongo Trinity</span>
+                <div class="qris-footer" style="margin-top: 15px; font-size: 12px; color: var(--muted);">
+                    <span>a.n. <strong>Umaedi Digital / Nihongo Trinity</strong></span>
+                    <p style="font-size: 11px; margin-top: 4px; color: var(--japan-gold);">🔍 Klik gambar QRIS untuk memperbesar</p>
                 </div>
             </div>
         </div>
 
         <!-- GRID METODE PEMBAYARAN -->
-        <div class="payment-grid">
+        <div class="payment-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; text-align: left;">
             
             <!-- KOLOM 1: E-WALLET -->
-            <div class="payment-section">
-                <h3 class="section-title"><span class="icon">📱</span> E-Wallet</h3>
+            <div class="payment-section" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 22px;">
+                <h3 class="section-title" style="color: #fff; font-size: 1.15rem; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+                    <span>📱</span> Dompet Digital (E-Wallet)
+                </h3>
                 
-                <!-- Item DANA -->
-                <div class="payment-item">
+                <div class="payment-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
                     <div class="pay-info">
-                        <strong class="pay-name">DANA</strong>
-                        <span class="pay-number" id="danaNum">083818115136</span>
+                        <strong class="pay-name" style="color: #fff; display: block; font-size: 14px;">DANA</strong>
+                        <span class="pay-number" style="color: var(--japan-gold); font-size: 13px;">083818115136</span>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('083818115136', 'Nomor DANA')">Salin</button>
+                    <button class="copy-btn" onclick="copyToClipboard('083818115136', 'Nomor DANA')" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">Salin</button>
                 </div>
 
-                <!-- Item GoPay -->
-                <div class="payment-item">
+                <div class="payment-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
                     <div class="pay-info">
-                        <strong class="pay-name">GoPay</strong>
-                        <span class="pay-number" id="gopayNum">083818115136</span>
+                        <strong class="pay-name" style="color: #fff; display: block; font-size: 14px;">GoPay</strong>
+                        <span class="pay-number" style="color: var(--japan-gold); font-size: 13px;">083818115136</span>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('083818115136', 'Nomor GoPay')">Salin</button>
+                    <button class="copy-btn" onclick="copyToClipboard('083818115136', 'Nomor GoPay')" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">Salin</button>
                 </div>
 
-                <!-- Item OVO -->
-                <div class="payment-item">
+                <div class="payment-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
                     <div class="pay-info">
-                        <strong class="pay-name">OVO</strong>
-                        <span class="pay-number" id="ovoNum">083818115136</span>
+                        <strong class="pay-name" style="color: #fff; display: block; font-size: 14px;">OVO</strong>
+                        <span class="pay-number" style="color: var(--japan-gold); font-size: 13px;">083818115136</span>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('083818115136', 'Nomor OVO')">Salin</button>
+                    <button class="copy-btn" onclick="copyToClipboard('083818115136', 'Nomor OVO')" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">Salin</button>
                 </div>
 
-                <!-- Item ShopeePay -->
-                <div class="payment-item">
+                <div class="payment-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
                     <div class="pay-info">
-                        <strong class="pay-name">ShopeePay</strong>
-                        <span class="pay-number" id="spayNum">083818115136</span>
+                        <strong class="pay-name" style="color: #fff; display: block; font-size: 14px;">ShopeePay</strong>
+                        <span class="pay-number" style="color: var(--japan-gold); font-size: 13px;">083818115136</span>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('083818115136', 'Nomor ShopeePay')">Salin</button>
+                    <button class="copy-btn" onclick="copyToClipboard('083818115136', 'Nomor ShopeePay')" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">Salin</button>
                 </div>
             </div>
 
             <!-- KOLOM 2: TRANSFER BANK -->
-            <div class="payment-section">
-                <h3 class="section-title"><span class="icon">🏦</span> Transfer Bank</h3>
+            <div class="payment-section" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 22px;">
+                <h3 class="section-title" style="color: #fff; font-size: 1.15rem; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+                    <span>🏦</span> Transfer Bank Nasional
+                </h3>
                 
-                <!-- Item SeaBank -->
-                <div class="payment-item">
+                <div class="payment-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
                     <div class="pay-info">
-                        <strong class="pay-name">SeaBank</strong>
-                        <span class="pay-number" id="seaNum">9015-6721-6652</span>
-                        <span class="pay-owner">a.n. UMAEDI</span>
+                        <strong class="pay-name" style="color: #fff; display: block; font-size: 14px;">SeaBank</strong>
+                        <span class="pay-number" style="color: var(--japan-gold); font-size: 13px;">9015-6721-6652</span>
+                        <span style="font-size: 11px; color: var(--muted); display: block;">a.n. UMAEDI</span>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('901567216652', 'Rekening SeaBank')">Salin</button>
+                    <button class="copy-btn" onclick="copyToClipboard('901567216652', 'Rekening SeaBank')" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">Salin</button>
                 </div>
 
-                <!-- Item Bank Jago -->
-                <div class="payment-item">
+                <div class="payment-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
                     <div class="pay-info">
-                        <strong class="pay-name">Bank Jago</strong>
-                        <span class="pay-number" id="jagoNum">5001-8084-0414</span>
-                        <span class="pay-owner">a.n. UMAEDI</span>
+                        <strong class="pay-name" style="color: #fff; display: block; font-size: 14px;">Bank Jago</strong>
+                        <span class="pay-number" style="color: var(--japan-gold); font-size: 13px;">5001-8084-0414</span>
+                        <span style="font-size: 11px; color: var(--muted); display: block;">a.n. UMAEDI</span>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('500180840414', 'Rekening Bank Jago')">Salin</button>
+                    <button class="copy-btn" onclick="copyToClipboard('500180840414', 'Rekening Bank Jago')" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">Salin</button>
                 </div>
 
-                <!-- Item Bank Krom -->
-                <div class="payment-item">
+                <div class="payment-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
                     <div class="pay-info">
-                        <strong class="pay-name">Krom Bank</strong>
-                        <span class="pay-number" id="kromNum">7700-0670-2008</span>
-                        <span class="pay-owner">a.n. UMAEDI</span>
+                        <strong class="pay-name" style="color: #fff; display: block; font-size: 14px;">Krom Bank</strong>
+                        <span class="pay-number" style="color: var(--japan-gold); font-size: 13px;">7700-0670-2008</span>
+                        <span style="font-size: 11px; color: var(--muted); display: block;">a.n. UMAEDI</span>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('770006702008', 'Rekening Krom Bank')">Salin</button>
+                    <button class="copy-btn" onclick="copyToClipboard('770006702008', 'Rekening Krom Bank')" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700;">Salin</button>
                 </div>
             </div>
 
         </div>
     </section>
 
-    <!-- TOAST NOTIFICATION (Muncul saat tombol salin diklik) -->
-    <div id="copyToast" class="copy-toast">✅ Berhasil disalin!</div>
+    <!-- LIGHTBOX ZOOM MODAL QRIS -->
+    <div id="qrisModal" class="global-login-overlay" style="display: none; z-index: 10005;" onclick="closeQris()">
+        <div style="position: relative; max-width: 380px; width: 90%; background: #fff; padding: 20px; border-radius: 14px; text-align: center;">
+            <span style="position: absolute; top: 8px; right: 14px; color: #333; font-size: 26px; cursor: pointer; font-weight: bold;">×</span>
+            <img src="../gambar/qris.png" alt="QRIS Zoom" style="width: 100%; height: auto; border-radius: 8px;" onerror="this.src='https://via.placeholder.com/350?text=QRIS+Nihongo+Trinity'">
+            <p style="margin: 10px 0 0; color: #333; font-size: 12px; font-weight: 700;">Scan QRIS a.n. Umaedi Digital / Nihongo Trinity</p>
+        </div>
+    </div>
 
-    <!-- SCRIPT KHUSUS FITUR SALIN (COPY) -->
+    <!-- TOAST NOTIFICATION -->
+    <div id="copyToast" class="trinity-toast">✅ Berhasil disalin!</div>
+
     <script>
         function copyToClipboard(text, name) {
-            // Membuat elemen sementara untuk menyalin teks (kompatibel untuk HP)
-            const tempInput = document.createElement("input");
-            tempInput.value = text;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            tempInput.setSelectionRange(0, 99999); /* Untuk perangkat mobile */
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`✅ ${name} berhasil disalin!`);
+            }).catch(() => {
+                const temp = document.createElement("input");
+                temp.value = text;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand("copy");
+                document.body.removeChild(temp);
+                showToast(`✅ ${name} berhasil disalin!`);
+            });
+        }
 
-            // Memunculkan Notifikasi Toast
-            const toast = document.getElementById("copyToast");
-            toast.innerText = `✅ ${name} berhasil disalin!`;
-            toast.classList.add("show-toast");
-
-            // Menghilangkan Notifikasi setelah 3 detik
-            setTimeout(() => {
-                toast.classList.remove("show-toast");
-            }, 3000);
+        function zoomQris() {
+            document.getElementById('qrisModal').style.display = 'flex';
+        }
+        function closeQris() {
+            document.getElementById('qrisModal').style.display = 'none';
         }
     </script>
-
     <script src="../script.js"></script>
 </body>
 </html>

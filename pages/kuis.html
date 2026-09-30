@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Trinity | Kuis & Refleks</title>
+    <title>Nihongo Trinity | Kuis & Refleks Dojo</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/kuis.css">
 </head>
@@ -14,16 +14,23 @@
             <span class="back-icon">←</span> Dashboard
         </a>
 
-        <p class="eyebrow">【 訓練 · Training Dojo 】</p>
+        <p class="eyebrow">【 訓練道場 · Kana Reflex Dojo 】</p>
         <h2 class="page-title">Sistem Evaluasi Kana</h2>
-        <p class="study-intro">Uji kecepatan dan akurasimu. Kumpulkan streak, dan capai skor terbaikmu dengan kedisiplinan penuh.</p>
+        <p class="study-intro">Uji refleks dan ketangkasan membaca Hiragana & Katakana. Dapatkan kombo streak dan cetak rekor terbaikmu di papan peringkat!</p>
         
+        <!-- Pilihan Mode Kuis -->
+        <div class="quiz-mode-pills">
+            <button type="button" class="quiz-mode-btn active" id="modeTyping">⚡ Ketik Romaji</button>
+            <button type="button" class="quiz-mode-btn" id="modeChoice">🎯 Pilihan Ganda</button>
+            <button type="button" class="quiz-mode-btn" id="modeAudio">👂 Uji Pendengaran</button>
+        </div>
+
         <div class="score-board">
             <div class="score-item">
                 <span class="score-label">Skor Saat Ini</span>
                 <span class="score-value" id="score">0</span>
             </div>
-            <div class="score-item">
+            <div class="score-item streak-score">
                 <span class="score-label">Streak Beruntun</span>
                 <span class="score-value" id="streak">0</span>
             </div>
@@ -34,14 +41,24 @@
         </div>
         
         <div class="quiz-box">
-            <div class="kana-display">
+            <!-- Tampilan Kana / Speaker -->
+            <div class="kana-display" id="kanaDisplayBox" title="Klik untuk mendengar suara kana">
                 <h1 id="questionKana">あ</h1>
             </div>
             <p id="kanaType" class="kana-type-label">HIRAGANA</p>
             
-            <div class="input-area">
-                <input type="text" id="answerInput" placeholder="Ketik romaji (huruf latin)..." autocomplete="off">
-                <button type="button" class="btn btn-primary" onclick="checkAnswer()">JAWAB</button>
+            <!-- MODE 1: KETIK ROMAJI -->
+            <div class="input-area" id="typingArea">
+                <input type="text" id="answerInput" placeholder="Ketik romaji (ex: a, ka, shi)..." autocomplete="off" autocorrect="off" autocapitalize="off">
+                <button type="button" class="btn btn-primary" onclick="checkAnswer()">JAWAB (ENTER)</button>
+            </div>
+
+            <!-- MODE 2: PILIHAN GANDA (4 PILIHAN) -->
+            <div class="choice-grid" id="choiceArea" style="display: none;">
+                <button type="button" class="choice-btn" id="choice0">A</button>
+                <button type="button" class="choice-btn" id="choice1">I</button>
+                <button type="button" class="choice-btn" id="choice2">U</button>
+                <button type="button" class="choice-btn" id="choice3">E</button>
             </div>
             
             <p id="feedback"></p>
@@ -49,8 +66,107 @@
     </section>
 
     <script src="../script.js"></script>
+    <script>
+        // Multi-Mode Kuis Controller
+        let currentMode = "typing"; // "typing", "choice", "audio"
 
-    <!-- SCRIPT PENGIRIM SKOR REAL-TIME KE DATABASE -->
+        const modeTyping = document.getElementById("modeTyping");
+        const modeChoice = document.getElementById("modeChoice");
+        const modeAudio = document.getElementById("modeAudio");
+        const typingArea = document.getElementById("typingArea");
+        const choiceArea = document.getElementById("choiceArea");
+        const kanaDisplayBox = document.getElementById("kanaDisplayBox");
+        const qKana = document.getElementById("questionKana");
+
+        function setMode(mode) {
+            currentMode = mode;
+            modeTyping.classList.toggle("active", mode === "typing");
+            modeChoice.classList.toggle("active", mode === "choice");
+            modeAudio.classList.toggle("active", mode === "audio");
+
+            if (mode === "typing") {
+                typingArea.style.display = "flex";
+                choiceArea.style.display = "none";
+                qKana.style.display = "block";
+                document.getElementById("answerInput")?.focus();
+            } else if (mode === "choice") {
+                typingArea.style.display = "none";
+                choiceArea.style.display = "grid";
+                qKana.style.display = "block";
+                setupChoices();
+            } else if (mode === "audio") {
+                typingArea.style.display = "none";
+                choiceArea.style.display = "grid";
+                qKana.style.display = "block";
+                qKana.textContent = "🔊";
+                speakJapanese(currentQuestion.kana);
+                setupChoices();
+            }
+        }
+
+        modeTyping?.addEventListener("click", () => setMode("typing"));
+        modeChoice?.addEventListener("click", () => setMode("choice"));
+        modeAudio?.addEventListener("click", () => setMode("audio"));
+
+        kanaDisplayBox?.addEventListener("click", () => {
+            speakJapanese(currentQuestion.kana);
+        });
+
+        function setupChoices() {
+            if (!currentQuestion || !currentQuestion.romaji) return;
+            const correct = currentQuestion.romaji;
+            const options = [correct];
+            
+            while (options.length < 4) {
+                const rand = kanaList[Math.floor(Math.random() * kanaList.length)].romaji;
+                if (!options.includes(rand)) options.push(rand);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`choice${i}`);
+                if (btn) {
+                    btn.textContent = options[i].toUpperCase();
+                    btn.onclick = () => handleChoiceAnswer(options[i]);
+                }
+            }
+        }
+
+        function handleChoiceAnswer(ans) {
+            const feedbackText = document.getElementById("feedback");
+            if (ans.toLowerCase() === currentQuestion.romaji) {
+                currentScore += 10;
+                currentStreak += 1;
+                bestScore = Math.max(bestScore, currentScore);
+                localStorage.setItem("nihongoBestScore", bestScore);
+                updateQuizStats();
+                window.dispatchEvent(new CustomEvent('updateLeaderboard', { detail: bestScore }));
+                playChime('success');
+                if (feedbackText) {
+                    feedbackText.innerText = "SEMPURNA! 正解 ⚡";
+                    feedbackText.style.color = "#00F2FE";
+                }
+                setTimeout(() => {
+                    loadQuestion();
+                    if (currentMode === "audio") {
+                        qKana.textContent = "🔊";
+                        speakJapanese(currentQuestion.kana);
+                    }
+                    if (currentMode === "choice" || currentMode === "audio") setupChoices();
+                }, 800);
+            } else {
+                currentStreak = 0;
+                updateQuizStats();
+                playChime('error');
+                if (feedbackText) {
+                    feedbackText.innerText = `SALAH! JAWABAN: '${currentQuestion.romaji.toUpperCase()}'`;
+                    feedbackText.style.color = "#ff758f";
+                }
+            }
+        }
+    </script>
+
+    <!-- SCRIPT PENGIRIM SKOR REAL-TIME KE DATABASE FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -68,7 +184,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Fungsi kirim skor (hanya jika pengguna sudah login)
         function syncScoreToServer(score) {
             const currentUser = localStorage.getItem("nihongoChatUser");
             if (currentUser) {
@@ -76,13 +191,11 @@
             }
         }
 
-        // Jalankan saat pertama halaman di-load
         window.addEventListener('DOMContentLoaded', () => {
             const currentBest = Number(localStorage.getItem("nihongoBestScore") || 0);
             if (currentBest > 0) syncScoreToServer(currentBest);
         });
 
-        // Jalankan saat ada rekor baru pecah di file script.js
         window.addEventListener('updateLeaderboard', (e) => {
             syncScoreToServer(e.detail);
         });

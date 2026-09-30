@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>Ruang Obrolan | Trinity</title>
+    <title>Ruang Obrolan | Trinity 日本語</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/pesan.css">
     <script>if (!localStorage.getItem("nihongoChatUser")) window.location.replace("../index.html");</script>
@@ -11,82 +11,130 @@
 <body class="message-page">
     <main class="message-layout">
 
-        <!-- ========================================== -->
-        <!-- 1. TAMPILAN DAFTAR OBROLAN (WHATSAPP STYLE) -->
-        <!-- ========================================== -->
+        <!-- ================================================================ -->
+        <!-- 1. TAMPILAN DAFTAR OBROLAN (ROOM LIST VIEW - NEAT & ORGANIZED) -->
+        <!-- ================================================================ -->
         <section id="chatListView" class="chat-list-panel">
             <header class="chat-header">
                 <div>
-                    <p class="section-label">TRINITY COMMUNITY</p>
+                    <p class="section-label">TRINITY COMMUNITY HUB</p>
                     <h1>Pesan & Obrolan</h1>
                 </div>
-                <a href="../index.html" class="chat-back" aria-label="Kembali ke dashboard">×</a>
+                <a href="../index.html" class="chat-back" aria-label="Kembali ke dashboard" title="Kembali ke Home">×</a>
             </header>
             
             <div class="chat-list-container">
-                <!-- RUANGAN 1: TRINITY CORE (Hanya Muncul Untuk Founder) -->
-                <div id="roomCardCore" class="room-card" style="display: none;" onclick="openRoom('core')">
-                    <div class="room-avatar" style="background: #D32F2F;">🛡️</div>
+                <!-- RUANGAN 1: PUBLIC LOUNGE (Semua Member) -->
+                <div id="roomCardPublic" class="room-card" onclick="openRoom('public')">
+                    <div class="room-avatar" style="background: linear-gradient(135deg, #1E88E5, #1565C0);">
+                        🌐
+                        <span class="status-indicator"></span>
+                    </div>
                     <div class="room-info">
                         <div class="room-title-row">
-                            <h3>TRINITY CORE <span>(Private)</span></h3>
-                            <span class="room-time" id="timeCore"></span>
+                            <h3>PUBLIC LOUNGE <span>(広場)</span></h3>
+                            <span class="room-time" id="timePublic"></span>
                         </div>
                         <div class="room-desc-row">
-                            <p id="lastMsgCore">Memuat obrolan...</p>
-                            <span id="badgeCore" class="room-badge" style="display: none;">0</span>
+                            <p id="lastMsgPublic">Memuat obrolan komunitas...</p>
+                            <span id="badgePublic" class="room-badge" style="display: none;">0</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- RUANGAN 2: PUBLIC LOUNGE (Semua Orang) -->
-                <div id="roomCardPublic" class="room-card" onclick="openRoom('public')">
-                    <div class="room-avatar" style="background: #1E88E5;">🌐</div>
+                <!-- RUANGAN 2: AI SENSEI DOJO (Semua Member Bisa Belajar 1-on-1) -->
+                <div id="roomCardSensei" class="room-card" onclick="openRoom('sensei')">
+                    <div class="room-avatar" style="background: linear-gradient(135deg, #8e44ad, #6c5ce7);">
+                        ⛩️
+                        <span class="status-indicator" style="background: #00F2FE;"></span>
+                    </div>
                     <div class="room-info">
                         <div class="room-title-row">
-                            <h3>PUBLIC LOUNGE</h3>
-                            <span class="room-time" id="timePublic"></span>
+                            <h3>AI SENSEI DOJO <span>(先生)</span></h3>
+                            <span class="room-time" id="timeSensei">Aktif</span>
                         </div>
                         <div class="room-desc-row">
-                            <p id="lastMsgPublic">Memuat obrolan...</p>
-                            <span id="badgePublic" class="room-badge" style="display: none;">0</span>
+                            <p id="lastMsgSensei">Tanya tata bahasa, terjemahan, atau latihan percakapan...</p>
+                            <span class="room-badge" style="background: #00F2FE; color: #080b11;">AI</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RUANGAN 3: TRINITY CORE (Hanya Muncul / Khusus Tim Inti) -->
+                <div id="roomCardCore" class="room-card" style="display: none;" onclick="openRoom('core')">
+                    <div class="room-avatar" style="background: linear-gradient(135deg, #D32F2F, #8e44ad);">
+                        🛡️
+                        <span class="status-indicator" style="background: #D4AF37;"></span>
+                    </div>
+                    <div class="room-info">
+                        <div class="room-title-row">
+                            <h3>TRINITY CORE <span>(幹部専用)</span></h3>
+                            <span class="room-time" id="timeCore"></span>
+                        </div>
+                        <div class="room-desc-row">
+                            <p id="lastMsgCore">Memuat obrolan privat tim...</p>
+                            <span id="badgeCore" class="room-badge" style="display: none;">0</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ========================================== -->
-        <!-- 2. TAMPILAN DALAM ROOM (Disembunyikan Awalnya) -->
-        <!-- ========================================== -->
+        <!-- ================================================================ -->
+        <!-- 2. TAMPILAN DALAM ROOM (CHAT ROOM VIEW) -->
+        <!-- ================================================================ -->
         <section id="chatRoomView" class="chat-panel group-chat" style="display: none;">
-            <header class="chat-header" style="padding-left: 5px;">
-                <!-- Tombol Kembali ke Daftar Chat -->
-                <button id="backToListBtn" class="chat-back-arrow" aria-label="Kembali">←</button>
-                <div class="chat-group-avatar" id="roomIcon">♧</div>
-                <div>
-                    <p class="section-label" id="roomLabel">TRINITY COMMUNITY</p>
-                    <h1 id="roomTitle">Ruang Obrolan</h1>
-                   <span><i class="online-dot"></i> <span id="onlineCountText">Mendeteksi jaringan...</span></span>
+            <header class="chat-header">
+                <div class="header-info-group">
+                    <button id="backToListBtn" class="chat-back-arrow" aria-label="Kembali ke Daftar">←</button>
+                    <div class="chat-group-avatar" id="roomIcon">♧</div>
+                    <div>
+                        <p class="section-label" id="roomLabel">TRINITY COMMUNITY</p>
+                        <h1 id="roomTitle">Ruang Obrolan</h1>
+                        <span><i class="online-dot"></i> <span id="onlineCountText">Mendeteksi jaringan...</span></span>
+                    </div>
+                </div>
+
+                <div class="chat-header-actions">
+                    <button type="button" id="toggleSearchBtn" class="header-action-btn" title="Cari Pesan" aria-label="Cari Pesan">🔍</button>
+                    <button type="button" id="ttsRecentBtn" class="header-action-btn" title="Dengarkan Pesan Terakhir" aria-label="Audio TTS">🔊</button>
                 </div>
             </header>
+
+            <!-- BAR PENCARIAN DI DALAM PESAN -->
+            <div id="inchatSearchBar" class="inchat-search-bar" style="display: none;">
+                <input type="search" id="inchatSearchInput" placeholder="Cari percakapan di ruangan ini...">
+                <button type="button" id="closeSearchBtn" class="chat-tool-btn" style="color: var(--muted); font-size: 16px;">×</button>
+            </div>
             
-           <!-- DAFTAR MEMBER (Hanya muncul di Trinity Core) -->
+            <!-- DAFTAR MEMBER (Hanya muncul di Trinity Core) -->
             <div id="coreMemberAvatarList" class="group-members" aria-label="Member grup">
-                <div class="member-avatar avatar-umaedi" style="overflow: hidden; background: #fff;"><img src="../gambar/umaedi.png" alt="U" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentNode.style.background='#D32F2F'; this.parentNode.innerHTML='U';"></div>
-                <div class="member-avatar avatar-iqbal" style="overflow: hidden; background: #fff;"><img src="../gambar/iqbal.png" alt="I" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentNode.style.background='#D4AF37'; this.parentNode.innerHTML='I';"></div>
-                <div class="member-avatar avatar-rifki" style="overflow: hidden; background: #fff;"><img src="../gambar/rifki.png" alt="R" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentNode.style.background='#1E88E5'; this.parentNode.innerHTML='R';"></div>
-                <div class="member-avatar avatar-fasya" style="overflow: hidden; background: #fff;"><img src="../gambar/fasya.png" alt="F" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentNode.style.background='#8e44ad'; this.parentNode.innerHTML='F';"></div>
+                <div class="member-avatar"><img src="../gambar/umaedi.png" alt="U" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='U';"></div>
+                <div class="member-avatar"><img src="../gambar/iqbal.png" alt="I" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='I';"></div>
+                <div class="member-avatar"><img src="../gambar/rifki.png" alt="R" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='R';"></div>
+                <div class="member-avatar"><img src="../gambar/fasya.png" alt="F" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='F';"></div>
                 <span class="member-count">Umaedi, Iqbal, Rifki, Fasya</span>
             </div>
             
+            <!-- AREA KONTEN PESAN -->
             <div class="chat-box" id="chatBox">
                 <div class="chat-day">HARI INI</div>
             </div>
+
+            <!-- STRIP STIKER / QUOTE JEPANG 1-KLIK -->
+            <div class="quick-phrase-bar" id="quickPhraseBar">
+                <span class="phrase-chip" data-text="お疲れ様でした！ (Otsukaresama deshita!)">「お疲れ様！」</span>
+                <span class="phrase-chip" data-text="ありがとうございます！ (Arigatou gozaimasu!)">「ありがとう！」</span>
+                <span class="phrase-chip" data-text="すごいですね！ (Sugoi desu ne!)">「すごい！」</span>
+                <span class="phrase-chip" data-text="草 (www)">「草 (笑)」</span>
+                <span class="phrase-chip" data-text="なるほど、分かりました！ (Naruhodo, wakarimashita!)">「なるほど」</span>
+                <span class="phrase-chip" data-text="よろしくお願いします！ (Yoroshiku onegaishimasu!)">「よろしく！」</span>
+                <span class="phrase-chip" data-text="頑張ってください！ (Ganbatte kudasai!)">「頑張って！」</span>
+                <span class="phrase-chip" data-text="こんにちは！ (Konnichiwa!)">「こんにちは」</span>
+                <span class="phrase-chip" data-text="はい、了解です！ (Hai, ryoukai desu!)">「はい！」</span>
+            </div>
             
-<!-- ========================================== -->
-            <!-- FITUR PREVIEW BALASAN -->
-            <!-- ========================================== -->
+            <!-- AREA PRATINJAU BALASAN (REPLY) -->
             <div id="replyPreviewArea" class="reply-preview-area" style="display: none;">
                 <div class="reply-preview-content">
                     <strong id="replyPreviewName">Nama</strong>
@@ -95,20 +143,24 @@
                 <button type="button" id="cancelReplyBtn" class="cancel-reply-btn" aria-label="Batal Balas">×</button>
             </div>
             
+            <!-- INPUT PESAN -->
             <div class="chat-input-area">
-                <button class="chat-emoji" type="button" aria-label="Pilih emoji">☺</button>
+                <button class="chat-emoji chat-tool-btn" id="chatEmojiBtn" type="button" aria-label="Pilih emoji">☺</button>
                 
-                <!-- FITUR EKSKLUSIF FOUNDER: FOTO & VOICE NOTE -->
                 <input type="file" id="chatImageUpload" accept="image/*" style="display: none;">
-                <button id="sendImageBtn" type="button" style="display: none; background: transparent; color: #8B9BB4; font-size: 20px; border: none; cursor: pointer; padding: 0 5px; transition: 0.3s;" aria-label="Kirim Gambar">📷</button>
+                <button id="sendImageBtn" class="chat-tool-btn" type="button" style="display: none;" aria-label="Kirim Gambar">📷</button>
+                <button id="recordAudioBtn" class="chat-tool-btn" type="button" style="display: none;" aria-label="Tahan untuk merekam">🎤</button>
                 
-                <!-- Tombol Mic (Ditahan untuk merekam) -->
-                <button id="recordAudioBtn" type="button" style="display: none; background: transparent; color: #8B9BB4; font-size: 20px; border: none; cursor: pointer; padding: 0 5px; transition: 0.3s;" aria-label="Tahan untuk merekam">🎤</button>
-                
-                <input type="text" id="chatInput" placeholder="Tulis pesan ke grup..." disabled>
+                <input type="text" id="chatInput" placeholder="Tulis pesan (bisa romaji atau kana)..." disabled>
                 <button id="sendBtn" type="button" disabled aria-label="Kirim pesan">➤</button>
             </div>
         </section>
+
+        <!-- LIGHTBOX VIEWER FOTO -->
+        <div id="imageLightboxOverlay" class="image-lightbox-overlay" style="display: none;">
+            <span class="close-lightbox" id="closeLightbox">×</span>
+            <img id="lightboxImg" src="" alt="Pratinjau Foto">
+        </div>
 
     </main>
 

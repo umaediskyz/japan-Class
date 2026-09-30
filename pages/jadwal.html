@@ -3,81 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Trinity | Jadwal</title>
+    <title>Nihongo Trinity | Jadwal Pertemuan (スケジュール)</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/jadwal.css">
 </head>
 <body class="main-page">
     
-    <section class="content page-content jadwal-page">
+    <section class="content page-content jadwal-page" style="max-width: 900px; margin: 0 auto; padding: 40px 20px 120px; text-align: center;">
         <!-- Tombol Kembali -->
         <a href="../index.html" class="back-btn">
             <span class="back-icon">←</span> Dashboard
         </a>
 
-        <p class="eyebrow">【 スケジュール · Jadwal Pertemuan 】</p>
-        <h1 class="page-title">Jadwal & Lokasi Kumpul</h1>
-        <p class="subtitle">Waktu khusus untuk berkumpul, belajar, dan berdiskusi bersama tim Nihongo Trinity.</p>
+        <p class="eyebrow">【 スケジュール · Gathering & Study Sessions 】</p>
+        <h1 class="page-title" style="color: #fff; font-size: clamp(2rem, 4vw, 3rem); margin: 12px 0 8px; font-weight: 700; font-family: 'Noto Serif JP', serif;">Jadwal & Basecamp Trinity</h1>
+        <p class="subtitle">Waktu khusus untuk berkumpul, berdiskusi, evaluasi progres kana, dan mempererat silaturahmi bersama tim Nihongo Trinity.</p>
 
-        <!-- Lokasi Kumpul (Banner) -->
-        <div class="location-banner">
-            <div class="location-icon">📍</div>
-            <div class="location-text">
-                <span class="location-label">Lokasi Pertemuan (Basecamp)</span>
-                <h3>Rumah Umaedi (Owner / Developer)</h3>
+        <!-- LOKASI KUMPUL BANNER (BASECAMP) -->
+        <div class="location-banner" style="display: flex; align-items: center; gap: 18px; padding: 22px; background: var(--panel); border: 1px solid var(--japan-gold); border-radius: 14px; text-align: left; margin-bottom: 25px; box-shadow: var(--box-shadow-md);">
+            <div class="location-icon" style="font-size: 32px; width: 55px; height: 55px; border-radius: 50%; background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); display: grid; place-items: center;">📍</div>
+            <div class="location-text" style="flex: 1;">
+                <span class="location-label" style="font-size: 11px; color: var(--japan-gold); font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">Markas Pertemuan Utama (Basecamp)</span>
+                <h3 style="color: #fff; font-size: 1.35rem; margin: 4px 0 2px; font-family: 'Noto Serif JP', serif;">Kediaman Umaedi (Founder & Tech Dev)</h3>
+                <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Pusat koordinasi sistem teknologi, server data, dan workshop belajar kana bersama.</p>
             </div>
         </div>
 
-        <!-- Grid Jadwal -->
-        <div class="schedule-grid">
-            <!-- Malam Sabtu -->
-            <div class="schedule-card">
-                <div class="schedule-day">Jumat Malam</div>
-                <h3 class="schedule-title">Malam Sabtu</h3>
-                <p class="schedule-desc">Sesi kumpul malam pembuka untuk evaluasi dan diskusi santai.</p>
+        <!-- COUNTDOWN TIMER PERTEMUAN -->
+        <div style="background: rgba(230, 57, 70, 0.08); border: 1px solid rgba(230, 57, 70, 0.3); border-radius: 12px; padding: 16px 20px; margin-bottom: 35px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+            <div style="text-align: left;">
+                <strong style="color: var(--japan-red); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; display: block;">Sesi Kumpul Terdekat:</strong>
+                <span style="color: #fff; font-size: 1.1rem; font-weight: 700;">Malam Minggu (Sesi Evaluasi Utama)</span>
+            </div>
+            <a href="pesan.html" class="btn btn-primary" style="padding: 10px 20px; font-size: 11px;">
+                💬 Konfirmasi di Chat Tim →
+            </a>
+        </div>
+
+        <!-- Grid Jadwal Mingguan -->
+        <div class="schedule-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+            <!-- Jumat Malam -->
+            <div class="schedule-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; text-align: left; transition: all 0.3s ease;">
+                <div class="schedule-day" style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Jumat Malam (金曜の夜)</div>
+                <h3 class="schedule-title" style="color: #fff; font-size: 1.2rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Malam Sabtu</h3>
+                <p class="schedule-desc" style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">Sesi kumpul malam pembuka akhir pekan untuk santai, ngobrol ringan, dan evaluasi update mingguan.</p>
             </div>
             
             <!-- Hari Sabtu -->
-            <div class="schedule-card">
-                <div class="schedule-day">Sabtu Siang/Sore</div>
-                <h3 class="schedule-title">Hari Sabtu</h3>
-                <p class="schedule-desc">Fokus belajar materi bersama dan pemantapan hafalan Kana.</p>
+            <div class="schedule-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; text-align: left; transition: all 0.3s ease;">
+                <div class="schedule-day" style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Sabtu Siang / Sore (土曜)</div>
+                <h3 class="schedule-title" style="color: #fff; font-size: 1.2rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Hari Sabtu</h3>
+                <p class="schedule-desc" style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">Fokus pemantapan materi bahasa Jepang, hafalan kana baru, dan bedah kosakata bersama Sensei Iqbal.</p>
             </div>
 
-            <!-- Malam Minggu (Highlight) -->
-            <div class="schedule-card active-night">
-                <div class="schedule-day">Sabtu Malam</div>
-                <h3 class="schedule-title">Malam Minggu</h3>
-                <p class="schedule-desc">Sesi kumpul utama. Waktu untuk latihan ekstra, tes refleks, dan review bersama tim.</p>
+            <!-- Malam Minggu (Highlight Sesi Inti) -->
+            <div class="schedule-card active-night" style="background: linear-gradient(145deg, rgba(230, 57, 70, 0.12), rgba(16, 22, 33, 0.95)); border: 1px solid var(--japan-red); border-radius: 12px; padding: 24px; text-align: left; box-shadow: 0 10px 30px rgba(230, 57, 70, 0.25);">
+                <div class="schedule-day" style="font-size: 11px; color: var(--japan-red); font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">⭐ Sesi Kumpul Utama</div>
+                <h3 class="schedule-title" style="color: #fff; font-size: 1.3rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Malam Minggu</h3>
+                <p class="schedule-desc" style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; margin: 0;">Sesi kumpul wajib tim! Latihan tes refleks cepat, review bersama tim Trinity, dan nongkrong produktif.</p>
             </div>
 
             <!-- Hari Minggu -->
-            <div class="schedule-card">
-                <div class="schedule-day">Minggu Pagi/Siang</div>
-                <h3 class="schedule-title">Hari Minggu</h3>
-                <p class="schedule-desc">Sesi belajar tambahan dan persiapan materi untuk minggu depan.</p>
+            <div class="schedule-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; text-align: left; transition: all 0.3s ease;">
+                <div class="schedule-day" style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Minggu Pagi / Siang (日曜)</div>
+                <h3 class="schedule-title" style="color: #fff; font-size: 1.2rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Hari Minggu</h3>
+                <p class="schedule-desc" style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">Sesi tambahan santai, persiapan target belajar untuk minggu berikutnya, dan istirahat pemulihan energi.</p>
             </div>
         </div>
     </section>
 
-    <!-- Navigasi Bawah -->
+    <!-- Navigasi Bawah Modern -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
         <a class="main-bottom-item" href="../index.html"><span class="main-bottom-icon">⌂</span><span>Home</span></a>
         <a class="main-bottom-item" href="hiburan.html"><span class="main-bottom-icon">✦</span><span>Hiburan</span></a>
         <a class="main-bottom-item main-bottom-message" href="pesan.html" aria-label="Buka pesan grup">
             <span class="main-bottom-icon" style="position: relative;">
                 ✉
-                <!-- Balon Notifikasi -->
                 <span id="msgBadge" class="msg-badge" style="display: none;">0</span>
             </span>
             <span>Pesan</span>
         </a>
-        <!-- Kelas is-active ada di menu Jadwal -->
         <a class="main-bottom-item is-active" href="jadwal.html"><span class="main-bottom-icon">◷</span><span>Jadwal</span></a>
         <a class="main-bottom-item" href="info.html"><span class="main-bottom-icon">ⓘ</span><span>Info</span></a>
     </nav>
 
-    <!-- Script pemanggil logika notif & Firebase -->
     <script type="module" src="../admin.js"></script>
     <script src="../script.js"></script>
 </body>

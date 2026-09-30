@@ -3,95 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nihongo Trinity | J-Pop & Music Tracks</title>
-    <!-- Memanggil CSS Global -->
+    <title>Nihongo Trinity | Japanese Music & Ambient Tracks (音楽)</title>
     <link rel="stylesheet" href="../../style.css">
-    <!-- Memanggil CSS Khusus Musik -->
     <link rel="stylesheet" href="../../css/musik/musik.css">
 </head>
 <body class="main-page">
     
-    <section class="content musik-page">
+    <section class="content musik-page" style="max-width: 900px; margin: 0 auto; padding: 40px 20px 120px; text-align: center;">
         <!-- Tombol Kembali -->
         <a href="../hiburan.html" class="back-btn">
             <span class="back-icon">←</span> Kembali ke Hiburan
         </a>
 
-        <p class="eyebrow">【 音楽 · Japanese Music 】</p>
-        <h1 class="page-title">Music Tracks</h1>
-        <p class="subtitle">Alunan nada dari Negeri Sakura. Pilih *playlist* andalanmu untuk menemani waktu fokus atau saat bersantai.</p>
+        <p class="eyebrow">【 音楽 · Japanese Ambient & Lofi Soundscapes 】</p>
+        <h1 class="page-title" style="color: #fff; font-size: clamp(2rem, 4vw, 3rem); margin: 12px 0 8px; font-weight: 700; font-family: 'Noto Serif JP', serif;">Music & Focus Player</h1>
+        <p class="subtitle">Alunan melodi khas Negeri Sakura. Dengarkan ambient lofi chill dan instrumen relaksasi untuk menemani konsentrasi belajar kana dan kanji.</p>
 
-        <!-- DAFTAR PLAYLIST MUSIK -->
-        <div class="music-list">
+        <!-- KOTAK AUDIO PLAYER UTAMA -->
+        <div style="background: var(--panel); border: 1px solid var(--japan-gold); border-radius: 16px; padding: 30px 20px; max-width: 580px; margin: 0 auto 35px; box-shadow: var(--box-shadow-md); backdrop-filter: var(--glass-blur);">
+            <div style="display: flex; align-items: center; gap: 15px; text-align: left; margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; border-radius: 12px; background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); display: grid; place-items: center; font-size: 28px;">
+                    🎵
+                </div>
+                <div>
+                    <span style="font-size: 10px; color: var(--japan-gold); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Sedang Memutar:</span>
+                    <h3 id="currentTrackTitle" style="color: #fff; font-size: 1.3rem; margin: 2px 0; font-family: 'Noto Serif JP', serif;">Neo-Tokyo Lofi Zen</h3>
+                    <p id="currentTrackArtist" style="color: var(--muted); font-size: 0.85rem; margin: 0;">Harmoni Akord Santai untuk Belajar</p>
+                </div>
+            </div>
+
+            <!-- Visualizer Bar Sederhana -->
+            <div id="visualizerBars" style="display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 40px; margin-bottom: 20px;">
+                <span class="v-bar" style="width: 5px; height: 10px; background: var(--japan-red); border-radius: 3px; transition: height 0.2s;"></span>
+                <span class="v-bar" style="width: 5px; height: 25px; background: var(--japan-gold); border-radius: 3px; transition: height 0.2s;"></span>
+                <span class="v-bar" style="width: 5px; height: 18px; background: #00F2FE; border-radius: 3px; transition: height 0.2s;"></span>
+                <span class="v-bar" style="width: 5px; height: 35px; background: var(--sakura-pink); border-radius: 3px; transition: height 0.2s;"></span>
+                <span class="v-bar" style="width: 5px; height: 12px; background: var(--japan-gold); border-radius: 3px; transition: height 0.2s;"></span>
+                <span class="v-bar" style="width: 5px; height: 28px; background: var(--japan-red); border-radius: 3px; transition: height 0.2s;"></span>
+            </div>
+
+            <!-- Tombol Kontrol Musik -->
+            <div style="display: flex; justify-content: center; align-items: center; gap: 14px;">
+                <button type="button" class="btn btn-secondary" onclick="prevTrack()" style="padding: 10px 18px; font-size: 14px;">⏮</button>
+                <button type="button" id="playAudioBtn" class="btn btn-gold" onclick="togglePlayAudio()" style="padding: 12px 28px; font-size: 13px;">▶ PUTAR MUSIK</button>
+                <button type="button" class="btn btn-secondary" onclick="nextTrack()" style="padding: 10px 18px; font-size: 14px;">⏭</button>
+            </div>
+        </div>
+
+        <!-- DAFTAR PLAYLIST PILIHAN -->
+        <div class="music-list" style="display: flex; flex-direction: column; gap: 12px; max-width: 650px; margin: 0 auto;">
             
-            <!-- Track 1: J-Pop Hits -->
-            <div class="music-card" onclick="alert('Memutar J-Pop Hits...')">
-                <div class="album-cover">
-                    <img src="https://via.placeholder.com/150/111b21/D32F2F?text=J-POP" alt="J-Pop Cover">
-                    <div class="play-overlay">▶</div>
+            <div class="music-card" onclick="selectTrack(0)" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; cursor: pointer; text-align: left; transition: 0.3s;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 24px; color: var(--japan-gold);">🍵</div>
+                    <div>
+                        <strong style="color: #fff; display: block; font-size: 1.05rem;">Neo-Tokyo Lofi Zen</strong>
+                        <span style="color: var(--muted); font-size: 0.85rem;">Santai, akord pentatonik Jepang, menenangkan pikiran</span>
+                    </div>
                 </div>
-                <div class="music-info">
-                    <h3>J-Pop Essentials</h3>
-                    <p>YOASOBI, Kenshi Yonezu, Ado, LiSA</p>
-                </div>
-                <div class="music-action">
-                    <button class="icon-btn">♡</button>
-                    <span class="duration">01:45:00</span>
-                </div>
+                <span style="color: var(--japan-gold); font-size: 14px;">▶</span>
             </div>
 
-            <!-- Track 2: City Pop Retro -->
-            <div class="music-card" onclick="alert('Memutar City Pop...')">
-                <div class="album-cover">
-                    <img src="https://via.placeholder.com/150/111b21/D4AF37?text=CITY+POP" alt="City Pop Cover">
-                    <div class="play-overlay">▶</div>
+            <div class="music-card" onclick="selectTrack(1)" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; cursor: pointer; text-align: left; transition: 0.3s;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 24px; color: #00F2FE;">🌧️</div>
+                    <div>
+                        <strong style="color: #fff; display: block; font-size: 1.05rem;">Kyoto Rain & Temple Chime</strong>
+                        <span style="color: var(--muted); font-size: 0.85rem;">Suasana hujan di kuil kuno dengan gemerincing genta</span>
+                    </div>
                 </div>
-                <div class="music-info">
-                    <h3>Tokyo City Pop 80s</h3>
-                    <p>Miki Matsubara, Mariya Takeuchi, Tatsuro Yamashita</p>
-                </div>
-                <div class="music-action">
-                    <button class="icon-btn">♡</button>
-                    <span class="duration">02:10:00</span>
-                </div>
+                <span style="color: var(--japan-gold); font-size: 14px;">▶</span>
             </div>
 
-            <!-- Track 3: J-Rock & Anime Openings -->
-            <div class="music-card" onclick="alert('Memutar J-Rock...')">
-                <div class="album-cover">
-                    <img src="https://via.placeholder.com/150/111b21/1E88E5?text=J-ROCK" alt="J-Rock Cover">
-                    <div class="play-overlay">▶</div>
+            <div class="music-card" onclick="selectTrack(2)" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; cursor: pointer; text-align: left; transition: 0.3s;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 24px; color: var(--sakura-pink);">🌸</div>
+                    <div>
+                        <strong style="color: #fff; display: block; font-size: 1.05rem;">Sakura Breeze Piano</strong>
+                        <span style="color: var(--muted); font-size: 0.85rem;">Petikan piano lembut bernuansa musim semi mekar</span>
+                    </div>
                 </div>
-                <div class="music-info">
-                    <h3>Anime Opening Anthems</h3>
-                    <p>ONE OK ROCK, RADWIMPS, Asian Kung-Fu Generation</p>
-                </div>
-                <div class="music-action">
-                    <button class="icon-btn">♡</button>
-                    <span class="duration">03:05:00</span>
-                </div>
+                <span style="color: var(--japan-gold); font-size: 14px;">▶</span>
             </div>
 
-            <!-- Track 4: Lofi Chill/Cyberpunk -->
-            <div class="music-card" onclick="alert('Memutar Lofi Beats...')">
-                <div class="album-cover">
-                    <img src="https://via.placeholder.com/150/111b21/8e44ad?text=LOFI" alt="Lofi Cover">
-                    <div class="play-overlay">▶</div>
+            <div class="music-card" onclick="selectTrack(3)" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; cursor: pointer; text-align: left; transition: 0.3s;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 24px; color: var(--japan-red);">⚡</div>
+                    <div>
+                        <strong style="color: #fff; display: block; font-size: 1.05rem;">Shibuya Night Drive (City Pop)</strong>
+                        <span style="color: var(--muted); font-size: 0.85rem;">Irama funk retro ceria khas gemerlap malam Tokyo 80-an</span>
+                    </div>
                 </div>
-                <div class="music-info">
-                    <h3>Neo-Tokyo Lofi Beats</h3>
-                    <p>Instrumental chill untuk menemani coding dan belajar kana</p>
-                </div>
-                <div class="music-action">
-                    <button class="icon-btn">♡</button>
-                    <span class="duration">04:20:00</span>
-                </div>
+                <span style="color: var(--japan-gold); font-size: 14px;">▶</span>
             </div>
 
         </div>
     </section>
 
-    <!-- Navigasi Bawah -->
+    <!-- Navigasi Bawah Modern -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
         <a class="main-bottom-item" href="../../index.html"><span class="main-bottom-icon">⌂</span><span>Home</span></a>
         <a class="main-bottom-item is-active" href="../hiburan.html"><span class="main-bottom-icon">✦</span><span>Hiburan</span></a>
@@ -108,5 +117,103 @@
 
     <script type="module" src="../../admin.js"></script>
     <script src="../../script.js"></script>
+    <script>
+        // Audio Synthesizer Engine for Relaxing Music
+        const tracks = [
+            { title: "Neo-Tokyo Lofi Zen", artist: "Harmoni Akord Santai untuk Belajar", chords: [261.63, 329.63, 392.00, 523.25] },
+            { title: "Kyoto Rain & Temple Chime", artist: "Suasana Hujan Kuil & Genta", chords: [220.00, 277.18, 329.63, 440.00] },
+            { title: "Sakura Breeze Piano", artist: "Petikan Piano Musim Semi Lembut", chords: [293.66, 369.99, 440.00, 587.33] },
+            { title: "Shibuya Night Drive (City Pop)", artist: "Irama Funk Retro 80-an", chords: [349.23, 440.00, 523.25, 698.46] }
+        ];
+
+        let currentIdx = 0;
+        let isPlaying = false;
+        let synthInterval = null;
+        let vInterval = null;
+        let musicCtx = null;
+
+        function getAudioContext() {
+            if (!musicCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                musicCtx = new AudioContext();
+            }
+            if (musicCtx.state === 'suspended') musicCtx.resume();
+            return musicCtx;
+        }
+
+        function playChordNote(freq) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.8);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 1.8);
+            } catch(e) {}
+        }
+
+        function togglePlayAudio() {
+            const btn = document.getElementById('playAudioBtn');
+            if (!isPlaying) {
+                isPlaying = true;
+                btn.textContent = "⏸ JEDA MUSIK";
+                btn.classList.remove('btn-gold');
+                btn.classList.add('btn-primary');
+                
+                let chordStep = 0;
+                synthInterval = setInterval(() => {
+                    const chord = tracks[currentIdx].chords;
+                    playChordNote(chord[chordStep % chord.length]);
+                    chordStep++;
+                }, 600);
+
+                vInterval = setInterval(() => {
+                    const bars = document.querySelectorAll('.v-bar');
+                    bars.forEach(b => {
+                        b.style.height = `${Math.floor(Math.random() * 32) + 6}px`;
+                    });
+                }, 180);
+            } else {
+                isPlaying = false;
+                btn.textContent = "▶ PUTAR MUSIK";
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-gold');
+                clearInterval(synthInterval);
+                clearInterval(vInterval);
+                const bars = document.querySelectorAll('.v-bar');
+                bars.forEach(b => b.style.height = '10px');
+            }
+        }
+
+        function selectTrack(idx) {
+            currentIdx = idx;
+            document.getElementById('currentTrackTitle').textContent = tracks[currentIdx].title;
+            document.getElementById('currentTrackArtist').textContent = tracks[currentIdx].artist;
+            if (isPlaying) {
+                clearInterval(synthInterval);
+                let chordStep = 0;
+                synthInterval = setInterval(() => {
+                    const chord = tracks[currentIdx].chords;
+                    playChordNote(chord[chordStep % chord.length]);
+                    chordStep++;
+                }, 600);
+            } else {
+                togglePlayAudio();
+            }
+        }
+
+        function nextTrack() {
+            selectTrack((currentIdx + 1) % tracks.length);
+        }
+
+        function prevTrack() {
+            selectTrack((currentIdx - 1 + tracks.length) % tracks.length);
+        }
+    </script>
 </body>
 </html>

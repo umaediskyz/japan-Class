@@ -3,32 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Trinity | Katakana</title>
+    <title>Nihongo Trinity | Hiragana Lab (平仮名)</title>
     <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="../css/belajar-katakana.css">
+    <link rel="stylesheet" href="../css/belajar.css">
 </head>
-<body>
+<body class="main-page">
     
-    <!-- Bagian Pembelajaran Katakana -->
-    <section class="content study-page" data-kana-type="KATAKANA">
+    <!-- Bagian Pembelajaran Hiragana -->
+    <section class="content study-page" data-kana-type="HIRAGANA">
         
         <!-- Tombol Kembali -->
         <a href="../index.html" class="back-btn">
             <span class="back-icon">←</span> Dashboard
         </a>
 
-        <p class="eyebrow">【 カタカナ · Katakana Lab 】</p>
-        <h2 class="page-title">Database Katakana</h2>
-        <p class="study-intro">Klik kartu untuk menandai huruf yang sudah kamu kenal. Klik dua kali untuk mendengar pelafalannya.</p>
+        <p class="eyebrow">【 ひらがな · Hiragana Lab 】</p>
+        <h2 class="page-title">Database Hiragana</h2>
+        <p class="study-intro">Klik kartu untuk mendengar pelafalan audio asli dan menandai huruf yang sudah kamu hafal. Gunakan tombol sembunyikan romaji untuk menguji ingatanmu.</p>
         
+        <!-- Tab Kategori Kana -->
+        <div class="kana-type-tabs">
+            <button type="button" class="kana-tab-btn active" id="tabSeion">Seion (46 Dasar)</button>
+            <button type="button" class="kana-tab-btn" id="tabDakuon">Dakuon (が・ざ・だ・ば・ぱ)</button>
+            <button type="button" class="kana-tab-btn" id="tabYoon">Yoon (きゃ・しゃ・ちゃ)</button>
+        </div>
+
         <div class="study-tools">
-            <input id="kanaSearch" type="search" placeholder="Cari kana atau romaji..." aria-label="Cari kana atau romaji">
-            <button id="resetProgress" type="button">Reset Progres</button>
+            <input id="kanaSearch" type="search" placeholder="Cari kana atau romaji (ex: ka, shi)..." aria-label="Cari kana atau romaji">
+            <button id="toggleRomajiBtn" class="study-tool-btn" type="button">👁️ Sembunyikan Romaji</button>
+            <button id="resetProgress" class="study-tool-btn btn-reset" type="button">Reset Progres</button>
         </div>
         
         <div class="progress-wrap">
             <div class="progress-meta">
-                <span>PROGRES PENGUASAAN</span>
+                <span>PROGRES PENGUASAAN HIRAGANA</span>
                 <strong id="progressText">0 / 46</strong>
             </div>
             <div class="progress-bar">
@@ -36,7 +44,8 @@
             </div>
         </div>
         
-        <div class="kana-grid">
+        <!-- GRID KANA: SEION (DASAR 46) -->
+        <div class="kana-grid" id="gridSeion">
             <div class="kana-box"><span>あ</span><p>a</p></div><div class="kana-box"><span>い</span><p>i</p></div><div class="kana-box"><span>う</span><p>u</p></div><div class="kana-box"><span>え</span><p>e</p></div><div class="kana-box"><span>お</span><p>o</p></div>
             <div class="kana-box"><span>か</span><p>ka</p></div><div class="kana-box"><span>き</span><p>ki</p></div><div class="kana-box"><span>く</span><p>ku</p></div><div class="kana-box"><span>け</span><p>ke</p></div><div class="kana-box"><span>こ</span><p>ko</p></div>
             <div class="kana-box"><span>さ</span><p>sa</p></div><div class="kana-box"><span>し</span><p>shi</p></div><div class="kana-box"><span>す</span><p>su</p></div><div class="kana-box"><span>せ</span><p>se</p></div><div class="kana-box"><span>そ</span><p>so</p></div>
@@ -49,7 +58,78 @@
             <div class="kana-box"><span>わ</span><p>wa</p></div><div class="kana-box" style="visibility: hidden;"></div><div class="kana-box" style="visibility: hidden;"></div><div class="kana-box" style="visibility: hidden;"></div><div class="kana-box"><span>を</span><p>wo</p></div>
             <div class="kana-box"><span>ん</span><p>n</p></div>
         </div>
+
+        <!-- GRID KANA: DAKUON (25 HURUF) -->
+        <div class="kana-grid" id="gridDakuon" style="display: none;">
+            <div class="kana-box"><span>が</span><p>ga</p></div><div class="kana-box"><span>ぎ</span><p>gi</p></div><div class="kana-box"><span>ぐ</span><p>gu</p></div><div class="kana-box"><span>げ</span><p>ge</p></div><div class="kana-box"><span>ご</span><p>go</p></div>
+            <div class="kana-box"><span>ざ</span><p>za</p></div><div class="kana-box"><span>じ</span><p>ji</p></div><div class="kana-box"><span>ず</span><p>zu</p></div><div class="kana-box"><span>ぜ</span><p>ze</p></div><div class="kana-box"><span>ぞ</span><p>zo</p></div>
+            <div class="kana-box"><span>だ</span><p>da</p></div><div class="kana-box"><span>ぢ</span><p>ji</p></div><div class="kana-box"><span>づ</span><p>zu</p></div><div class="kana-box"><span>で</span><p>de</p></div><div class="kana-box"><span>ど</span><p>do</p></div>
+            <div class="kana-box"><span>ば</span><p>ba</p></div><div class="kana-box"><span>び</span><p>bi</p></div><div class="kana-box"><span>ぶ</span><p>bu</p></div><div class="kana-box"><span>べ</span><p>be</p></div><div class="kana-box"><span>ぼ</span><p>bo</p></div>
+            <div class="kana-box"><span>ぱ</span><p>pa</p></div><div class="kana-box"><span>ぴ</span><p>pi</p></div><div class="kana-box"><span>ぷ</span><p>pu</p></div><div class="kana-box"><span>ぺ</span><p>pe</p></div><div class="kana-box"><span>ぽ</span><p>po</p></div>
+        </div>
+
+        <!-- GRID KANA: YOON (KOMBINASI) -->
+        <div class="kana-grid" id="gridYoon" style="display: none; grid-template-columns: repeat(3, minmax(0, 1fr));">
+            <div class="kana-box"><span>きゃ</span><p>kya</p></div><div class="kana-box"><span>きゅ</span><p>kyu</p></div><div class="kana-box"><span>きょ</span><p>kyo</p></div>
+            <div class="kana-box"><span>しゃ</span><p>sha</p></div><div class="kana-box"><span>しゅ</span><p>shu</p></div><div class="kana-box"><span>しょ</span><p>sho</p></div>
+            <div class="kana-box"><span>ちゃ</span><p>cha</p></div><div class="kana-box"><span>ちゅ</span><p>chu</p></div><div class="kana-box"><span>ちょ</span><p>cho</p></div>
+            <div class="kana-box"><span>にゃ</span><p>nya</p></div><div class="kana-box"><span>にゅ</span><p>nyu</p></div><div class="kana-box"><span>にょ</span><p>nyo</p></div>
+            <div class="kana-box"><span>ひゃ</span><p>hya</p></div><div class="kana-box"><span>ひゅ</span><p>hyu</p></div><div class="kana-box"><span>ひょ</span><p>hyo</p></div>
+            <div class="kana-box"><span>みゃ</span><p>mya</p></div><div class="kana-box"><span>みゅ</span><p>myu</p></div><div class="kana-box"><span>みょ</span><p>myo</p></div>
+            <div class="kana-box"><span>りゃ</span><p>rya</p></div><div class="kana-box"><span>りゅ</span><p>ryu</p></div><div class="kana-box"><span>りょ</span><p>ryo</p></div>
+            <div class="kana-box"><span>ぎゃ</span><p>gya</p></div><div class="kana-box"><span>ぎゅ</span><p>gyu</p></div><div class="kana-box"><span>ぎょ</span><p>gyo</p></div>
+            <div class="kana-box"><span>じゃ</span><p>ja</p></div><div class="kana-box"><span>じゅ</span><p>ju</p></div><div class="kana-box"><span>じょ</span><p>jo</p></div>
+            <div class="kana-box"><span>びゃ</span><p>bya</p></div><div class="kana-box"><span>びゅ</span><p>byu</p></div><div class="kana-box"><span>びょ</span><p>byo</p></div>
+            <div class="kana-box"><span>ぴゃ</span><p>pya</p></div><div class="kana-box"><span>ぴゅ</span><p>pyu</p></div><div class="kana-box"><span>ぴょ</span><p>pyo</p></div>
+        </div>
+
     </section>
+
     <script src="../script.js"></script>
+    <script>
+        // Tab switching & Romaji Toggle logic
+        const tabSeion = document.getElementById("tabSeion");
+        const tabDakuon = document.getElementById("tabDakuon");
+        const tabYoon = document.getElementById("tabYoon");
+        const gridSeion = document.getElementById("gridSeion");
+        const gridDakuon = document.getElementById("gridDakuon");
+        const gridYoon = document.getElementById("gridYoon");
+        const toggleRomajiBtn = document.getElementById("toggleRomajiBtn");
+        const studyPage = document.querySelector(".study-page");
+
+        tabSeion?.addEventListener("click", () => {
+            tabSeion.classList.add("active");
+            tabDakuon?.classList.remove("active");
+            tabYoon?.classList.remove("active");
+            gridSeion.style.display = "grid";
+            gridDakuon.style.display = "none";
+            gridYoon.style.display = "none";
+        });
+
+        tabDakuon?.addEventListener("click", () => {
+            tabDakuon.classList.add("active");
+            tabSeion?.classList.remove("active");
+            tabYoon?.classList.remove("active");
+            gridDakuon.style.display = "grid";
+            gridSeion.style.display = "none";
+            gridYoon.style.display = "none";
+        });
+
+        tabYoon?.addEventListener("click", () => {
+            tabYoon.classList.add("active");
+            tabSeion?.classList.remove("active");
+            tabDakuon?.classList.remove("active");
+            gridYoon.style.display = "grid";
+            gridSeion.style.display = "none";
+            gridDakuon.style.display = "none";
+        });
+
+        let romajiHidden = false;
+        toggleRomajiBtn?.addEventListener("click", () => {
+            romajiHidden = !romajiHidden;
+            studyPage.classList.toggle("hide-romaji", romajiHidden);
+            toggleRomajiBtn.textContent = romajiHidden ? "👁️ Tampilkan Romaji" : "👁️ Sembunyikan Romaji";
+        });
+    </script>
 </body>
 </html>

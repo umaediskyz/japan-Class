@@ -3,56 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Trinity | Hiburan</title>
+    <title>Nihongo Trinity | Hiburan (娯楽)</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/hiburan.css">
 </head>
 <body class="main-page">
     
-    <section class="content page-content hiburan-page">
+    <section class="content page-content hiburan-page" style="max-width: 1080px; margin: 0 auto; padding: 40px 20px 120px; text-align: center;">
         <!-- Tombol Kembali -->
         <a href="../index.html" class="back-btn">
             <span class="back-icon">←</span> Dashboard
         </a>
 
-        <p class="eyebrow">【 娯楽 · Japanese Culture 】</p>
-        <h1 class="page-title">Ruang Hiburan</h1>
-        <p class="subtitle">Lepaskan lelah sejenak. Nikmati pilihan game seru, deretan film & anime terbaik, serta alunan musik Jepang pilihan kami.</p>
+        <p class="eyebrow">【 娯楽 · Japanese Culture & Lounge 】</p>
+        <h1 class="page-title" style="color: #fff; font-size: clamp(2rem, 4vw, 3rem); margin: 12px 0 8px; font-weight: 700; font-family: 'Noto Serif JP', serif;">Ruang Hiburan & Relaksasi</h1>
+        <p class="subtitle">Istirahatkan pikiran sejenak setelah menghafal kana. Jelajahi mini-game tradisi Jepang, kurasi film mahakarya sinema, dan alunan musik santai khas Negeri Sakura.</p>
+
+        <!-- KULTUR & TRIVIA JEPANG SINGKAT -->
+        <div style="max-width: 720px; margin: 0 auto 35px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); padding: 14px 22px; border-radius: 12px; display: flex; align-items: center; gap: 14px; text-align: left;">
+            <span style="font-size: 26px;">🍵</span>
+            <div>
+                <strong style="color: var(--japan-gold); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block;">Budaya & Trivia: "Komorebi" (木漏れ日)</strong>
+                <p style="margin: 3px 0 0; font-size: 13px; color: var(--text-secondary); line-height: 1.5;">Istilah puitis bahasa Jepang untuk cahaya sinar matahari yang menembus sela-sela dedaunan pohon yang bergoyang tertiup angin.</p>
+            </div>
+        </div>
 
         <!-- Grid Hiburan -->
         <div class="entertainment-grid">
             
-           <!-- Kartu 1: Games Jejepangan -->
+           <!-- Kartu 1: Mini Games -->
             <div class="ent-card">
                 <div class="ent-icon">🎮</div>
-                <h3>Game Corner</h3>
-                <p>Uji ketangkasanmu lewat berbagai mini-game seru dan asah otak bernuansa jejepangan di sela waktu belajarmu.</p>
-                <!-- Mengarah ke folder game -->
-                <a href="game/game.html" class="btn btn-primary">Mainkan Sekarang</a>
+                <h3>Game Corner (ゲーム)</h3>
+                <p>Uji ketangkasanmu lewat 5 mini-game kasual: Jankenpon, ramalan kuil Omikuji, tebak angka Kazuate, dan Kana Memory Match.</p>
+                <a href="game/game.html" class="btn btn-primary">Mainkan Sekarang →</a>
             </div>
 
             <!-- Kartu 2: Film & Anime -->
             <div class="ent-card">
                 <div class="ent-icon">🎬</div>
-                <h3>Movie & Anime</h3>
-                <p>Rekomendasi film Jepang, dorama, dan serial anime terbaik untuk menemani akhir pekanmu.</p>
-                <!-- Mengarah ke folder movie -->
-                <a href="movie/movie.html" class="btn btn-secondary">Eksplorasi Film</a>
+                <h3>Movie & Anime (映画)</h3>
+                <p>Kurasi mahakarya film Jepang dan anime terbaik. Dari cyberpunk legendaris Neo-Tokyo Akira hingga Suzume no Tojimari.</p>
+                <a href="movie/movie.html" class="btn btn-secondary">Eksplorasi Film →</a>
             </div>
 
             <!-- Kartu 3: Japanese Music -->
             <div class="ent-card highlight-card">
                 <div class="ent-icon">🎧</div>
-                <h3>J-Pop & Music Tracks</h3>
-                <p>Dengarkan lagu-lagu Jepang yang sedang tren. Cocok buat nemenin kamu coding atau rebahan santai.</p>
-                <!-- Mengarah ke folder musik -->
-                <a href="musik/musik.html" class="btn btn-outline">Putar Playlist</a>
+                <h3>J-Pop & Lofi Beats (音楽)</h3>
+                <p>Dengarkan melodi santai City Pop 80s, anime rock opening, dan ambient beats untuk menemani waktu fokus belajar kanamu.</p>
+                <a href="musik/musik.html" class="btn btn-gold">Putar Playlist →</a>
             </div>
 
         </div>
     </section>
 
-    <!-- Navigasi Bawah -->
+    <!-- Navigasi Bawah Modern -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
         <a class="main-bottom-item" href="../index.html"><span class="main-bottom-icon">⌂</span><span>Home</span></a>
         <a class="main-bottom-item is-active" href="hiburan.html"><span class="main-bottom-icon">✦</span><span>Hiburan</span></a>

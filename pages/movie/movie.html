@@ -3,83 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nihongo Trinity | Movie & Anime</title>
-    <!-- Memanggil CSS Global -->
+    <title>Nihongo Trinity | Movie & Anime (映画とアニメ)</title>
     <link rel="stylesheet" href="../../style.css">
-    <!-- Memanggil CSS Khusus Movie -->
     <link rel="stylesheet" href="../../css/movie/movie.css">
 </head>
 <body class="main-page">
     
-    <section class="content movie-page">
+    <section class="content movie-page" style="max-width: 1080px; margin: 0 auto; padding: 40px 20px 120px; text-align: center;">
         <!-- Tombol Kembali -->
         <a href="../hiburan.html" class="back-btn">
             <span class="back-icon">←</span> Kembali ke Hiburan
         </a>
 
-        <p class="eyebrow">【 映画とアニメ · Cinema & Animation 】</p>
-        <h1 class="page-title">Movie & Anime</h1>
-        <p class="subtitle">Eksplorasi mahakarya sinema Jepang. Dari dunia cyberpunk futuristik hingga drama emosional yang menyentuh hati.</p>
+        <p class="eyebrow">【 映画とアニメ · Cinema & Masterpieces 】</p>
+        <h1 class="page-title" style="color: #fff; font-size: clamp(2rem, 4vw, 3rem); margin: 12px 0 8px; font-weight: 700; font-family: 'Noto Serif JP', serif;">Movie & Anime Showcase</h1>
+        <p class="subtitle">Eksplorasi mahakarya sinema Negeri Sakura. Rasakan keajaiban visual dan latih pendengaran bahasa Jepangmu melalui film-film legendaris.</p>
 
         <!-- GRID MOVIE -->
-        <div class="movie-grid">
+        <div class="movie-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top: 25px;">
             
-            <!-- Film 1: Akira (Cyberpunk) -->
-            <div class="movie-card">
-                <div class="movie-poster">
-                    <img src="https://via.placeholder.com/400x600/111b21/D32F2F?text=AKIRA" alt="Akira Poster">
-                    <span class="movie-badge">Cyberpunk / Sci-Fi</span>
+            <!-- Film 1: Akira -->
+            <div class="movie-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; text-align: left; transition: all 0.3s ease;">
+                <div class="movie-poster" style="position: relative; aspect-ratio: 16/9; background: #080b11; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80" alt="Akira Poster" style="width: 100%; height: 100%; object-fit: cover;">
+                    <span class="movie-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(230, 57, 70, 0.9); color: #fff; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 4px;">CYBERPUNK SCI-FI</span>
                 </div>
-                <div class="movie-info">
-                    <h3>Akira (1988)</h3>
-                    <p>Bapak dari segala anime cyberpunk. Menampilkan estetika kota Neo-Tokyo yang futuristik dengan neon dystopia yang memukau.</p>
-                    <button class="btn btn-primary" onclick="alert('Membuka Trailer Akira...')">▶ Tonton Trailer</button>
+                <div class="movie-info" style="padding: 20px;">
+                    <h3 style="color: #fff; font-size: 1.25rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Akira (1988)</h3>
+                    <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 16px;">Mahakarya cyberpunk legendaris berlatar Neo-Tokyo tahun 2019 yang pasca-kehancuran nuklir. Menginspirasi genre sci-fi modern sedunia.</p>
+                    <button class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 11px;" onclick="openTrailer('https://www.youtube.com/embed/nA8KmHC2P-g')">▶ Putar Trailer</button>
                 </div>
             </div>
 
             <!-- Film 2: Kimi no Na wa -->
-            <div class="movie-card">
-                <div class="movie-poster">
-                    <img src="https://via.placeholder.com/400x600/111b21/1E88E5?text=YOUR+NAME" alt="Your Name Poster">
-                    <span class="movie-badge">Romance / Fantasy</span>
+            <div class="movie-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; text-align: left; transition: all 0.3s ease;">
+                <div class="movie-poster" style="position: relative; aspect-ratio: 16/9; background: #080b11; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80" alt="Your Name Poster" style="width: 100%; height: 100%; object-fit: cover;">
+                    <span class="movie-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(30, 136, 229, 0.9); color: #fff; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 4px;">ROMANCE FANTASY</span>
                 </div>
-                <div class="movie-info">
-                    <h3>Kimi no Na wa (2016)</h3>
-                    <p>Kisah dua remaja yang saling bertukar tubuh melintasi ruang dan waktu. Visual animasinya sangat memanjakan mata.</p>
-                    <button class="btn btn-primary" onclick="alert('Membuka Trailer Kimi no Na wa...')">▶ Tonton Trailer</button>
-                </div>
-            </div>
-
-            <!-- Film 3: Alice in Borderland -->
-            <div class="movie-card">
-                <div class="movie-poster">
-                    <img src="https://via.placeholder.com/400x600/111b21/D4AF37?text=BORDERLAND" alt="Alice in Borderland Poster">
-                    <span class="movie-badge">Thriller / Survival</span>
-                </div>
-                <div class="movie-info">
-                    <h3>Alice in Borderland</h3>
-                    <p>Live-action survival di mana para pemuda harus menyelesaikan permainan mematikan di kota Tokyo yang mendadak kosong.</p>
-                    <button class="btn btn-primary" onclick="alert('Membuka Trailer Alice in Borderland...')">▶ Tonton Trailer</button>
+                <div class="movie-info" style="padding: 20px;">
+                    <h3 style="color: #fff; font-size: 1.25rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Kimi no Na wa (2016)</h3>
+                    <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 16px;">Kisah emosional Taki dan Mitsuha yang saling bertukar tubuh melintasi jalinan ruang dan waktu di bawah naungan komet Tiamat.</p>
+                    <button class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 11px;" onclick="openTrailer('https://www.youtube.com/embed/s0wTdCQoc2k')">▶ Putar Trailer</button>
                 </div>
             </div>
 
-            <!-- Film 4: Suzume -->
-            <div class="movie-card">
-                <div class="movie-poster">
-                    <img src="https://via.placeholder.com/400x600/111b21/8e44ad?text=SUZUME" alt="Suzume Poster">
-                    <span class="movie-badge">Adventure / Mystery</span>
+            <!-- Film 3: Suzume no Tojimari -->
+            <div class="movie-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; text-align: left; transition: all 0.3s ease;">
+                <div class="movie-poster" style="position: relative; aspect-ratio: 16/9; background: #080b11; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80" alt="Suzume Poster" style="width: 100%; height: 100%; object-fit: cover;">
+                    <span class="movie-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(142, 68, 173, 0.9); color: #fff; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 4px;">MYSTERY ADVENTURE</span>
                 </div>
-                <div class="movie-info">
-                    <h3>Suzume no Tojimari</h3>
-                    <p>Perjalanan seorang gadis melintasi Jepang untuk menutup pintu-pintu misterius pembawa bencana.</p>
-                    <button class="btn btn-primary" onclick="alert('Membuka Trailer Suzume...')">▶ Tonton Trailer</button>
+                <div class="movie-info" style="padding: 20px;">
+                    <h3 style="color: #fff; font-size: 1.25rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Suzume no Tojimari (2022)</h3>
+                    <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 16px;">Petualangan seorang gadis melintasi pulau-pulau Jepang untuk mengunci pintu-pintu portal kuno pembawa gempa bumi misterius.</p>
+                    <button class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 11px;" onclick="openTrailer('https://www.youtube.com/embed/6c4G5cWBv_I')">▶ Putar Trailer</button>
+                </div>
+            </div>
+
+            <!-- Film 4: Alice in Borderland -->
+            <div class="movie-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; text-align: left; transition: all 0.3s ease;">
+                <div class="movie-poster" style="position: relative; aspect-ratio: 16/9; background: #080b11; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1514565131-fce0801e5785?w=600&auto=format&fit=crop&q=80" alt="Borderland Poster" style="width: 100%; height: 100%; object-fit: cover;">
+                    <span class="movie-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(212, 175, 55, 0.9); color: #080b11; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 4px;">SURVIVAL THRILLER</span>
+                </div>
+                <div class="movie-info" style="padding: 20px;">
+                    <h3 style="color: #fff; font-size: 1.25rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Alice in Borderland (今際の国)</h3>
+                    <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 16px;">Serial live-action Jepang di mana kota Tokyo mendadak sepi dan para pemuda terjebak dalam permainan kartu maut untuk bertahan hidup.</p>
+                    <button class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 11px;" onclick="openTrailer('https://www.youtube.com/embed/49_44FFh1SU')">▶ Putar Trailer</button>
                 </div>
             </div>
 
         </div>
     </section>
 
-    <!-- Navigasi Bawah -->
+    <!-- MODAL TRAILER LIGHTBOX -->
+    <div id="trailerModal" class="global-login-overlay" style="display: none; z-index: 10005;">
+        <div style="position: relative; width: min(92%, 800px); aspect-ratio: 16/9; background: #000; border: 1px solid var(--japan-red); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.9);">
+            <span onclick="closeTrailer()" style="position: absolute; top: 10px; right: 15px; color: #fff; font-size: 28px; cursor: pointer; z-index: 10; line-height: 1;">×</span>
+            <iframe id="trailerFrame" src="" style="width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- Navigasi Bawah Modern -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
         <a class="main-bottom-item" href="../../index.html"><span class="main-bottom-icon">⌂</span><span>Home</span></a>
         <a class="main-bottom-item is-active" href="../hiburan.html"><span class="main-bottom-icon">✦</span><span>Hiburan</span></a>
@@ -96,5 +102,19 @@
 
     <script type="module" src="../../admin.js"></script>
     <script src="../../script.js"></script>
+    <script>
+        function openTrailer(embedUrl) {
+            const modal = document.getElementById('trailerModal');
+            const frame = document.getElementById('trailerFrame');
+            frame.src = embedUrl;
+            modal.style.display = 'flex';
+        }
+        function closeTrailer() {
+            const modal = document.getElementById('trailerModal');
+            const frame = document.getElementById('trailerFrame');
+            frame.src = '';
+            modal.style.display = 'none';
+        }
+    </script>
 </body>
 </html>
