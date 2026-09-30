@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,20 +8,22 @@
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/belajar-katakana.css">
 </head>
+
 <body class="main-page">
-    
+
     <!-- Bagian Pembelajaran Katakana -->
     <section class="content study-page" data-kana-type="KATAKANA">
-        
+
         <!-- Tombol Kembali -->
         <a href="../index.html" class="back-btn">
-            <span class="back-icon">←</span> Dashboard
+            <span cla ss="back-icon">←</span> Dashboard
         </a>
 
         <p class="eyebrow">【 カタカナ · Katakana Lab 】</p>
         <h2 class="page-title">Database Katakana</h2>
-        <p class="study-intro">Klik kartu untuk mendengar pelafalan audio asli dan menandai huruf Katakana yang sudah kamu kenal. Gunakan tombol sembunyikan romaji untuk latihan membaca mandiri.</p>
-        
+        <p class="study-intro">Klik kartu untuk mendengar pelafalan audio asli dan menandai huruf Katakana yang sudah
+            kamu kenal. Gunakan tombol sembunyikan romaji untuk latihan membaca mandiri.</p>
+
         <!-- Tab Kategori Kana -->
         <div class="kana-type-tabs">
             <button type="button" class="kana-tab-btn active" id="tabSeion">Seion (46 Dasar)</button>
@@ -29,11 +32,12 @@
         </div>
 
         <div class="study-tools">
-            <input id="kanaSearch" type="search" placeholder="Cari kana atau romaji (ex: ka, shi)..." aria-label="Cari kana atau romaji">
+            <input id="kanaSearch" type="search" placeholder="Cari kana atau romaji (ex: ka, shi)..."
+                aria-label="Cari kana atau romaji">
             <button id="toggleRomajiBtn" class="study-tool-btn" type="button">👁️ Sembunyikan Romaji</button>
             <button id="resetProgress" class="study-tool-btn btn-reset" type="button">Reset Progres</button>
         </div>
-        
+
         <div class="progress-wrap">
             <div class="progress-meta">
                 <span>PROGRES PENGUASAAN KATAKANA</span>
@@ -43,44 +47,334 @@
                 <span id="progressBar" style="width: 0%"></span>
             </div>
         </div>
-        
+
         <!-- GRID KANA: SEION (DASAR 46) -->
         <div class="kana-grid" id="gridSeion">
-            <div class="kana-box"><span>ア</span><p>a</p></div><div class="kana-box"><span>イ</span><p>i</p></div><div class="kana-box"><span>ウ</span><p>u</p></div><div class="kana-box"><span>エ</span><p>e</p></div><div class="kana-box"><span>オ</span><p>o</p></div>
-            <div class="kana-box"><span>カ</span><p>ka</p></div><div class="kana-box"><span>キ</span><p>ki</p></div><div class="kana-box"><span>ク</span><p>ku</p></div><div class="kana-box"><span>ケ</span><p>ke</p></div><div class="kana-box"><span>コ</span><p>ko</p></div>
-            <div class="kana-box"><span>サ</span><p>sa</p></div><div class="kana-box"><span>シ</span><p>shi</p></div><div class="kana-box"><span>ス</span><p>su</p></div><div class="kana-box"><span>セ</span><p>se</p></div><div class="kana-box"><span>ソ</span><p>so</p></div>
-            <div class="kana-box"><span>タ</span><p>ta</p></div><div class="kana-box"><span>チ</span><p>chi</p></div><div class="kana-box"><span>ツ</span><p>tsu</p></div><div class="kana-box"><span>テ</span><p>te</p></div><div class="kana-box"><span>ト</span><p>to</p></div>
-            <div class="kana-box"><span>ナ</span><p>na</p></div><div class="kana-box"><span>ニ</span><p>ni</p></div><div class="kana-box"><span>ヌ</span><p>nu</p></div><div class="kana-box"><span>ネ</span><p>ne</p></div><div class="kana-box"><span>ノ</span><p>no</p></div>
-            <div class="kana-box"><span>ハ</span><p>ha</p></div><div class="kana-box"><span>ヒ</span><p>hi</p></div><div class="kana-box"><span>フ</span><p>fu</p></div><div class="kana-box"><span>ヘ</span><p>he</p></div><div class="kana-box"><span>ホ</span><p>ho</p></div>
-            <div class="kana-box"><span>マ</span><p>ma</p></div><div class="kana-box"><span>ミ</span><p>mi</p></div><div class="kana-box"><span>ム</span><p>mu</p></div><div class="kana-box"><span>メ</span><p>me</p></div><div class="kana-box"><span>モ</span><p>mo</p></div>
-            <div class="kana-box"><span>ヤ</span><p>ya</p></div><div class="kana-box" style="visibility: hidden;"></div><div class="kana-box"><span>ユ</span><p>yu</p></div><div class="kana-box" style="visibility: hidden;"></div><div class="kana-box"><span>ヨ</span><p>yo</p></div>
-            <div class="kana-box"><span>ラ</span><p>ra</p></div><div class="kana-box"><span>リ</span><p>ri</p></div><div class="kana-box"><span>ル</span><p>ru</p></div><div class="kana-box"><span>レ</span><p>re</p></div><div class="kana-box"><span>ロ</span><p>ro</p></div>
-            <div class="kana-box"><span>ワ</span><p>wa</p></div><div class="kana-box" style="visibility: hidden;"></div><div class="kana-box" style="visibility: hidden;"></div><div class="kana-box" style="visibility: hidden;"></div><div class="kana-box"><span>ヲ</span><p>wo</p></div>
-            <div class="kana-box"><span>ン</span><p>n</p></div>
+            <div class="kana-box"><span>ア</span>
+                <p>a</p>
+            </div>
+            <div class="kana-box"><span>イ</span>
+                <p>i</p>
+            </div>
+            <div class="kana-box"><span>ウ</span>
+                <p>u</p>
+            </div>
+            <div class="kana-box"><span>エ</span>
+                <p>e</p>
+            </div>
+            <div class="kana-box"><span>オ</span>
+                <p>o</p>
+            </div>
+            <div class="kana-box"><span>カ</span>
+                <p>ka</p>
+            </div>
+            <div class="kana-box"><span>キ</span>
+                <p>ki</p>
+            </div>
+            <div class="kana-box"><span>ク</span>
+                <p>ku</p>
+            </div>
+            <div class="kana-box"><span>ケ</span>
+                <p>ke</p>
+            </div>
+            <div class="kana-box"><span>コ</span>
+                <p>ko</p>
+            </div>
+            <div class="kana-box"><span>サ</span>
+                <p>sa</p>
+            </div>
+            <div class="kana-box"><span>シ</span>
+                <p>shi</p>
+            </div>
+            <div class="kana-box"><span>ス</span>
+                <p>su</p>
+            </div>
+            <div class="kana-box"><span>セ</span>
+                <p>se</p>
+            </div>
+            <div class="kana-box"><span>ソ</span>
+                <p>so</p>
+            </div>
+            <div class="kana-box"><span>タ</span>
+                <p>ta</p>
+            </div>
+            <div class="kana-box"><span>チ</span>
+                <p>chi</p>
+            </div>
+            <div class="kana-box"><span>ツ</span>
+                <p>tsu</p>
+            </div>
+            <div class="kana-box"><span>テ</span>
+                <p>te</p>
+            </div>
+            <div class="kana-box"><span>ト</span>
+                <p>to</p>
+            </div>
+            <div class="kana-box"><span>ナ</span>
+                <p>na</p>
+            </div>
+            <div class="kana-box"><span>ニ</span>
+                <p>ni</p>
+            </div>
+            <div class="kana-box"><span>ヌ</span>
+                <p>nu</p>
+            </div>
+            <div class="kana-box"><span>ネ</span>
+                <p>ne</p>
+            </div>
+            <div class="kana-box"><span>ノ</span>
+                <p>no</p>
+            </div>
+            <div class="kana-box"><span>ハ</span>
+                <p>ha</p>
+            </div>
+            <div class="kana-box"><span>ヒ</span>
+                <p>hi</p>
+            </div>
+            <div class="kana-box"><span>フ</span>
+                <p>fu</p>
+            </div>
+            <div class="kana-box"><span>ヘ</span>
+                <p>he</p>
+            </div>
+            <div class="kana-box"><span>ホ</span>
+                <p>ho</p>
+            </div>
+            <div class="kana-box"><span>マ</span>
+                <p>ma</p>
+            </div>
+            <div class="kana-box"><span>ミ</span>
+                <p>mi</p>
+            </div>
+            <div class="kana-box"><span>ム</span>
+                <p>mu</p>
+            </div>
+            <div class="kana-box"><span>メ</span>
+                <p>me</p>
+            </div>
+            <div class="kana-box"><span>モ</span>
+                <p>mo</p>
+            </div>
+            <div class="kana-box"><span>ヤ</span>
+                <p>ya</p>
+            </div>
+            <div class="kana-box" style="visibility: hidden;"></div>
+            <div class="kana-box"><span>ユ</span>
+                <p>yu</p>
+            </div>
+            <div class="kana-box" style="visibility: hidden;"></div>
+            <div class="kana-box"><span>ヨ</span>
+                <p>yo</p>
+            </div>
+            <div class="kana-box"><span>ラ</span>
+                <p>ra</p>
+            </div>
+            <div class="kana-box"><span>リ</span>
+                <p>ri</p>
+            </div>
+            <div class="kana-box"><span>ル</span>
+                <p>ru</p>
+            </div>
+            <div class="kana-box"><span>レ</span>
+                <p>re</p>
+            </div>
+            <div class="kana-box"><span>ロ</span>
+                <p>ro</p>
+            </div>
+            <div class="kana-box"><span>ワ</span>
+                <p>wa</p>
+            </div>
+            <div class="kana-box" style="visibility: hidden;"></div>
+            <div class="kana-box" style="visibility: hidden;"></div>
+            <div class="kana-box" style="visibility: hidden;"></div>
+            <div class="kana-box"><span>ヲ</span>
+                <p>wo</p>
+            </div>
+            <div class="kana-box"><span>ン</span>
+                <p>n</p>
+            </div>
         </div>
 
         <!-- GRID KANA: DAKUON (25 HURUF) -->
         <div class="kana-grid" id="gridDakuon" style="display: none;">
-            <div class="kana-box"><span>ガ</span><p>ga</p></div><div class="kana-box"><span>ギ</span><p>gi</p></div><div class="kana-box"><span>グ</span><p>gu</p></div><div class="kana-box"><span>ゲ</span><p>ge</p></div><div class="kana-box"><span>ゴ</span><p>go</p></div>
-            <div class="kana-box"><span>ザ</span><p>za</p></div><div class="kana-box"><span>ジ</span><p>ji</p></div><div class="kana-box"><span>ズ</span><p>zu</p></div><div class="kana-box"><span>ゼ</span><p>ze</p></div><div class="kana-box"><span>ゾ</span><p>zo</p></div>
-            <div class="kana-box"><span>ダ</span><p>da</p></div><div class="kana-box"><span>ヂ</span><p>ji</p></div><div class="kana-box"><span>ヅ</span><p>zu</p></div><div class="kana-box"><span>デ</span><p>de</p></div><div class="kana-box"><span>ド</span><p>do</p></div>
-            <div class="kana-box"><span>バ</span><p>ba</p></div><div class="kana-box"><span>ビ</span><p>bi</p></div><div class="kana-box"><span>ブ</span><p>bu</p></div><div class="kana-box"><span>ベ</span><p>be</p></div><div class="kana-box"><span>ボ</span><p>bo</p></div>
-            <div class="kana-box"><span>パ</span><p>pa</p></div><div class="kana-box"><span>ピ</span><p>pi</p></div><div class="kana-box"><span>プ</span><p>pu</p></div><div class="kana-box"><span>ペ</span><p>pe</p></div><div class="kana-box"><span>ポ</span><p>po</p></div>
+            <div class="kana-box"><span>ガ</span>
+                <p>ga</p>
+            </div>
+            <div class="kana-box"><span>ギ</span>
+                <p>gi</p>
+            </div>
+            <div class="kana-box"><span>グ</span>
+                <p>gu</p>
+            </div>
+            <div class="kana-box"><span>ゲ</span>
+                <p>ge</p>
+            </div>
+            <div class="kana-box"><span>ゴ</span>
+                <p>go</p>
+            </div>
+            <div class="kana-box"><span>ザ</span>
+                <p>za</p>
+            </div>
+            <div class="kana-box"><span>ジ</span>
+                <p>ji</p>
+            </div>
+            <div class="kana-box"><span>ズ</span>
+                <p>zu</p>
+            </div>
+            <div class="kana-box"><span>ゼ</span>
+                <p>ze</p>
+            </div>
+            <div class="kana-box"><span>ゾ</span>
+                <p>zo</p>
+            </div>
+            <div class="kana-box"><span>ダ</span>
+                <p>da</p>
+            </div>
+            <div class="kana-box"><span>ヂ</span>
+                <p>ji</p>
+            </div>
+            <div class="kana-box"><span>ヅ</span>
+                <p>zu</p>
+            </div>
+            <div class="kana-box"><span>デ</span>
+                <p>de</p>
+            </div>
+            <div class="kana-box"><span>ド</span>
+                <p>do</p>
+            </div>
+            <div class="kana-box"><span>バ</span>
+                <p>ba</p>
+            </div>
+            <div class="kana-box"><span>ビ</span>
+                <p>bi</p>
+            </div>
+            <div class="kana-box"><span>ブ</span>
+                <p>bu</p>
+            </div>
+            <div class="kana-box"><span>ベ</span>
+                <p>be</p>
+            </div>
+            <div class="kana-box"><span>ボ</span>
+                <p>bo</p>
+            </div>
+            <div class="kana-box"><span>パ</span>
+                <p>pa</p>
+            </div>
+            <div class="kana-box"><span>ピ</span>
+                <p>pi</p>
+            </div>
+            <div class="kana-box"><span>プ</span>
+                <p>pu</p>
+            </div>
+            <div class="kana-box"><span>ペ</span>
+                <p>pe</p>
+            </div>
+            <div class="kana-box"><span>ポ</span>
+                <p>po</p>
+            </div>
         </div>
 
         <!-- GRID KANA: YOON (KOMBINASI) -->
         <div class="kana-grid" id="gridYoon" style="display: none; grid-template-columns: repeat(3, minmax(0, 1fr));">
-            <div class="kana-box"><span>キャ</span><p>kya</p></div><div class="kana-box"><span>キュ</span><p>kyu</p></div><div class="kana-box"><span>キョ</span><p>kyo</p></div>
-            <div class="kana-box"><span>シャ</span><p>sha</p></div><div class="kana-box"><span>シュ</span><p>shu</p></div><div class="kana-box"><span>ショ</span><p>sho</p></div>
-            <div class="kana-box"><span>チャ</span><p>cha</p></div><div class="kana-box"><span>チュ</span><p>chu</p></div><div class="kana-box"><span>チョ</span><p>cho</p></div>
-            <div class="kana-box"><span>ニャ</span><p>nya</p></div><div class="kana-box"><span>ニュ</span><p>nyu</p></div><div class="kana-box"><span>ニョ</span><p>nyo</p></div>
-            <div class="kana-box"><span>ヒャ</span><p>hya</p></div><div class="kana-box"><span>ヒュ</span><p>hyu</p></div><div class="kana-box"><span>ヒョ</span><p>hyo</p></div>
-            <div class="kana-box"><span>ミャ</span><p>mya</p></div><div class="kana-box"><span>ミュ</span><p>myu</p></div><div class="kana-box"><span>ミョ</span><p>myo</p></div>
-            <div class="kana-box"><span>リャ</span><p>rya</p></div><div class="kana-box"><span>リュ</span><p>ryu</p></div><div class="kana-box"><span>リョ</span><p>ryo</p></div>
-            <div class="kana-box"><span>ギャ</span><p>gya</p></div><div class="kana-box"><span>ギュ</span><p>gyu</p></div><div class="kana-box"><span>ギョ</span><p>gyo</p></div>
-            <div class="kana-box"><span>ジャ</span><p>ja</p></div><div class="kana-box"><span>ジュ</span><p>ju</p></div><div class="kana-box"><span>ジョ</span><p>jo</p></div>
-            <div class="kana-box"><span>ビャ</span><p>bya</p></div><div class="kana-box"><span>ビュ</span><p>byu</p></div><div class="kana-box"><span>ビョ</span><p>byo</p></div>
-            <div class="kana-box"><span>ピャ</span><p>pya</p></div><div class="kana-box"><span>ピュ</span><p>pyu</p></div><div class="kana-box"><span>ピョ</span><p>pyo</p></div>
+            <div class="kana-box"><span>キャ</span>
+                <p>kya</p>
+            </div>
+            <div class="kana-box"><span>キュ</span>
+                <p>kyu</p>
+            </div>
+            <div class="kana-box"><span>キョ</span>
+                <p>kyo</p>
+            </div>
+            <div class="kana-box"><span>シャ</span>
+                <p>sha</p>
+            </div>
+            <div class="kana-box"><span>シュ</span>
+                <p>shu</p>
+            </div>
+            <div class="kana-box"><span>ショ</span>
+                <p>sho</p>
+            </div>
+            <div class="kana-box"><span>チャ</span>
+                <p>cha</p>
+            </div>
+            <div class="kana-box"><span>チュ</span>
+                <p>chu</p>
+            </div>
+            <div class="kana-box"><span>チョ</span>
+                <p>cho</p>
+            </div>
+            <div class="kana-box"><span>ニャ</span>
+                <p>nya</p>
+            </div>
+            <div class="kana-box"><span>ニュ</span>
+                <p>nyu</p>
+            </div>
+            <div class="kana-box"><span>ニョ</span>
+                <p>nyo</p>
+            </div>
+            <div class="kana-box"><span>ヒャ</span>
+                <p>hya</p>
+            </div>
+            <div class="kana-box"><span>ヒュ</span>
+                <p>hyu</p>
+            </div>
+            <div class="kana-box"><span>ヒョ</span>
+                <p>hyo</p>
+            </div>
+            <div class="kana-box"><span>ミャ</span>
+                <p>mya</p>
+            </div>
+            <div class="kana-box"><span>ミュ</span>
+                <p>myu</p>
+            </div>
+            <div class="kana-box"><span>ミョ</span>
+                <p>myo</p>
+            </div>
+            <div class="kana-box"><span>リャ</span>
+                <p>rya</p>
+            </div>
+            <div class="kana-box"><span>リュ</span>
+                <p>ryu</p>
+            </div>
+            <div class="kana-box"><span>リョ</span>
+                <p>ryo</p>
+            </div>
+            <div class="kana-box"><span>ギャ</span>
+                <p>gya</p>
+            </div>
+            <div class="kana-box"><span>ギュ</span>
+                <p>gyu</p>
+            </div>
+            <div class="kana-box"><span>ギョ</span>
+                <p>gyo</p>
+            </div>
+            <div class="kana-box"><span>ジャ</span>
+                <p>ja</p>
+            </div>
+            <div class="kana-box"><span>ジュ</span>
+                <p>ju</p>
+            </div>
+            <div class="kana-box"><span>ジョ</span>
+                <p>jo</p>
+            </div>
+            <div class="kana-box"><span>ビャ</span>
+                <p>bya</p>
+            </div>
+            <div class="kana-box"><span>ビュ</span>
+                <p>byu</p>
+            </div>
+            <div class="kana-box"><span>ビョ</span>
+                <p>byo</p>
+            </div>
+            <div class="kana-box"><span>ピャ</span>
+                <p>pya</p>
+            </div>
+            <div class="kana-box"><span>ピュ</span>
+                <p>pyu</p>
+            </div>
+            <div class="kana-box"><span>ピョ</span>
+                <p>pyo</p>
+            </div>
         </div>
 
     </section>
@@ -131,4 +425,5 @@
         });
     </script>
 </body>
+
 </html>

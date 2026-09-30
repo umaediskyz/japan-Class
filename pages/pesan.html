@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <title>Ruang Obrolan | Trinity 日本語</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/pesan.css">
@@ -23,8 +23,12 @@
                 <div>
                     <p class="section-label">TRINITY COMMUNITY HUB</p>
                     <h1>Pesan & Obrolan</h1>
+                    <span id="chatUserStatusText" style="font-size: 11px; color: var(--japan-gold);"></span>
                 </div>
-                <a href="../index.html" class="chat-back" aria-label="Kembali ke dashboard" title="Kembali ke Home">×</a>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button type="button" id="switchUserBtn" class="header-action-btn" title="Ganti Nama / Login Member" aria-label="Ganti Akun" style="width: auto; height: 32px; border-radius: 16px; padding: 0 12px; font-size: 11px; color: #fff; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 5px; cursor: pointer;">👤 <span id="switchUserBtnLabel">Akun</span></button>
+                    <a href="../index.html" class="chat-back" aria-label="Kembali ke dashboard" title="Kembali ke Home">×</a>
+                </div>
             </header>
             
             <div class="chat-list-container">
@@ -64,15 +68,15 @@
                     </div>
                 </div>
 
-                <!-- RUANGAN 3: TRINITY CORE (Hanya Muncul / Khusus Tim Inti) -->
-                <div id="roomCardCore" class="room-card" style="display: none;" onclick="openRoom('core')">
+                <!-- RUANGAN 3: TRINITY CORE (Ruangan Chat Privat Tim & Founder) -->
+                <div id="roomCardCore" class="room-card" onclick="openRoom('core')">
                     <div class="room-avatar" style="background: linear-gradient(135deg, #D32F2F, #8e44ad);">
                         🛡️
                         <span class="status-indicator" style="background: #D4AF37;"></span>
                     </div>
                     <div class="room-info">
                         <div class="room-title-row">
-                            <h3>TRINITY CORE <span>(幹部専用)</span></h3>
+                            <h3 id="titleCore">TRINITY CORE <span>(Private Chat 🔒)</span></h3>
                             <span class="room-time" id="timeCore"></span>
                         </div>
                         <div class="room-desc-row">

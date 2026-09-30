@@ -19,6 +19,10 @@ const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
 const sessionKey = "nihongoChatUser";
 let currentUser = localStorage.getItem(sessionKey);
+if (!currentUser) {
+    currentUser = "Gakusei_" + Math.floor(1000 + Math.random() * 9000);
+    localStorage.setItem(sessionKey, currentUser);
+}
 
 const coreMembers = ["umaedi", "iqbal", "rifki", "fasya"];
 const isCore = currentUser && coreMembers.includes(currentUser.toLowerCase());
@@ -283,8 +287,25 @@ function listenRoomPreview(roomType) {
 // ==========================================
 window.openRoom = function(type) {
     if (type === "core" && !isCore) {
-        alert("🔒 AKSES TERBATAS: Ruang Trinity Core dikhususkan untuk founder & tim pengembang inti (Umaedi, Iqbal, Rifki, Fasya).");
-        return;
+        const pass = prompt(
+            "🔒 RUANG PRIVAT TRINITY CORE\n\n" +
+            "Ruangan ini diproteksi khusus founder & tim pengembang inti.\n" +
+            "Masukkan Kode Akses Inti / Password (contoh: UMAEDI2026, IQBAL2026, RIFKI2026, FASYA2026) untuk membuka:"
+        );
+        if (!pass) return;
+        const accountCodes = { "Umaedi": "UMAEDI2026", "Iqbal": "IQBAL2026", "Rifki": "RIFKI2026", "Fasya": "FASYA2026" };
+        const cleanPass = pass.trim().toUpperCase();
+        const found = Object.keys(accountCodes).find(k => accountCodes[k] === cleanPass || k.toUpperCase() === cleanPass);
+        if (found) {
+            localStorage.setItem(sessionKey, found);
+            currentUser = found;
+            alert(`✨ Akses Diterima! Selamat datang di Ruang Privat, ${found}.`);
+            window.location.reload();
+            return;
+        } else {
+            alert("❌ Kode akses atau kata sandi ruang privat salah.");
+            return;
+        }
     }
 
     currentRoom = type;
@@ -406,12 +427,16 @@ if (backToListBtn) {
 
 // Buka Core Card jika core
 const cardCore = document.getElementById("roomCardCore");
-if (isCore && cardCore) {
+if (cardCore) {
     cardCore.style.display = "flex";
-} else if (cardCore) {
-    cardCore.style.display = "flex";
-    cardCore.style.opacity = "0.7";
-    cardCore.querySelector("h3").innerHTML = `TRINITY CORE <span style="color:#ff3b30;">(🔒 Terkunci)</span>`;
+    const coreSpan = cardCore.querySelector("h3 span");
+    if (isCore) {
+        if (coreSpan) coreSpan.innerHTML = `(Private Chat ⭐)`;
+        cardCore.style.opacity = "1";
+    } else {
+        if (coreSpan) coreSpan.innerHTML = `(Private 🔒)`;
+        cardCore.style.opacity = "0.85";
+    }
 }
 
 listenRoomPreview("public");
@@ -477,6 +502,9 @@ if (quickPhraseBar) {
                 chatInput.focus();
             }
         });
+    });
+}
+
 // Emoji quick picker
 const chatEmojiBtn = document.getElementById("chatEmojiBtn");
 if (chatEmojiBtn && chatInput) {
@@ -958,6 +986,12 @@ if(chatInput) {
     chatInput.addEventListener("keypress", (e) => { 
         if (e.key === "Enter") sendMessage(); 
     });
+
+    chatInput.addEventListener("focus", () => {
+        setTimeout(() => {
+            if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+        }, 300);
+    });
 }
 
 if(sendBtn) {
@@ -1005,4 +1039,54 @@ window.addEventListener('profilesUpdated', () => {
         pendingMessages.forEach(item => renderMessage(item.data, item.key)); 
     }
     if (currentRoom !== "sensei") renderOnlineUsers(); 
+    updateHeaderUserDisplay();
 });
+
+// Update status user & switcher
+function updateHeaderUserDisplay() {
+    const statusEl = document.getElementById("chatUserStatusText");
+    const labelEl = document.getElementById("switchUserBtnLabel");
+    if (!currentUser) return;
+    
+    const profile = window.userProfiles ? (window.userProfiles[currentUser] || {}) : {};
+    const dName = profile.displayName || currentUser;
+    const isCoreUser = coreMembers.includes(currentUser.toLowerCase());
+    
+    if (statusEl) {
+        if (currentUser.toLowerCase() === "umaedi") {
+            statusEl.innerHTML = `Login: <strong style="color: #FF6584;">${dName} (👑 Founder)</strong>`;
+        } else if (isCoreUser) {
+            statusEl.innerHTML = `Login: <strong style="color: #D4AF37;">${dName} (⭐ Core)</strong>`;
+        } else {
+            statusEl.innerHTML = `Login: <strong style="color: #4CAF50;">${dName}</strong>`;
+        }
+    }
+    if (labelEl) {
+        labelEl.textContent = dName.length > 10 ? dName.slice(0, 8) + '..' : dName;
+    }
+}
+
+const switchUserBtn = document.getElementById("switchUserBtn");
+if (switchUserBtn) {
+    switchUserBtn.addEventListener("click", () => {
+        const action = prompt(
+            `👤 PENGATURAN IDENTITAS / LOGIN\n\nSaat ini Anda login sebagai: "${currentUser}"\n\n` +
+            `• Masukkan nama baru untuk mengganti nama tampilan\n` +
+            `• Atau masukkan kode akses Core (UMAEDI2026, IQBAL2026, RIFKI2026, FASYA2026) untuk login sebagai tim inti / founder:\n`
+        );
+        if (!action || !action.trim()) return;
+        const val = action.trim();
+        const accountCodes = { "Umaedi": "UMAEDI2026", "Iqbal": "IQBAL2026", "Rifki": "RIFKI2026", "Fasya": "FASYA2026" };
+        const found = Object.keys(accountCodes).find(k => accountCodes[k] === val.toUpperCase() || k.toLowerCase() === val.toLowerCase());
+        if (found) {
+            localStorage.setItem(sessionKey, found);
+            alert(`✨ Berhasil login sebagai ${found}!`);
+        } else {
+            localStorage.setItem(sessionKey, val);
+            alert(`✨ Nama berhasil diubah menjadi "${val}".`);
+        }
+        window.location.reload();
+    });
+}
+
+updateHeaderUserDisplay();
