@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nihongo Trinity | Kanji Dojo (漢字道場)</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../css/belajar.css">
+</head>
+<body class="main-page">
+    
+    <section class="content study-page">
+        <!-- Tombol Kembali -->
+        <a href="../index.html" class="back-btn">
+            <span class="back-icon">←</span> Dashboard
+        </a>
+
+        <div class="kanji-watermark-bg" style="top: 15px; right: 20px; font-size: 8rem; opacity: 0.04;">漢字</div>
+        <p class="eyebrow">【 漢字道場 · Kanji Mastery Dojo 】</p>
+        <h2 class="page-title">Kanji Dojo & Kamus Harian</h2>
+        <p class="study-intro">Pelajari karakter Kanji esensial (JLPT N5 - N3) beserta jumlah goresan (stroke count), bacaan Onyomi & Kunyomi, serta contoh kalimat nyata dengan audio pelafalan asli.</p>
+
+        <!-- KANJI OF THE DAY & EXPLORER -->
+        <div class="feature-section" id="dailyKanjiSection" style="margin-top: 15px; border-radius: 18px; padding: 24px; background: rgba(14, 19, 29, 0.7); border: 1px solid var(--border-subtle);">
+            <div class="section-header-row" style="margin-bottom: 20px;">
+                <div class="section-heading">
+                    <h3 style="font-size: 1.4rem; color: #fff; margin: 0;">Kanji Pilihan Hari Ini <span>( 本日の漢字 )</span></h3>
+                    <span style="font-size: 0.85rem; color: var(--muted);">Jelajahi kanji satu per satu secara teratur untuk memperkuat memori visual.</span>
+                </div>
+                <button type="button" id="nextKanjiBtn" class="btn btn-secondary" style="padding: 10px 18px; font-size: 12px;">
+                    🔄 Ganti Kanji Lain
+                </button>
+            </div>
+
+            <div class="kanji-today-container">
+                <!-- Sisi Visual Huruf -->
+                <div class="kanji-visual-card">
+                    <span class="kanji-level-badge" id="kanjiLevel">JLPT N5</span>
+                    <div class="kanji-big-char" id="kanjiChar" title="Klik untuk mendengar suara">日</div>
+                    <div class="kanji-readings">
+                        <div class="kanji-reading-item"><strong>Onyomi:</strong> <span id="kanjiOnyomi">ニチ, ジツ</span></div>
+                        <div class="kanji-reading-item"><strong>Kunyomi:</strong> <span id="kanjiKunyomi">ひ, -か</span></div>
+                    </div>
+                    <span style="font-size: 11px; color: var(--muted); margin-top: 10px;" id="kanjiStrokes">4 Goresan</span>
+                </div>
+
+                <!-- Sisi Penjelasan Detail -->
+                <div class="kanji-details-side">
+                    <div>
+                        <span class="kanji-meaning-badge">Arti Filosofis:</span>
+                        <h3 class="kanji-meaning-title" id="kanjiMeaning">Matahari / Hari</h3>
+                        <p class="kanji-desc-text" id="kanjiDesc">Kanji paling fundamental yang melambangkan matahari dan penanda waktu hari. Digunakan juga dalam nama negara Jepang (日本 - Nihon).</p>
+
+                        <div class="kanji-example-box">
+                            <div class="kanji-example-jp" id="kanjiExJp">今日はいい天気ですね。</div>
+                            <div class="kanji-example-romaji" id="kanjiExRomaji">Kyou wa ii tenki desu ne.</div>
+                            <div class="kanji-example-id" id="kanjiExId">Hari ini cuacanya sangat bagus ya.</div>
+                        </div>
+                    </div>
+
+                    <div class="kanji-action-row">
+                        <button type="button" id="playKanjiAudioBtn" class="btn btn-primary" style="padding: 11px 20px; font-size: 12px;">
+                            🔊 Dengarkan Pelafalan
+                        </button>
+                        <a href="tulis.html" class="btn btn-secondary" style="padding: 11px 20px; font-size: 12px;">
+                            ✍️ Latihan Tulis Kuas
+                        </a>
+                        <a href="pesan.html" class="btn btn-outline" style="padding: 11px 20px; font-size: 12px;">
+                            🌸 Tanya Aoi Sensei
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIPS BELAJAR KANJI -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 30px;">
+            <div style="background: rgba(14, 19, 29, 0.6); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
+                <h4 style="color: var(--japan-gold); margin-top: 0; font-size: 1.1rem;">💡 Apa itu Onyomi & Kunyomi?</h4>
+                <p style="color: var(--muted); font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                    <strong>Onyomi (音読み):</strong> Cara baca serapan dari bahasa Tionghoa kuno, biasanya dipakai saat kanji bergabung dengan kanji lain (contoh: <em>Nihon</em> 日本).<br><br>
+                    <strong>Kunyomi (訓読み):</strong> Cara baca asli bahasa Jepang, umumnya digunakan saat kanji berdiri sendiri atau diikuti hiragana (okurigana, contoh: <em>hi</em> 日).
+                </p>
+            </div>
+            <div style="background: rgba(14, 19, 29, 0.6); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
+                <h4 style="color: var(--japan-red); margin-top: 0; font-size: 1.1rem;">⛩️ Filosofi Radikal Kanji</h4>
+                <p style="color: var(--muted); font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                    Setiap kanji dibangun dari bagian-bagian kecil bernama <em>bushu</em> (radikal). Misalnya kanji bertema air memiliki radikal 氵 (sanzui), bertema manusia memiliki 亻 (ninben), dan pohon memiliki 木 (ki). Memahami radikal mempermudah hafalan 10x lipat!
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- DOCK NAVIGASI BAWAH -->
+    <nav class="main-bottom-nav" aria-label="Navigasi utama">
+        <a class="main-bottom-item" href="../index.html">
+            <span class="main-bottom-icon">⌂</span>
+            <span>Home</span>
+        </a>
+        <a class="main-bottom-item" href="hiburan.html">
+            <span class="main-bottom-icon">✦</span>
+            <span>Hiburan</span>
+        </a>
+        <a class="main-bottom-item main-bottom-message" href="pesan.html" aria-label="Buka pesan grup">
+            <span class="main-bottom-icon">✉</span>
+            <span>Pesan</span>
+        </a>
+        <a class="main-bottom-item" href="jadwal.html">
+            <span class="main-bottom-icon">◷</span>
+            <span>Jadwal</span>
+        </a>
+        <a class="main-bottom-item" href="info.html">
+            <span class="main-bottom-icon">ⓘ</span>
+            <span>Info</span>
+        </a>
+    </nav>
+
+    <script src="../script.js"></script>
+</body>
+</html>

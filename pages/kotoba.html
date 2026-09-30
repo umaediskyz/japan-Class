@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nihongo Trinity | Kotoba & Percakapan (単語帳)</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../css/belajar.css">
+</head>
+<body class="main-page">
+    
+    <section class="content study-page">
+        <!-- Tombol Kembali -->
+        <a href="../index.html" class="back-btn">
+            <span class="back-icon">←</span> Dashboard
+        </a>
+
+        <div class="kanji-watermark-bg" style="top: 15px; right: 20px; font-size: 8rem; opacity: 0.04;">言葉</div>
+        <p class="eyebrow">【 単語・会話 · Vocabulary & Soundboard 】</p>
+        <h2 class="page-title">Kotoba & Percakapan Praktis</h2>
+        <p class="study-intro">Kuasai pelafalan 50 bunyi kana asli serta kumpulan frasa percakapan esensial bahasa Jepang untuk kehidupan sehari-hari, restoran, anime, dan situasi darurat.</p>
+
+        <!-- FITUR 1: KANA SOUNDBOARD MATRIX -->
+        <div class="feature-section" style="margin-top: 15px; border-radius: 18px; padding: 24px; background: rgba(14, 19, 29, 0.7); border: 1px solid var(--border-subtle);">
+            <div class="section-header-row" style="margin-bottom: 20px;">
+                <div class="section-heading">
+                    <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">Soundboard 50 Suara <span>( 五十音音声ボード )</span></h3>
+                    <span style="font-size: 0.85rem; color: var(--muted);">Klik kartu mana saja untuk mendengar lafal penutur asli Jepang secara instan.</span>
+                </div>
+            </div>
+
+            <div class="soundboard-panel">
+                <div class="soundboard-controls">
+                    <div class="tab-pill-group">
+                        <button type="button" id="tabSoundHira" class="tab-pill active">Hiragana (平仮名)</button>
+                        <button type="button" id="tabSoundKata" class="tab-pill">Katakana (片仮名)</button>
+                    </div>
+                    <input type="search" id="soundSearch" class="soundboard-search" placeholder="Cari kana / romaji (ex: ka, shi)...">
+                </div>
+
+                <div class="soundboard-grid" id="soundboardGrid">
+                    <!-- Dirender secara dinamis oleh script.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- FITUR 2: KOTOBA VAULT / PERCAKAPAN BERKATEGORI -->
+        <div class="feature-section" style="margin-top: 30px; border-radius: 18px; padding: 24px; background: rgba(14, 19, 29, 0.7); border: 1px solid var(--border-subtle);">
+            <div class="section-header-row" style="margin-bottom: 20px;">
+                <div class="section-heading">
+                    <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">Kotoba & Percakapan Praktis <span>( 日常会話フレーズ )</span></h3>
+                    <span style="font-size: 0.85rem; color: var(--muted);">Kumpulan kalimat esensial lengkap dengan romaji, arti bahasa Indonesia, dan audio pelafalan.</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px;">
+                <button type="button" class="btn btn-secondary phrase-filter-btn active" data-category="all" style="padding: 8px 16px; font-size: 12px;">Semua</button>
+                <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="salam" style="padding: 8px 16px; font-size: 12px;">🎌 Salam & Sopan</button>
+                <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="restoran" style="padding: 8px 16px; font-size: 12px;">🍜 Restoran & Kuliner</button>
+                <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="anime" style="padding: 8px 16px; font-size: 12px;">⚔️ Anime & Slang</button>
+                <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="darurat" style="padding: 8px 16px; font-size: 12px;">🚨 Darurat & Arah</button>
+            </div>
+
+            <div class="phrasebook-grid" id="phrasebookList">
+                <!-- Dirender secara dinamis oleh script.js -->
+            </div>
+        </div>
+    </section>
+
+    <!-- DOCK NAVIGASI BAWAH -->
+    <nav class="main-bottom-nav" aria-label="Navigasi utama">
+        <a class="main-bottom-item" href="../index.html">
+            <span class="main-bottom-icon">⌂</span>
+            <span>Home</span>
+        </a>
+        <a class="main-bottom-item" href="hiburan.html">
+            <span class="main-bottom-icon">✦</span>
+            <span>Hiburan</span>
+        </a>
+        <a class="main-bottom-item main-bottom-message" href="pesan.html" aria-label="Buka pesan grup">
+            <span class="main-bottom-icon">✉</span>
+            <span>Pesan</span>
+        </a>
+        <a class="main-bottom-item" href="jadwal.html">
+            <span class="main-bottom-icon">◷</span>
+            <span>Jadwal</span>
+        </a>
+        <a class="main-bottom-item" href="info.html">
+            <span class="main-bottom-icon">ⓘ</span>
+            <span>Info</span>
+        </a>
+    </nav>
+
+    <script src="../script.js"></script>
+</body>
+</html>

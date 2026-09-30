@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nihongo Trinity | Latihan Tulis Kuas (書道・書き順)</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../css/belajar.css">
+</head>
+<body class="main-page">
+    
+    <section class="content study-page">
+        <!-- Tombol Kembali -->
+        <a href="../index.html" class="back-btn">
+            <span class="back-icon">←</span> Dashboard
+        </a>
+
+        <div class="kanji-watermark-bg" style="top: 15px; right: 20px; font-size: 8rem; opacity: 0.04;">筆</div>
+        <p class="eyebrow">【 書道 · Brush Calligraphy & Studio 】</p>
+        <h2 class="page-title">Latihan Tulis Kuas & Generator Nama</h2>
+        <p class="study-intro">Latih memori motorik tanganmu dengan mencoret di atas panduan kana, ubah namamu ke Katakana resmi, dan gunakan Zen Pomodoro Timer untuk fokus belajar.</p>
+
+        <!-- FITUR 1: KANA STROKE WRITING CANVAS -->
+        <div class="feature-section" style="margin-top: 15px; border-radius: 18px; padding: 24px; background: rgba(14, 19, 29, 0.7); border: 1px solid var(--border-subtle);">
+            <div class="section-header-row" style="margin-bottom: 20px;">
+                <div class="section-heading">
+                    <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">Kanvas Tulis Kuas <span>( 書き順キャンバス )</span></h3>
+                    <span style="font-size: 0.85rem; color: var(--muted);">Pilih huruf panduan di bawah, lalu coret langsung di atas kanvas dengan mouse atau jarimu.</span>
+                </div>
+            </div>
+
+            <div class="canvas-practice-wrap">
+                <div class="canvas-box-side">
+                    <span class="canvas-guide-char" id="canvasGuide">あ</span>
+                    <canvas id="drawCanvas"></canvas>
+                </div>
+
+                <div class="canvas-tools-side">
+                    <div>
+                        <h4 style="color: #fff; font-size: 1.15rem; margin-top: 0; margin-bottom: 6px;">Pilih Huruf Panduan:</h4>
+                        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 14px;">Klik huruf di bawah untuk mengganti cetakan bayangan panduan di kanvas:</p>
+
+                        <div class="canvas-char-selector">
+                            <button type="button" class="char-pick-btn active">あ</button>
+                            <button type="button" class="char-pick-btn">い</button>
+                            <button type="button" class="char-pick-btn">う</button>
+                            <button type="button" class="char-pick-btn">え</button>
+                            <button type="button" class="char-pick-btn">お</button>
+                            <button type="button" class="char-pick-btn">か</button>
+                            <button type="button" class="char-pick-btn">さ</button>
+                            <button type="button" class="char-pick-btn">た</button>
+                            <button type="button" class="char-pick-btn">な</button>
+                            <button type="button" class="char-pick-btn">は</button>
+                            <button type="button" class="char-pick-btn">ア</button>
+                            <button type="button" class="char-pick-btn">カ</button>
+                            <button type="button" class="char-pick-btn">サ</button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                        <button type="button" id="clearCanvasBtn" class="btn btn-secondary" style="padding: 10px 18px; font-size: 12px;">
+                            🧹 Bersihkan Kanvas
+                        </button>
+                        <a href="belajar.html" class="btn btn-outline" style="padding: 10px 18px; font-size: 12px;">
+                            Lihat Seluruh Tabel Hiragana →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FITUR 2: GENERATOR NAMA & ZEN POMODORO -->
+        <div class="tools-duo-grid" style="margin-top: 30px;">
+            <!-- Tool 1: Katakana Name Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">🎴</div>
+                    <div>
+                        <h3 style="color: #fff; font-size: 1.25rem; margin: 0 0 4px;">Generator Nama Jepang</h3>
+                        <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Ubah namamu ke Katakana resmi dan temukan interpretasi filosofisnya.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                    <input type="text" id="nameInput" placeholder="Ketik nama (ex: Umaedi, Budi, Salsa)..."
+                        style="flex: 1; padding: 12px 14px; background: rgba(8,11,17,0.8); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff; font-size: 13px; outline: none;">
+                    <button type="button" id="convertNameBtn" class="btn btn-gold" style="padding: 12px 16px; font-size: 11px;">Konversi</button>
+                </div>
+
+                <div id="nameResultBox" style="display: none;"></div>
+            </div>
+
+            <!-- Tool 2: Zen Focus Pomodoro Timer -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">⏳</div>
+                    <div>
+                        <h3 style="color: #fff; font-size: 1.25rem; margin: 0 0 4px;">Zen Focus Timer (25 Menit)</h3>
+                        <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Metode Pomodoro terbukti efektif untuk menghafal kana tanpa jenuh.</p>
+                    </div>
+                </div>
+
+                <div class="zen-timer-display" id="zenTimerDisplay">25:00</div>
+
+                <div class="zen-controls">
+                    <button type="button" id="startZenBtn" class="btn btn-primary" style="padding: 10px 22px; font-size: 12px;">MULAI FOKUS</button>
+                    <button type="button" id="resetZenBtn" class="btn btn-secondary" style="padding: 10px 18px; font-size: 12px;">RESET</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DOCK NAVIGASI BAWAH -->
+    <nav class="main-bottom-nav" aria-label="Navigasi utama">
+        <a class="main-bottom-item" href="../index.html">
+            <span class="main-bottom-icon">⌂</span>
+            <span>Home</span>
+        </a>
+        <a class="main-bottom-item" href="hiburan.html">
+            <span class="main-bottom-icon">✦</span>
+            <span>Hiburan</span>
+        </a>
+        <a class="main-bottom-item main-bottom-message" href="pesan.html" aria-label="Buka pesan grup">
+            <span class="main-bottom-icon">✉</span>
+            <span>Pesan</span>
+        </a>
+        <a class="main-bottom-item" href="jadwal.html">
+            <span class="main-bottom-icon">◷</span>
+            <span>Jadwal</span>
+        </a>
+        <a class="main-bottom-item" href="info.html">
+            <span class="main-bottom-icon">ⓘ</span>
+            <span>Info</span>
+        </a>
+    </nav>
+
+    <script src="../script.js"></script>
+</body>
+</html>

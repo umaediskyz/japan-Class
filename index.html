@@ -185,215 +185,96 @@
     </header>
 
     <!-- ========================================== -->
-    <!-- FITUR BARU 1: KANJI OF THE DAY (今日の漢字) -->
+    <!-- PUSAT GERBANG BELAJAR (DOJO MASTERY GATES) -->
     <!-- ========================================== -->
-    <section class="feature-section" id="dailyKanjiSection">
-        <div class="section-header-row">
-            <div class="section-heading">
-                <h2>Kanji Hari Ini <span>( 本日の漢字 )</span></h2>
-                <span>Pelajari kanji esensial beserta cara baca dan contoh kalimat nyata.</span>
-            </div>
-            <button type="button" id="nextKanjiBtn" class="btn btn-secondary"
-                style="padding: 8px 16px; font-size: 11px;">
-                🔄 Ganti Kanji Lain
-            </button>
-        </div>
-
-        <div class="kanji-today-container">
-            <!-- Sisi Visual Huruf -->
-            <div class="kanji-visual-card">
-                <span class="kanji-level-badge" id="kanjiLevel">JLPT N5</span>
-                <div class="kanji-big-char" id="kanjiChar" title="Klik untuk mendengar suara">日</div>
-                <div class="kanji-readings">
-                    <div class="kanji-reading-item"><strong>Onyomi:</strong> <span id="kanjiOnyomi">ニチ, ジツ</span></div>
-                    <div class="kanji-reading-item"><strong>Kunyomi:</strong> <span id="kanjiKunyomi">ひ, -か</span></div>
-                </div>
-                <span style="font-size: 11px; color: var(--muted); margin-top: 10px;" id="kanjiStrokes">4 Goresan</span>
-            </div>
-
-            <!-- Sisi Penjelasan Detail -->
-            <div class="kanji-details-side">
-                <div>
-                    <span class="kanji-meaning-badge">Arti Filosofis:</span>
-                    <h3 class="kanji-meaning-title" id="kanjiMeaning">Matahari / Hari</h3>
-                    <p class="kanji-desc-text" id="kanjiDesc">Kanji paling fundamental yang melambangkan matahari dan
-                        penanda waktu hari. Digunakan juga dalam nama negara Jepang (日本 - Nihon).</p>
-
-                    <div class="kanji-example-box">
-                        <div class="kanji-example-jp" id="kanjiExJp">今日はいい天気ですね。</div>
-                        <div class="kanji-example-romaji" id="kanjiExRomaji">Kyou wa ii tenki desu ne.</div>
-                        <div class="kanji-example-id" id="kanjiExId">Hari ini cuacanya sangat bagus ya.</div>
-                    </div>
-                </div>
-
-                <div class="kanji-action-row">
-                    <button type="button" id="playKanjiAudioBtn" class="btn btn-primary"
-                        style="padding: 10px 18px; font-size: 11px;">
-                        🔊 Dengarkan Pelafalan
-                    </button>
-                    <a href="pages/belajar.html" class="btn btn-secondary" style="padding: 10px 18px; font-size: 11px;">
-                        📖 Pelajari Huruf Terkait
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- FITUR BARU 2: KANA SOUNDBOARD INTERAKTIF -->
-    <!-- ========================================== -->
-    <section class="feature-section">
-        <div class="section-header-row">
-            <div class="section-heading">
-                <h2>Soundboard 50 Suara <span>( 五十音音声ボード )</span></h2>
-                <span>Klik kartu mana saja untuk mendengar lafal penutur asli Jepang secara instan.</span>
+    <section class="feature-section" id="dojoGatesSection" style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
+        <div class="section-header-row" style="text-align: center; margin-bottom: 25px; display: block;">
+            <div class="section-heading" style="text-align: center;">
+                <p class="eyebrow" style="margin-bottom: 8px;">【 道場入口 · Gates of Mastery 】</p>
+                <h2 style="font-size: 1.8rem; color: #fff; margin: 0 0 6px;">Pusat Modul Pembelajaran Jepang</h2>
+                <span style="color: var(--muted); font-size: 0.95rem;">Pilih modul latihan terstruktur yang ingin kamu kuasai hari ini:</span>
             </div>
         </div>
 
-        <div class="soundboard-panel">
-            <div class="soundboard-controls">
-                <div class="tab-pill-group">
-                    <button type="button" id="tabSoundHira" class="tab-pill active">Hiragana (平仮名)</button>
-                    <button type="button" id="tabSoundKata" class="tab-pill">Katakana (片仮名)</button>
+        <div class="dojo-grid-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+            
+            <!-- MODUL 1: HIRAGANA -->
+            <a href="pages/belajar.html" class="dojo-gate-card">
+                <div class="gate-icon-badge" style="background: rgba(230, 57, 70, 0.15); border-color: rgba(230, 57, 70, 0.4); color: var(--japan-red);">あ</div>
+                <div class="gate-content">
+                    <span class="gate-subtitle">FONDASI UTAMA · 46 HURUF</span>
+                    <h3>Belajar Hiragana <span>(平仮名)</span></h3>
+                    <p>Kuasai 46 huruf Seion dasar, Dakuon, dan Yoon lengkap dengan audio pelafalan asli & tes romaji.</p>
+                    <span class="gate-link-text">Buka Lab Hiragana →</span>
                 </div>
-                <input type="search" id="soundSearch" class="soundboard-search"
-                    placeholder="Cari kana / romaji (ex: ka, shi)...">
-            </div>
+            </a>
 
-            <div class="soundboard-grid" id="soundboardGrid">
-                <!-- Dirender secara dinamis oleh script.js -->
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- FITUR BARU 3: KOTOBA VAULT / PERCAKAPAN -->
-    <!-- ========================================== -->
-    <section class="feature-section">
-        <div class="section-header-row">
-            <div class="section-heading">
-                <h2>Kotoba & Percakapan Praktis <span>( 日常会話・単語帳 )</span></h2>
-                <span>Kumpulan kalimat esensial untuk salam, restoran, anime slang, dan situasi darurat.</span>
-            </div>
-        </div>
-
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
-            <button type="button" class="btn btn-secondary phrase-filter-btn active" data-category="all"
-                style="padding: 6px 14px; font-size: 11px;">Semua</button>
-            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="salam"
-                style="padding: 6px 14px; font-size: 11px;">🎌 Salam & Sopan</button>
-            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="restoran"
-                style="padding: 6px 14px; font-size: 11px;">🍜 Restoran & Kuliner</button>
-            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="anime"
-                style="padding: 6px 14px; font-size: 11px;">⚔️ Anime & Slang</button>
-            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="darurat"
-                style="padding: 6px 14px; font-size: 11px;">🚨 Darurat & Arah</button>
-        </div>
-
-        <div class="phrasebook-grid" id="phrasebookList">
-            <!-- Dirender secara dinamis oleh script.js -->
-        </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- FITUR BARU 4: KANA STROKE WRITING CANVAS -->
-    <!-- ========================================== -->
-    <section class="feature-section">
-        <div class="section-header-row">
-            <div class="section-heading">
-                <h2>Latihan Tulis Kuas <span>( 書き順キャンバス )</span></h2>
-                <span>Latih memori motorik tanganmu dengan mencoret langsung di atas panduan kana.</span>
-            </div>
-        </div>
-
-        <div class="canvas-practice-wrap">
-            <div class="canvas-box-side">
-                <span class="canvas-guide-char" id="canvasGuide">あ</span>
-                <canvas id="drawCanvas"></canvas>
-            </div>
-
-            <div class="canvas-tools-side">
-                <div>
-                    <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 6px;">Pilih Huruf Panduan:</h3>
-                    <p style="color: var(--muted); font-size: 0.85rem;">Klik salah satu huruf untuk mengganti cetakan
-                        bayangan di kanvas, lalu gunakan mouse atau jarimu untuk menulis:</p>
-
-                    <div class="canvas-char-selector">
-                        <button type="button" class="char-pick-btn active">あ</button>
-                        <button type="button" class="char-pick-btn">い</button>
-                        <button type="button" class="char-pick-btn">う</button>
-                        <button type="button" class="char-pick-btn">え</button>
-                        <button type="button" class="char-pick-btn">お</button>
-                        <button type="button" class="char-pick-btn">か</button>
-                        <button type="button" class="char-pick-btn">さ</button>
-                        <button type="button" class="char-pick-btn">た</button>
-                        <button type="button" class="char-pick-btn">な</button>
-                        <button type="button" class="char-pick-btn">は</button>
-                        <button type="button" class="char-pick-btn">ア</button>
-                        <button type="button" class="char-pick-btn">カ</button>
-                        <button type="button" class="char-pick-btn">サ</button>
-                    </div>
+            <!-- MODUL 2: KATAKANA -->
+            <a href="pages/belajar-katakana.html" class="dojo-gate-card">
+                <div class="gate-icon-badge" style="background: rgba(30, 136, 229, 0.15); border-color: rgba(30, 136, 229, 0.4); color: #42A5F5;">ア</div>
+                <div class="gate-content">
+                    <span class="gate-subtitle">KATA SERAPAN & NAMA ASING</span>
+                    <h3>Belajar Katakana <span>(片仮名)</span></h3>
+                    <p>Pelajari huruf kata serapan luar negeri, nama tempat, dan kosakata modern dengan pelafalan asli.</p>
+                    <span class="gate-link-text">Buka Lab Katakana →</span>
                 </div>
+            </a>
 
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="button" id="clearCanvasBtn" class="btn btn-secondary"
-                        style="padding: 10px 18px; font-size: 12px;">
-                        🧹 Bersihkan Kanvas
-                    </button>
-                    <a href="pages/belajar.html" class="btn btn-outline" style="padding: 10px 18px; font-size: 12px;">
-                        Lihat Seluruh Tabel Kana →
-                    </a>
+            <!-- MODUL 3: KANJI DOJO -->
+            <a href="pages/kanji.html" class="dojo-gate-card">
+                <div class="gate-icon-badge" style="background: rgba(212, 175, 55, 0.15); border-color: rgba(212, 175, 55, 0.4); color: var(--japan-gold);">漢</div>
+                <div class="gate-content">
+                    <span class="gate-subtitle">JLPT N5 - N3 & KAMUS HARIAN</span>
+                    <h3>Kanji Dojo <span>(漢字道場)</span></h3>
+                    <p>Kanji pilihan setiap hari, jumlah goresan (stroke), bacaan Onyomi & Kunyomi, serta audio kalimat.</p>
+                    <span class="gate-link-text">Masuk Kanji Dojo →</span>
                 </div>
-            </div>
-        </div>
-    </section>
+            </a>
 
-    <!-- ========================================== -->
-    <!-- FITUR BARU 5: NAMA JEPANG & ZEN POMODORO -->
-    <!-- ========================================== -->
-    <section class="feature-section">
-        <div class="tools-duo-grid">
-            <!-- Tool 1: Katakana Name Generator -->
-            <div class="tool-card">
-                <div class="tool-header">
-                    <div class="tool-icon">🎴</div>
-                    <div>
-                        <h3 style="color: #fff; font-size: 1.25rem;">Generator Nama Jepang</h3>
-                        <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Ubah namamu ke Katakana resmi dan
-                            temukan arti kanji estetiknya.</p>
-                    </div>
+            <!-- MODUL 4: KOTOBA & PERCAKAPAN -->
+            <a href="pages/kotoba.html" class="dojo-gate-card">
+                <div class="gate-icon-badge" style="background: rgba(76, 175, 80, 0.15); border-color: rgba(76, 175, 80, 0.4); color: #81C784;">語</div>
+                <div class="gate-content">
+                    <span class="gate-subtitle">SOUNDBOARD 50 SUARA & FRASA</span>
+                    <h3>Kotoba & Percakapan <span>(日常会話)</span></h3>
+                    <p>Soundboard 50 suara audio penutur Jepang dan bank frasa praktis restoran, salam, anime & darurat.</p>
+                    <span class="gate-link-text">Buka Kotoba Vault →</span>
                 </div>
+            </a>
 
-                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                    <input type="text" id="nameInput" placeholder="Ketik nama (ex: Umaedi, Budi, Salsa)..."
-                        style="flex: 1; padding: 12px 14px; background: rgba(8,11,17,0.8); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff; font-size: 13px; outline: none;">
-                    <button type="button" id="convertNameBtn" class="btn btn-gold"
-                        style="padding: 12px 16px; font-size: 11px;">Konversi</button>
+            <!-- MODUL 5: LATIHAN TULIS KUAS & NAMA -->
+            <a href="pages/tulis.html" class="dojo-gate-card">
+                <div class="gate-icon-badge" style="background: rgba(142, 68, 173, 0.15); border-color: rgba(142, 68, 173, 0.4); color: #BA68C8;">筆</div>
+                <div class="gate-content">
+                    <span class="gate-subtitle">KANVAS MOTORIK & NAMA JEPANG</span>
+                    <h3>Latihan Tulis Kuas <span>(書道)</span></h3>
+                    <p>Kanvas gambar motorik dengan panduan kana, pengubah nama ke Katakana, dan Zen Pomodoro timer.</p>
+                    <span class="gate-link-text">Mulai Latihan Tulis →</span>
                 </div>
+            </a>
 
-                <div id="nameResultBox" style="display: none;"></div>
-            </div>
-
-            <!-- Tool 2: Zen Focus Pomodoro Timer -->
-            <div class="tool-card">
-                <div class="tool-header">
-                    <div class="tool-icon">⏳</div>
-                    <div>
-                        <h3 style="color: #fff; font-size: 1.25rem;">Zen Focus Timer (25 Menit)</h3>
-                        <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Metode Pomodoro terbukti efektif
-                            untuk menghafal kana tanpa lelah.</p>
-                    </div>
+            <!-- MODUL 6: UJI REFLEKS DOJO -->
+            <a href="pages/kuis.html" class="dojo-gate-card">
+                <div class="gate-icon-badge" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(230, 57, 70, 0.2)); border-color: var(--japan-gold); color: #FFD54F;">⚡</div>
+                <div class="gate-content">
+                    <span class="gate-subtitle">TANTANGAN WAKTU & KOMBO SKOR</span>
+                    <h3>Uji Refleks Dojo <span>(反射テスト)</span></h3>
+                    <p>Uji seberapa cepat matamu mengenali karakter Jepang. Kumpulkan skor tertinggi ke leaderboard global!</p>
+                    <span class="gate-link-text">Mulai Uji Refleks →</span>
                 </div>
+            </a>
 
-                <div class="zen-timer-display" id="zenTimerDisplay">25:00</div>
-
-                <div class="zen-controls">
-                    <button type="button" id="startZenBtn" class="btn btn-primary"
-                        style="padding: 10px 22px; font-size: 12px;">MULAI FOKUS</button>
-                    <button type="button" id="resetZenBtn" class="btn btn-secondary"
-                        style="padding: 10px 18px; font-size: 12px;">RESET</button>
+            <!-- MODUL 7: RUANG OBROLAN & AOI SENSEI -->
+            <a href="pages/pesan.html" class="dojo-gate-card" style="border-color: rgba(255, 101, 132, 0.35);">
+                <div class="gate-icon-badge" style="background: linear-gradient(135deg, rgba(255, 101, 132, 0.2), rgba(142, 68, 173, 0.2)); border-color: rgba(255, 101, 132, 0.5); color: #FF758C;">🌸</div>
+                <div class="gate-content">
+                    <span class="gate-subtitle" style="color: #FF758C;">AI SENSEI 24/7 & KOMUNITAS</span>
+                    <h3>Aoi Sensei & Obrolan <span>(葵先生)</span></h3>
+                    <p>Konsultasi 1-on-1 dengan Aoi Sensei untuk tanya partikel atau kanji, serta ngobrol santai di Public Lounge.</p>
+                    <span class="gate-link-text" style="color: #FF758C;">Masuk Ruang Obrolan →</span>
                 </div>
-            </div>
+            </a>
+
         </div>
     </section>
 

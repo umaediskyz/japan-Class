@@ -47,6 +47,7 @@ const sendImageBtn = document.getElementById("sendImageBtn");
 const recordAudioBtn = document.getElementById("recordAudioBtn"); 
 
 // In-chat search & tools
+const clearSenseiBtn = document.getElementById("clearSenseiBtn");
 const toggleSearchBtn = document.getElementById("toggleSearchBtn");
 const inchatSearchBar = document.getElementById("inchatSearchBar");
 const inchatSearchInput = document.getElementById("inchatSearchInput");
@@ -304,17 +305,20 @@ window.openRoom = function(type) {
         if(roomTitle) roomTitle.textContent = "Markas Utama Tim";
         if(roomIcon) { roomIcon.textContent = "🛡️"; roomIcon.style.background = "#D32F2F"; }
         if(coreMemberAvatarList) coreMemberAvatarList.style.display = "flex";
+        if(clearSenseiBtn) clearSenseiBtn.style.display = "none";
     } else if (type === "sensei") {
         if(roomLabel) roomLabel.textContent = "AI SENSEI 1-ON-1 DOJO"; 
-        if(roomTitle) roomTitle.textContent = "Iqbal AI Sensei";
-        if(roomIcon) { roomIcon.textContent = "⛩️"; roomIcon.style.background = "#8e44ad"; }
+        if(roomTitle) roomTitle.textContent = "Aoi Sensei (葵先生)";
+        if(roomIcon) { roomIcon.textContent = "🌸"; roomIcon.style.background = "linear-gradient(135deg, #FF6584, #8e44ad)"; }
         if(coreMemberAvatarList) coreMemberAvatarList.style.display = "none";
-        if(onlineCountText) onlineCountText.innerHTML = `<span style="color:#00F2FE;">Sensei siap membantumu belajar</span>`;
+        if(onlineCountText) onlineCountText.innerHTML = `<span style="color:#FF758C;">🌸 Aoi Sensei siap memandu belajarmu</span>`;
+        if(clearSenseiBtn) clearSenseiBtn.style.display = "grid";
     } else {
         if(roomLabel) roomLabel.textContent = "PUBLIC LOUNGE"; 
         if(roomTitle) roomTitle.textContent = "Ruang Diskusi Publik";
         if(roomIcon) { roomIcon.textContent = "🌐"; roomIcon.style.background = "#1E88E5"; }
         if(coreMemberAvatarList) coreMemberAvatarList.style.display = "none"; 
+        if(clearSenseiBtn) clearSenseiBtn.style.display = "none";
     }
 
     if (chatBox) chatBox.replaceChildren();
@@ -473,12 +477,72 @@ if (quickPhraseBar) {
                 chatInput.focus();
             }
         });
+// Emoji quick picker
+const chatEmojiBtn = document.getElementById("chatEmojiBtn");
+if (chatEmojiBtn && chatInput) {
+    const emojis = ["🌸", "⛩️", "✨", "🏮", "🍵", "🎌", "🍙", "🎎", "🙏", "😊", "🔥", "💯", "👍", "👏", "🐱", "草"];
+    const emojiPopup = document.createElement("div");
+    emojiPopup.className = "inchat-emoji-popup";
+    emojiPopup.style.cssText = "display: none; position: absolute; bottom: 65px; left: 14px; background: rgba(16, 22, 33, 0.98); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 10px; gap: 8px; z-index: 50; flex-wrap: wrap; max-width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);";
+    
+    emojis.forEach(emo => {
+        const emoSpan = document.createElement("span");
+        emoSpan.textContent = emo;
+        emoSpan.style.cssText = "font-size: 20px; cursor: pointer; padding: 4px; border-radius: 6px; transition: transform 0.15s; display: inline-block;";
+        emoSpan.onmouseenter = () => emoSpan.style.transform = "scale(1.25)";
+        emoSpan.onmouseleave = () => emoSpan.style.transform = "scale(1)";
+        emoSpan.onclick = () => {
+            chatInput.value += emo;
+            chatInput.focus();
+            emojiPopup.style.display = "none";
+        };
+        emojiPopup.appendChild(emoSpan);
+    });
+
+    const chatRoomViewEl = document.getElementById("chatRoomView");
+    if (chatRoomViewEl) {
+        chatRoomViewEl.style.position = "relative";
+        chatRoomViewEl.appendChild(emojiPopup);
+    }
+
+    chatEmojiBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        emojiPopup.style.display = emojiPopup.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!emojiPopup.contains(e.target) && e.target !== chatEmojiBtn) {
+            emojiPopup.style.display = "none";
+        }
     });
 }
 
 // ==========================================
 // AI SENSEI SYSTEM (1-ON-1 SMART JAPANESE TUTOR)
 // ==========================================
+if (clearSenseiBtn) {
+    clearSenseiBtn.addEventListener("click", () => {
+        if (currentRoom !== "sensei") return;
+        const confirmClean = confirm(
+            "🧹 BERSIHKAN DATABASE CHAT AI SENSEI\n\n" +
+            "Apakah Anda yakin ingin menghapus semua riwayat percakapan dengan Aoi Sensei?\n\n" +
+            "Penyimpanan lokal browser akan dikosongkan agar memori perangkat Anda tetap lega dan tidak penuh."
+        );
+        if (!confirmClean) return;
+
+        const historyKey = `nihongo_sensei_history_${currentUser || 'guest'}`;
+        localStorage.removeItem(historyKey);
+
+        if (chatBox) chatBox.replaceChildren();
+        pendingMessages.length = 0;
+        unreadDividerAdded = false;
+        lastRenderedDateString = "";
+
+        loadSenseiHistory();
+        alert("✨ Sukses! Database percakapan dengan Aoi Sensei berhasil dibersihkan.");
+    });
+}
+
 function loadSenseiHistory() {
     const historyKey = `nihongo_sensei_history_${currentUser || 'guest'}`;
     let history = JSON.parse(localStorage.getItem(historyKey) || "[]");
@@ -486,7 +550,7 @@ function loadSenseiHistory() {
     if (history.length === 0) {
         history.push({
             name: "AI_SENSEI",
-            message: `Konnichiwa, ${currentUser || 'Pelajar'}-san! 🌸 Selamat datang di AI Sensei Dojo. Saya siap membantumu belajar bahasa Jepang. Kamu bisa tanya arti kata, cara baca kanji, bedah partikel tata bahasa, atau latihan percakapan santai. Coba sapa saya atau tanyakan sesuatu!`,
+            message: `Konnichiwa, ${currentUser || 'Pelajar'}-san! 🌸 Watashi wa Aoi Sensei desu (私は葵先生です).\n\nSelamat datang di ruang belajar privat AI Sensei! Saya siap menjadi tutor dan teman berlatih bahasa Jepangmu 24 jam.\n\nKamu bisa tanya arti kata, cara baca kanji, bedah pola tata bahasa (bunpou), kosakata, atau latihan percakapan santai. Nani o benkyou shitai desu ka? (Mau belajar apa hari ini?) ✨`,
             timestamp: Date.now()
         });
         localStorage.setItem(historyKey, JSON.stringify(history));
@@ -516,7 +580,7 @@ function sendSenseiMessage(text, image = null, audio = null) {
 
     // AI Sensei Response Generation
     const botTyping = document.getElementById("typingUserNameText");
-    if (botTyping) botTyping.textContent = "Iqbal AI Sensei sedang berpikir...";
+    if (botTyping) botTyping.textContent = "Aoi Sensei sedang mengetik...";
     typingIndicatorContainer.style.display = "flex";
     chatBox.appendChild(typingIndicatorContainer);
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -533,32 +597,45 @@ function sendSenseiMessage(text, image = null, audio = null) {
         localStorage.setItem(historyKey, JSON.stringify(history));
         pendingMessages.push({ data: senseiMsg, key: "sensei_" + senseiMsg.timestamp });
         renderMessage(senseiMsg, "sensei_" + senseiMsg.timestamp);
-    }, 900);
+    }, 700);
 }
 
 function generateSenseiReply(input) {
     const raw = (input || "").toLowerCase().trim();
 
-    if (raw.includes("halo") || raw.includes("hai") || raw.includes("konnichiwa") || raw.includes("ohayou")) {
-        return `Konnichiwa, ${currentUser}-san! (こんにちは！)\nBagaimana progres hafalan kana hari ini? Ada materi atau partikel yang ingin kamu bedah bersama saya? ✨`;
-    }
-    if (raw.includes("terima kasih") || raw.includes("arigatou") || raw.includes("makasih")) {
-        return `Dou itashimashite! (どういたしまして！ Sama-sama!)\nTetap semangat belajarnya ya, 継続は力なり (Keizoku wa chikara nari - Konsistensi adalah kunci kekuatan)!`;
-    }
-    if (raw.includes("partikel") || raw.includes("wa dan ga") || raw.includes("は") || raw.includes("が")) {
-        return `Pertanyaan bagus! 💡\n\n1. Partikel は (wa): Menandai TOPIK utama kalimat ("Mengenai hal ini...").\nContoh: 私は学生です (Watashi wa gakusei desu - Mengenai saya, saya adalah murid).\n\n2. Partikel が (ga): Menandai SUBJEK spesifik yang melakukan tindakan atau penekanan informasi baru.\nContoh: 猫が好きです (Neko ga suki desu - Saya suka kucing).\n\nPaham perbedaannya?`;
-    }
-    if (raw.includes("makan") || raw.includes("restoran") || raw.includes("pesan")) {
-        return `Untuk memesan di restoran Jepang:\n\n1. Panggil pelayan: "Sumimasen!" (すみません！ Permisi!)\n2. Tunjuk menu: "Kore o kudasai" (これをください - Tolong yang ini)\n3. Saat makan: "Itadakimasu" (いただきます)\n4. Setelah selesai: "Gochisousama deshita" (ごちそうさまでした)\n\nCoba ucapkan keras-keras ya!`;
-    }
-    if (raw.includes("perkenalan") || raw.includes("jikoshoukai") || raw.includes("nama")) {
-        return `Contoh perkenalan diri (自己紹介 - Jikoshoukai):\n\n"Hajimemashite. Watashi wa ${currentUser} desu. Indonesia kara kimashita. Douzo yoroshiku onegaishimasu!"\n\n(Senang bertemu Anda. Nama saya ${currentUser}. Saya datang dari Indonesia. Mohon bimbingannya!)`;
-    }
-    if (raw.includes("capek") || raw.includes("lelah") || raw.includes("otsukaresama")) {
-        return `Otsukaresama deshita! (お疲れ様でした！)\nKerja kerasmu hari ini sangat luar biasa. Istirahatkan matamu sejenak, nikmati musik lofi di menu Hiburan, lalu lanjutkan lagi dengan pikiran segar. 🍵`;
+    if (!raw) {
+        return `Hai, ${currentUser}-san! Gambarnya sudah saya terima 🌸 Ada pertanyaan seputar gambar tersebut atau ingin saya bantu jelaskan dalam bahasa Jepang?`;
     }
 
-    return `Menarik sekali! Terkait "${input}", dalam bahasa Jepang kita selalu mengutamakan konteks dan kesopanan (Keigo/Teineigo).\n\n💡 Tips Sensei: Berlatihlah menggabungkan kosakata baru dengan pola kalimat dasar [A は B です]. Mau saya buatkan contoh kalimat lainnya?`;
+    if (raw.includes("halo") || raw.includes("hai") || raw.includes("konnichiwa") || raw.includes("ohayou") || raw.includes("selamat pagi")) {
+        return `Konnichiwa, ${currentUser}-san! (こんにちは！)\n\nSenang bertemu denganmu hari ini 🌸 Bagaimana latihan kanamu? Jangan lupa konsisten ya: 継続は力なり (Keizoku wa chikara nari)! Ada materi yang ingin kamu tanyakan ke Aoi Sensei?`;
+    }
+    if (raw.includes("terima kasih") || raw.includes("arigatou") || raw.includes("makasih") || raw.includes("arigato")) {
+        return `Dou itashimashite! (どういたしまして！ Sama-sama!)\n\nSemangat terus ya, ${currentUser}-san! Jika ada kosakata atau kanji baru yang sulit, langsung tanyakan saja ya ✨`;
+    }
+    if (raw.includes("nama") || raw.includes("kamu siapa") || raw.includes("siapa nama")) {
+        return `Watashi wa Aoi Sensei desu (私は葵先生です 🌸).\nSaya adalah asisten tutor AI perempuan untuk Nihongo Trinity, siap membimbingmu belajar Hiragana, Katakana, Kanji, dan percakapan Jepang kapan saja!`;
+    }
+    if (raw.includes("partikel") || raw.includes("wa dan ga") || raw.includes("wa") || raw.includes("ga")) {
+        return `Pertanyaan tata bahasa yang sangat bagus! 💡\n\n1. Partikel は (wa): Menandai TOPIK umum pembicaraan ("Adapun mengenai...").\nContoh: 私は学生です (Watashi wa gakusei desu - Saya adalah pelajar).\n\n2. Partikel が (ga): Menandai SUBJEK spesifik tindakan atau sifat baru ("Siapa/apa yang...").\nContoh: 誰が来ましたか？ (Dare ga kimashita ka? - Siapa yang datang?).\n\nApakah penjelasannya cukup jelas, ${currentUser}-san?`;
+    }
+    if (raw.includes("makan") || raw.includes("restoran") || raw.includes("pesan")) {
+        return `Tips praktis memesan di restoran Jepang 🍜:\n\n1. Panggil pelayan: "Sumimasen!" (すみません！ - Permisi!)\n2. Tunjuk menu: "Kore o kudasai" (これをください - Tolong pesan yang ini)\n3. Saat makan: "Itadakimasu" (いただきます)\n4. Selesai makan: "Gochisousama deshita" (ごちそうさまでした)\n\nCoba latih pelafalannya ya!`;
+    }
+    if (raw.includes("perkenalan") || raw.includes("jikoshoukai")) {
+        return `Contoh perkenalan diri (自己紹介 - Jikoshoukai) sopan:\n\n"Hajimemashite. Watashi wa ${currentUser} desu. Indonesia kara kimashita. Nihongo o benkyou shite imasu. Douzo yoroshiku onegaishimasu!"\n\n(Salam kenal. Nama saya ${currentUser}. Saya dari Indonesia. Sedang belajar bahasa Jepang. Mohon bantuannya!) 🌸`;
+    }
+    if (raw.includes("capek") || raw.includes("lelah") || raw.includes("otsukaresama")) {
+        return `Otsukaresama deshita! (お疲れ様でした！ 🍵)\n\nKerja kerasmu hari ini sangat hebat, ${currentUser}-san! Istirahatlah sejenak, rilekskan pikiranmu dengan musik lofi di tab Hiburan, lalu kita lanjut lagi dengan semangat baru!`;
+    }
+    if (raw.includes("hiragana") || raw.includes("katakana") || raw.includes("kana")) {
+        return `Untuk menguasai Hiragana & Katakana dengan cepat:\n\n1. Mulai dari vokal dasar: A-I-U-E-O (あいうえお).\n2. Gunakan fitur "Latihan Tulis Kuas" untuk melatih memori otot tangan.\n3. Uji kecepatanmu di "Uji Refleks Dojo" setiap hari 10-15 menit!\n\nMau latihan huruf apa sekarang?`;
+    }
+    if (raw.includes("kanji")) {
+        return `Kanji itu seru karena setiap karakter menyimpan gambar dan makna filosofis! ⛩️\n\nMisalnya kanji 日 (matahari/hari) + 月 (bulan) digabung menjadi 明 (terang/cerah).\nBuka menu "Kanji Dojo" untuk menjelajahi kanji JLPT N5 sampai N3 ya!`;
+    }
+
+    return `Pertanyaan yang bagus sekali tentang "${input}"! ✨\n\nDalam bahasa Jepang, pemahaman konteks dan kesopanan (Keigo/Teineigo) adalah kunci utama.\n\n💡 Tips Aoi Sensei: Coba terapkan pola dasar [Topik は Deskripsi です] untuk membuat kalimat sederhana. Mau saya buatkan contoh praktisnya? 🌸`;
 }
 
 // ==========================================
@@ -694,7 +771,7 @@ function renderMessage(data, msgKey) {
 
     const profile = window.userProfiles ? (window.userProfiles[senderName] || {}) : {};
     let displayName = senderName === currentUser ? "Kamu" : (profile.displayName || senderName);
-    if (isSensei) displayName = "Iqbal AI Sensei";
+    if (isSensei) displayName = "Aoi Sensei (葵先生)";
 
     const isPages = window.location.pathname.includes('/pages/');
     const basePath = isPages ? `../gambar/${senderName.toLowerCase()}.png` : `gambar/${senderName.toLowerCase()}.png`;
@@ -704,8 +781,8 @@ function renderMessage(data, msgKey) {
     const avatar = document.createElement("div");
     avatar.className = "message-avatar";
     if (isSensei) {
-        avatar.style.background = "#8e44ad";
-        avatar.innerHTML = `⛩️`;
+        avatar.style.background = "linear-gradient(135deg, #FF6584, #8e44ad)";
+        avatar.innerHTML = `🌸`;
     } else {
         avatar.style.backgroundColor = "#fff"; 
         avatar.innerHTML = `<img src="${finalPhoto}" alt="${initial}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentNode.style.backgroundColor='#131921'; this.parentNode.innerHTML='${initial}';">`;
@@ -716,7 +793,7 @@ function renderMessage(data, msgKey) {
     const rawName = senderName.toLowerCase();
     
     if (rawName === "umaedi") sender.innerHTML += `<span class="tag-founder">👑 FOUNDER</span>`;
-    else if (isSensei) sender.innerHTML += `<span class="tag-sensei">⛩️ TUTOR</span>`;
+    else if (isSensei) sender.innerHTML += `<span class="tag-sensei" style="background: rgba(255, 101, 132, 0.2); color: #FF758C; border: 1px solid rgba(255, 101, 132, 0.4); margin-left: 6px; padding: 2px 7px; border-radius: 4px; font-size: 10px;">🌸 AOI SENSEI</span>`;
     else if (coreMembers.includes(rawName)) sender.innerHTML += `<span class="tag-core">⭐ CORE</span>`;
     
     headerDiv.append(avatar, sender);
