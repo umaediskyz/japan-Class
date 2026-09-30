@@ -1,65 +1,71 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- ========================================== -->
-    <!-- FAVICON & META TAGS MEDIA SOSIAL -->
+    <!-- FAVICON Rowr &-->
     <!-- ========================================== -->
     <link rel="icon" type="image/png" href="gambar/icon.png">
-    
+
     <!-- Primary Meta Tags -->
     <meta name="title" content="Nihongo Trinity | Japanese Mastery Hub">
-    <meta name="description" content="Pusat belajar bahasa Jepang modern & interaktif. Kuasai Hiragana, Katakana, Kanji, Audio Native, dan Refleks Percakapan.">
+    <meta name="description"
+        content="Pusat belajar bahasa Jepang modern & interaktif. Kuasai Hiragana, Katakana, Kanji, Audio Native, dan Refleks Percakapan.">
 
     <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nihongo-trinity.vercel.app/">
-    <meta property="og:title" content="Nihongo Trinity | Japanese Mastery Hub">
-    <meta property="og:description" content="Pusat belajar bahasa Jepang modern & interaktif. Kuasai Hiragana, Katakana, Kanji, Audio Native, dan Refleks Percakapan.">
+    <meta property="og:title" content="Nihongo Trinity | System Hub">
+    <meta property="og:description"
+        content="Ruang belajar terstruktur untuk menguasai Hiragana, Katakana, dan jejepangan dengan disiplin.">
+    <!-- Tambahan itemprop dan ukuran spesifik untuk WhatsApp Mobile -->
     <meta property="og:image" itemprop="image" content="https://nihongo-trinity.vercel.app/gambar/icon.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="300">
     <meta property="og:image:height" content="300">
 
-    <!-- Twitter -->
+    <!-- Twitter ato X -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://nihongo-trinity.vercel.app/">
     <meta property="twitter:title" content="Nihongo Trinity | Japanese Mastery Hub">
-    <meta property="twitter:description" content="Pusat belajar bahasa Jepang modern & interaktif. Kuasai Hiragana, Katakana, Kanji, Audio Native, dan Refleks Percakapan.">
+    <meta property="twitter:description"
+        content="Pusat belajar bahasa Jepang modern & interaktif. Kuasai Hiragana, Katakana, Kanji, Audio Native, dan Refleks Percakapan.">
     <meta property="twitter:image" content="https://nihongo-trinity.vercel.app/gambar/icon.png">
 
     <title>Nihongo Trinity | Japanese Mastery Hub</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="main-page">
 
-    <!-- CANVAS EFEK KELOPAK SAKURA MELAYANG -->
-    <canvas id="sakuraCanvas"></canvas>
-
-    <!-- NAVBAR ATAS (TOP BAR ZEN) -->
+    <!-- NAVBAR ATAS (TOP BAR) -->
     <nav class="top-navbar">
         <div class="nav-brand">
             <div class="nav-logo-wrapper">
                 <img src="gambar/icon.png" alt="Trinity Logo" class="nav-logo-img" onerror="this.style.display='none'">
             </div>
             <div class="nav-title-group">
-                <span class="nav-title">TRINITY <span style="font-size: 11px; color: var(--japan-red);">日本語</span></span>
+                <span class="nav-title">TRINITY <span
+                        style="font-size: 11px; color: var(--japan-red);">日本語</span></span>
                 <span class="nav-subtitle">System Mastery Hub</span>
             </div>
         </div>
 
         <div class="nav-right-actions">
             <!-- Toggle Efek Kelopak Sakura -->
-            <button id="toggleSakuraBtn" class="nav-icon-btn is-active" title="Aktif/Nonaktifkan Efek Sakura" aria-label="Toggle Sakura">
+            <button id="toggleSakuraBtn" class="nav-icon-btn is-active" title="Aktif/Nonaktifkan Efek Sakura"
+                aria-label="Toggle Sakura">
                 🌸
             </button>
-            
+
             <!-- Tombol Login / Profil Member -->
             <button id="topLoginToggle" class="top-login-toggle" aria-label="Profil Member">
-                <img id="topAvatar" src="gambar/icon.png" alt="Avatar" style="display: none; width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--japan-gold);">
-                <span class="icon" id="topIcon">👤</span> 
+                <img id="topAvatar" src="gambar/icon.png" alt="Avatar"
+                    style="display: none; width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--japan-gold);">
+                <span class="icon" id="topIcon">👤</span>
                 <span id="topLoginText">Login</span>
             </button>
         </div>
@@ -70,27 +76,36 @@
         <div class="login-modal" style="text-align: center; max-width: 360px;">
             <span id="closeProfileModal" class="close-modal" aria-label="Tutup">×</span>
             <h2 style="margin-bottom: 20px; font-size: 1.4rem; color: #fff;">Pengaturan Profil</h2>
-            
-            <div style="position: relative; width: 110px; height: 110px; margin: 0 auto 20px; border-radius: 50%; border: 3px solid var(--japan-gold); overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-                <img id="profilePreviewImg" src="gambar/icon.png" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
-                <label for="profileImageUpload" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.75); color: #fff; font-size: 10px; padding: 6px 0; cursor: pointer; text-align: center; font-weight: 700; transition: 0.3s;">UBAH FOTO</label>
+
+            <div
+                style="position: relative; width: 110px; height: 110px; margin: 0 auto 20px; border-radius: 50%; border: 3px solid var(--japan-gold); overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                <img id="profilePreviewImg" src="gambar/icon.png" alt="Profile"
+                    style="width: 100%; height: 100%; object-fit: cover;">
+                <label for="profileImageUpload"
+                    style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.75); color: #fff; font-size: 10px; padding: 6px 0; cursor: pointer; text-align: center; font-weight: 700; transition: 0.3s;">UBAH
+                    FOTO</label>
                 <input type="file" id="profileImageUpload" accept="image/*" style="display: none;">
             </div>
 
             <div style="text-align: left; margin-bottom: 18px;">
-                <label style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block;">Nama Tampilan</label>
+                <label
+                    style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block;">Nama
+                    Tampilan</label>
                 <input type="text" id="profileNameInput" placeholder="Ketik nama baru...">
             </div>
-            
-            <button type="button" id="saveProfileBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 10px; padding: 12px;">SIMPAN PERUBAHAN</button>
-            <button type="button" id="logoutBtn" class="btn btn-secondary" style="width: 100%; padding: 12px;">KELUAR AKUN</button>
+
+            <button type="button" id="saveProfileBtn" class="btn btn-primary"
+                style="width: 100%; margin-bottom: 10px; padding: 12px;">SIMPAN PERUBAHAN</button>
+            <button type="button" id="logoutBtn" class="btn btn-secondary" style="width: 100%; padding: 12px;">KELUAR
+                AKUN</button>
         </div>
     </div>
-    
+
     <!-- POPUP KECIL (Guest Prompt) -->
     <div id="guestPromptPopup" class="guest-prompt-popup" style="display: none;">
         <span class="prompt-icon">⛩️</span>
-        <p>Selamat datang di <strong>Nihongo Trinity</strong>! Masuk akun untuk menyimpan skor kuis dan mengakses seluruh ruang obrolan komunitas.</p>
+        <p>Selamat datang di <strong>Nihongo Trinity</strong>! Masuk akun untuk menyimpan skor kuis dan mengakses
+            seluruh ruang obrolan komunitas.</p>
         <div class="prompt-buttons">
             <button id="btnPromptNanti" class="btn-nanti">Nanti</button>
             <button id="btnPromptLogin" class="btn-login">Login / Daftar</button>
@@ -104,13 +119,16 @@
             <div class="modal-icon">⛩️</div>
             <h2 id="modalTitle">Identifikasi Member</h2>
             <p id="modalDesc">Silakan masuk untuk mengakses sistem latihan dan ruang obrolan Trinity.</p>
-            
+
             <div id="loginForm">
                 <input type="text" id="loginUsername" placeholder="Nama Akun / Username">
                 <input type="password" id="loginPassword" placeholder="Kata Sandi">
                 <p id="loginError" class="login-error"></p>
-                <button type="button" id="mainLoginBtn" class="btn btn-primary" style="width:100%; margin-bottom:10px;">MASUK KE SISTEM</button>
-                <p style="font-size:12px; color:var(--muted); margin-top:18px;">Belum punya akun? <span id="showRegisterBtn" style="color:var(--japan-gold); cursor:pointer; font-weight:bold;">Buat Akun Baru</span></p>
+                <button type="button" id="mainLoginBtn" class="btn btn-primary"
+                    style="width:100%; margin-bottom:10px;">MASUK KE SISTEM</button>
+                <p style="font-size:12px; color:var(--muted); margin-top:18px;">Belum punya akun? <span
+                        id="showRegisterBtn" style="color:var(--japan-gold); cursor:pointer; font-weight:bold;">Buat
+                        Akun Baru</span></p>
             </div>
 
             <div id="registerForm" style="display: none;">
@@ -118,12 +136,15 @@
                 <input type="email" id="regEmail" placeholder="Alamat Email Aktif">
                 <input type="password" id="regPassword" placeholder="Buat Kata Sandi Kuat">
                 <p id="regError" class="login-error"></p>
-                <button type="button" id="mainRegBtn" class="btn btn-gold" style="width:100%; margin-bottom:10px;">DAFTAR SEKARANG</button>
-                <p style="font-size:12px; color:var(--muted); margin-top:18px;">Sudah punya akun? <span id="showLoginBtn" style="color:var(--japan-red); cursor:pointer; font-weight:bold;">Login di sini</span></p>
+                <button type="button" id="mainRegBtn" class="btn btn-gold"
+                    style="width:100%; margin-bottom:10px;">DAFTAR SEKARANG</button>
+                <p style="font-size:12px; color:var(--muted); margin-top:18px;">Sudah punya akun? <span
+                        id="showLoginBtn" style="color:var(--japan-red); cursor:pointer; font-weight:bold;">Login di
+                        sini</span></p>
             </div>
         </div>
     </div>
-    
+
     <!-- ========================================== -->
     <!-- HERO HEADER: PUSAT KONTROL UTAMA -->
     <!-- ========================================== -->
@@ -134,8 +155,9 @@
             <span>【 学びの道 · Path of Mastery 】</span>
         </div>
         <h1>Bangun fondasi Jepangmu, satu kana setiap hari.</h1>
-        <p class="subtitle">Ruang belajar terstruktur dan terpadu untuk menguasai Hiragana, Katakana, Kanji esensial, serta refleks percakapan bahasa Jepang dengan disiplin dan konsistensi.</p>
-        
+        <p class="subtitle">Ruang belajar terstruktur dan terpadu untuk menguasai Hiragana, Katakana, Kanji esensial,
+            serta refleks percakapan bahasa Jepang dengan disiplin dan konsistensi.</p>
+
         <!-- Motto Harian Interaktif -->
         <div>
             <div class="kotowaza-card" id="mottoSpeaker" title="Klik untuk mendengar pelafalan audio">
@@ -171,7 +193,8 @@
                 <h2>Kanji Hari Ini <span>( 本日の漢字 )</span></h2>
                 <span>Pelajari kanji esensial beserta cara baca dan contoh kalimat nyata.</span>
             </div>
-            <button type="button" id="nextKanjiBtn" class="btn btn-secondary" style="padding: 8px 16px; font-size: 11px;">
+            <button type="button" id="nextKanjiBtn" class="btn btn-secondary"
+                style="padding: 8px 16px; font-size: 11px;">
                 🔄 Ganti Kanji Lain
             </button>
         </div>
@@ -193,8 +216,9 @@
                 <div>
                     <span class="kanji-meaning-badge">Arti Filosofis:</span>
                     <h3 class="kanji-meaning-title" id="kanjiMeaning">Matahari / Hari</h3>
-                    <p class="kanji-desc-text" id="kanjiDesc">Kanji paling fundamental yang melambangkan matahari dan penanda waktu hari. Digunakan juga dalam nama negara Jepang (日本 - Nihon).</p>
-                    
+                    <p class="kanji-desc-text" id="kanjiDesc">Kanji paling fundamental yang melambangkan matahari dan
+                        penanda waktu hari. Digunakan juga dalam nama negara Jepang (日本 - Nihon).</p>
+
                     <div class="kanji-example-box">
                         <div class="kanji-example-jp" id="kanjiExJp">今日はいい天気ですね。</div>
                         <div class="kanji-example-romaji" id="kanjiExRomaji">Kyou wa ii tenki desu ne.</div>
@@ -203,7 +227,8 @@
                 </div>
 
                 <div class="kanji-action-row">
-                    <button type="button" id="playKanjiAudioBtn" class="btn btn-primary" style="padding: 10px 18px; font-size: 11px;">
+                    <button type="button" id="playKanjiAudioBtn" class="btn btn-primary"
+                        style="padding: 10px 18px; font-size: 11px;">
                         🔊 Dengarkan Pelafalan
                     </button>
                     <a href="pages/belajar.html" class="btn btn-secondary" style="padding: 10px 18px; font-size: 11px;">
@@ -231,7 +256,8 @@
                     <button type="button" id="tabSoundHira" class="tab-pill active">Hiragana (平仮名)</button>
                     <button type="button" id="tabSoundKata" class="tab-pill">Katakana (片仮名)</button>
                 </div>
-                <input type="search" id="soundSearch" class="soundboard-search" placeholder="Cari kana / romaji (ex: ka, shi)...">
+                <input type="search" id="soundSearch" class="soundboard-search"
+                    placeholder="Cari kana / romaji (ex: ka, shi)...">
             </div>
 
             <div class="soundboard-grid" id="soundboardGrid">
@@ -252,11 +278,16 @@
         </div>
 
         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
-            <button type="button" class="btn btn-secondary phrase-filter-btn active" data-category="all" style="padding: 6px 14px; font-size: 11px;">Semua</button>
-            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="salam" style="padding: 6px 14px; font-size: 11px;">🎌 Salam & Sopan</button>
-            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="restoran" style="padding: 6px 14px; font-size: 11px;">🍜 Restoran & Kuliner</button>
-            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="anime" style="padding: 6px 14px; font-size: 11px;">⚔️ Anime & Slang</button>
-            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="darurat" style="padding: 6px 14px; font-size: 11px;">🚨 Darurat & Arah</button>
+            <button type="button" class="btn btn-secondary phrase-filter-btn active" data-category="all"
+                style="padding: 6px 14px; font-size: 11px;">Semua</button>
+            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="salam"
+                style="padding: 6px 14px; font-size: 11px;">🎌 Salam & Sopan</button>
+            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="restoran"
+                style="padding: 6px 14px; font-size: 11px;">🍜 Restoran & Kuliner</button>
+            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="anime"
+                style="padding: 6px 14px; font-size: 11px;">⚔️ Anime & Slang</button>
+            <button type="button" class="btn btn-secondary phrase-filter-btn" data-category="darurat"
+                style="padding: 6px 14px; font-size: 11px;">🚨 Darurat & Arah</button>
         </div>
 
         <div class="phrasebook-grid" id="phrasebookList">
@@ -280,12 +311,13 @@
                 <span class="canvas-guide-char" id="canvasGuide">あ</span>
                 <canvas id="drawCanvas"></canvas>
             </div>
-            
+
             <div class="canvas-tools-side">
                 <div>
                     <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 6px;">Pilih Huruf Panduan:</h3>
-                    <p style="color: var(--muted); font-size: 0.85rem;">Klik salah satu huruf untuk mengganti cetakan bayangan di kanvas, lalu gunakan mouse atau jarimu untuk menulis:</p>
-                    
+                    <p style="color: var(--muted); font-size: 0.85rem;">Klik salah satu huruf untuk mengganti cetakan
+                        bayangan di kanvas, lalu gunakan mouse atau jarimu untuk menulis:</p>
+
                     <div class="canvas-char-selector">
                         <button type="button" class="char-pick-btn active">あ</button>
                         <button type="button" class="char-pick-btn">い</button>
@@ -304,7 +336,8 @@
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="button" id="clearCanvasBtn" class="btn btn-secondary" style="padding: 10px 18px; font-size: 12px;">
+                    <button type="button" id="clearCanvasBtn" class="btn btn-secondary"
+                        style="padding: 10px 18px; font-size: 12px;">
                         🧹 Bersihkan Kanvas
                     </button>
                     <a href="pages/belajar.html" class="btn btn-outline" style="padding: 10px 18px; font-size: 12px;">
@@ -326,13 +359,16 @@
                     <div class="tool-icon">🎴</div>
                     <div>
                         <h3 style="color: #fff; font-size: 1.25rem;">Generator Nama Jepang</h3>
-                        <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Ubah namamu ke Katakana resmi dan temukan arti kanji estetiknya.</p>
+                        <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Ubah namamu ke Katakana resmi dan
+                            temukan arti kanji estetiknya.</p>
                     </div>
                 </div>
-                
+
                 <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                    <input type="text" id="nameInput" placeholder="Ketik nama (ex: Umaedi, Budi, Salsa)..." style="flex: 1; padding: 12px 14px; background: rgba(8,11,17,0.8); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff; font-size: 13px; outline: none;">
-                    <button type="button" id="convertNameBtn" class="btn btn-gold" style="padding: 12px 16px; font-size: 11px;">Konversi</button>
+                    <input type="text" id="nameInput" placeholder="Ketik nama (ex: Umaedi, Budi, Salsa)..."
+                        style="flex: 1; padding: 12px 14px; background: rgba(8,11,17,0.8); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff; font-size: 13px; outline: none;">
+                    <button type="button" id="convertNameBtn" class="btn btn-gold"
+                        style="padding: 12px 16px; font-size: 11px;">Konversi</button>
                 </div>
 
                 <div id="nameResultBox" style="display: none;"></div>
@@ -344,15 +380,18 @@
                     <div class="tool-icon">⏳</div>
                     <div>
                         <h3 style="color: #fff; font-size: 1.25rem;">Zen Focus Timer (25 Menit)</h3>
-                        <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Metode Pomodoro terbukti efektif untuk menghafal kana tanpa lelah.</p>
+                        <p style="font-size: 0.85rem; color: var(--muted); margin: 0;">Metode Pomodoro terbukti efektif
+                            untuk menghafal kana tanpa lelah.</p>
                     </div>
                 </div>
 
                 <div class="zen-timer-display" id="zenTimerDisplay">25:00</div>
 
                 <div class="zen-controls">
-                    <button type="button" id="startZenBtn" class="btn btn-primary" style="padding: 10px 22px; font-size: 12px;">MULAI FOKUS</button>
-                    <button type="button" id="resetZenBtn" class="btn btn-secondary" style="padding: 10px 18px; font-size: 12px;">RESET</button>
+                    <button type="button" id="startZenBtn" class="btn btn-primary"
+                        style="padding: 10px 22px; font-size: 12px;">MULAI FOKUS</button>
+                    <button type="button" id="resetZenBtn" class="btn btn-secondary"
+                        style="padding: 10px 18px; font-size: 12px;">RESET</button>
                 </div>
             </div>
         </div>
@@ -369,25 +408,29 @@
                     <span class="badge">OWNER / FOUNDER</span>
                     <h3>Umaedi</h3>
                     <p class="role">IT & Technology Specialist</p>
-                    <p class="desc">Keahlian utama di bidang arsitektur perangkat lunak, pengembangan sistem cloud, dan otomasi teknologi.</p>
+                    <p class="desc">Keahlian utama di bidang arsitektur perangkat lunak, pengembangan sistem cloud, dan
+                        otomasi teknologi.</p>
                 </div>
                 <div class="card">
                     <span class="badge" style="background: var(--japan-red); color: #fff;">SENSEI</span>
                     <h3>Iqbal</h3>
                     <p class="role">Japanese Language Master</p>
-                    <p class="desc"><em>"Rapid language acquisition..."</em> Sang pakar tata bahasa dan pemandu hafalan bahasa Jepang di tim.</p>
+                    <p class="desc"><em>"Rapid language acquisition..."</em> Sang pakar tata bahasa dan pemandu hafalan
+                        bahasa Jepang di tim.</p>
                 </div>
                 <div class="card">
                     <span class="badge" style="background: var(--japan-blue); color: #fff;">SPECIALIST</span>
                     <h3>Rifki / Swing</h3>
                     <p class="role">History, Politics & Religion</p>
-                    <p class="desc">Memiliki wawasan fundamental dan mendalam di bidang sejarah budaya, dinamika geopolitik, dan keilmuan.</p>
+                    <p class="desc">Memiliki wawasan fundamental dan mendalam di bidang sejarah budaya, dinamika
+                        geopolitik, dan keilmuan.</p>
                 </div>
                 <div class="card">
                     <span class="badge" style="background: #8e44ad; color: #fff;">LEARNER</span>
                     <h3>Fasya</h3>
                     <p class="role">Kana Explorer & Creative</p>
-                    <p class="desc">Member aktif yang tekun berlatih kana dan ikut menjaga semangat belajar kelompok tetap solid dan ceria.</p>
+                    <p class="desc">Member aktif yang tekun berlatih kana dan ikut menjaga semangat belajar kelompok
+                        tetap solid dan ceria.</p>
                 </div>
             </div>
         </section>
@@ -396,9 +439,10 @@
         <aside class="leaderboard-panel">
             <h2>Peringkat <span>( 順位 )</span></h2>
             <ol class="rank-list" id="leaderboardList">
-                <li style="text-align: center; justify-content: center; color: var(--muted); font-size: 12px;">Menghubungkan ke server database...</li>
+                <li style="text-align: center; justify-content: center; color: var(--muted); font-size: 12px;">
+                    Menghubungkan ke server database...</li>
             </ol>
-            
+
             <a href="pages/donasi.html" class="donation-widget">
                 <div class="donation-icon">🍵</div>
                 <div class="donation-info">
@@ -409,7 +453,7 @@
             </a>
         </aside>
     </div>
-    
+
     <!-- ========================================== -->
     <!-- DOCK NAVIGASI BAWAH MODERN -->
     <!-- ========================================== -->
@@ -439,9 +483,7 @@
         </a>
     </nav>
 
-    <!-- ========================================== -->
-    <!-- FITUR KHUSUS ADMIN (UMAEDI) & BROADCAST -->
-    <!-- ========================================== -->
+    <!-- FITUR KHUSUS ADMIN (UMAEDI) & GLOBAL ALERT -->
     <button id="adminToggleBtn" class="admin-toggle-btn" style="display: none;">⚙️ SYSTEM OVERRIDE</button>
 
     <div id="adminModal" class="global-login-overlay" style="display: none; z-index: 10000;">
@@ -451,14 +493,21 @@
             <h2 style="color: var(--japan-red);">Admin Control Panel</h2>
             <p>Kirim pesan pengumuman real-time ke SEMUA pengunjung yang sedang membuka situs.</p>
             <input type="text" id="announceTitle" placeholder="Judul Pengumuman (ex: UPDATE JADWAL)">
-            <textarea id="announceMessage" rows="4" placeholder="Ketik isi pengumuman sistem di sini..." style="width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(8,12,16,.8); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; font-family: 'Plus Jakarta Sans', sans-serif; resize: none;"></textarea>
-            <button type="button" id="sendAnnounceBtn" class="btn btn-primary" style="width: 100%;">BROADCAST SEKARANG</button>
+            <textarea id="announceMessage" rows="4" placeholder="Ketik isi pengumuman sistem di sini..."
+                style="width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(8,12,16,.8); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; font-family: 'Plus Jakarta Sans', sans-serif; resize: none;"></textarea>
+            <button type="button" id="sendAnnounceBtn" class="btn btn-primary" style="width: 100%;">BROADCAST
+                SEKARANG</button>
 
+            <!-- FITUR BARU: DATABASE CONTROL -->
             <hr style="border-color: var(--border-subtle); margin: 25px 0;">
             <h3 style="color: var(--japan-red); font-size: 1.1rem; margin-bottom: 5px;">Database Maintenance</h3>
-            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5;">Bersihkan riwayat pesan secara aman dengan sistem hitung mundur 10 detik otomatis.</p>
-            <button type="button" id="clearPublicBtn" class="btn btn-outline" style="width: 100%; margin-bottom: 10px; font-size: 11px;">🧹 BERSIHKAN PUBLIC LOUNGE</button>
-            <button type="button" id="clearCoreBtn" class="btn btn-outline" style="width: 100%; font-size: 11px; border-color: #D32F2F; color: #D32F2F;">🧹 BERSIHKAN TRINITY CORE</button>
+            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5;">Bersihkan riwayat
+                pesan secara aman dengan sistem hitung mundur 10 detik otomatis.</p>
+            <button type="button" id="clearPublicBtn" class="btn btn-outline"
+                style="width: 100%; margin-bottom: 10px; font-size: 11px;">🧹 BERSIHKAN PUBLIC LOUNGE</button>
+            <button type="button" id="clearCoreBtn" class="btn btn-outline"
+                style="width: 100%; font-size: 11px; border-color: #D32F2F; color: #D32F2F;">🧹 BERSIHKAN TRINITY
+                CORE</button>
         </div>
     </div>
 
@@ -474,12 +523,15 @@
                 </div>
                 <span id="closeAlert" class="close-alert" title="Tutup">×</span>
             </div>
-            <div class="alert-body"><p id="alertMessage">Pesan dari sistem...</p></div>
+            <div class="alert-body">
+                <p id="alertMessage">Pesan dari sistem...</p>
+            </div>
         </div>
         <div class="alert-progress"></div>
     </div>
-    
+
     <script type="module" src="admin.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
