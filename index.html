@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <!-- ========================================== -->
-    <!-- FAVICON Rowr &-->
+    <!-- FAVICON & BRANDING -->
     <!-- ========================================== -->
     <link rel="icon" type="image/png" href="gambar/icon.png">
 
@@ -14,26 +14,18 @@
     <meta name="title" content="Nihongo Trinity | Japanese Mastery Hub">
     <meta name="description"
         content="Pusat belajar bahasa Jepang modern & interaktif. Kuasai Hiragana, Katakana, Kanji, Audio Native, dan Refleks Percakapan.">
+    <meta name="theme-color" content="#080b11">
 
-    <!-- Open Graph / Facebook / WhatsApp -->
+    <!-- Open Graph / WhatsApp -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nihongo-trinity.vercel.app/">
     <meta property="og:title" content="Nihongo Trinity | System Hub">
     <meta property="og:description"
-        content="Ruang belajar terstruktur untuk menguasai Hiragana, Katakana, dan jejepangan dengan disiplin.">
-    <!-- Tambahan itemprop dan ukuran spesifik untuk WhatsApp Mobile -->
+        content="Aplikasi belajar bahasa Jepang terstruktur, modern, dan interaktif. Latihan refleks, kanji harian, dan AI Sensei.">
     <meta property="og:image" itemprop="image" content="https://nihongo-trinity.vercel.app/gambar/icon.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="300">
     <meta property="og:image:height" content="300">
-
-    <!-- Twitter ato X -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://nihongo-trinity.vercel.app/">
-    <meta property="twitter:title" content="Nihongo Trinity | Japanese Mastery Hub">
-    <meta property="twitter:description"
-        content="Pusat belajar bahasa Jepang modern & interaktif. Kuasai Hiragana, Katakana, Kanji, Audio Native, dan Refleks Percakapan.">
-    <meta property="twitter:image" content="https://nihongo-trinity.vercel.app/gambar/icon.png">
 
     <title>Nihongo Trinity | Japanese Mastery Hub</title>
     <link rel="stylesheet" href="style.css">
@@ -41,302 +33,383 @@
 
 <body class="main-page">
 
-    <!-- NAVBAR ATAS (TOP BAR) -->
-    <nav class="top-navbar">
-        <div class="nav-brand">
-            <div class="nav-logo-wrapper">
-                <img src="gambar/icon.png" alt="Trinity Logo" class="nav-logo-img" onerror="this.style.display='none'">
-            </div>
-            <div class="nav-title-group">
-                <span class="nav-title">TRINITY <span
-                        style="font-size: 11px; color: var(--japan-red);">日本語</span></span>
-                <span class="nav-subtitle">System Mastery Hub</span>
-            </div>
-        </div>
-
-        <div class="nav-right-actions">
-            <!-- Toggle Efek Kelopak Sakura -->
-            <button id="toggleSakuraBtn" class="nav-icon-btn is-active" title="Aktif/Nonaktifkan Efek Sakura"
-                aria-label="Toggle Sakura">
-                🌸
-            </button>
-
-            <!-- Tombol Login / Profil Member -->
-            <button id="topLoginToggle" class="top-login-toggle" aria-label="Profil Member">
-                <img id="topAvatar" src="gambar/icon.png" alt="Avatar"
-                    style="display: none; width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--japan-gold);">
-                <span class="icon" id="topIcon">👤</span>
-                <span id="topLoginText">Login</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- MODAL PENGATURAN PROFIL -->
-    <div id="profileModalOverlay" class="global-login-overlay" style="display: none; z-index: 10002;">
-        <div class="login-modal" style="text-align: center; max-width: 360px;">
-            <span id="closeProfileModal" class="close-modal" aria-label="Tutup">×</span>
-            <h2 style="margin-bottom: 20px; font-size: 1.4rem; color: #fff;">Pengaturan Profil</h2>
-
-            <div
-                style="position: relative; width: 110px; height: 110px; margin: 0 auto 20px; border-radius: 50%; border: 3px solid var(--japan-gold); overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-                <img id="profilePreviewImg" src="gambar/icon.png" alt="Profile"
-                    style="width: 100%; height: 100%; object-fit: cover;">
-                <label for="profileImageUpload"
-                    style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.75); color: #fff; font-size: 10px; padding: 6px 0; cursor: pointer; text-align: center; font-weight: 700; transition: 0.3s;">UBAH
-                    FOTO</label>
-                <input type="file" id="profileImageUpload" accept="image/*" style="display: none;">
-            </div>
-
-            <div style="text-align: left; margin-bottom: 18px;">
-                <label
-                    style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block;">Nama
-                    Tampilan</label>
-                <input type="text" id="profileNameInput" placeholder="Ketik nama baru...">
-            </div>
-
-            <button type="button" id="saveProfileBtn" class="btn btn-primary"
-                style="width: 100%; margin-bottom: 10px; padding: 12px;">SIMPAN PERUBAHAN</button>
-            <button type="button" id="logoutBtn" class="btn btn-secondary" style="width: 100%; padding: 12px;">KELUAR
-                AKUN</button>
-        </div>
-    </div>
-
-    <!-- POPUP KECIL (Guest Prompt) -->
-    <div id="guestPromptPopup" class="guest-prompt-popup" style="display: none;">
-        <span class="prompt-icon">⛩️</span>
-        <p>Selamat datang di <strong>Nihongo Trinity</strong>! Masuk akun untuk menyimpan skor kuis dan mengakses
-            seluruh ruang obrolan komunitas.</p>
-        <div class="prompt-buttons">
-            <button id="btnPromptNanti" class="btn-nanti">Nanti</button>
-            <button id="btnPromptLogin" class="btn-login">Login / Daftar</button>
-        </div>
-    </div>
-
-    <!-- OVERLAY LOGIN GLOBAL -->
-    <div id="globalLoginOverlay" class="global-login-overlay" style="display: none;">
-        <div class="login-modal">
-            <span id="closeLoginModal" class="close-modal" aria-label="Tutup">×</span>
-            <div class="modal-icon">⛩️</div>
-            <h2 id="modalTitle">Identifikasi Member</h2>
-            <p id="modalDesc">Silakan masuk untuk mengakses sistem latihan dan ruang obrolan Trinity.</p>
-
-            <div id="loginForm">
-                <input type="text" id="loginUsername" placeholder="Nama Akun / Username">
-                <input type="password" id="loginPassword" placeholder="Kata Sandi">
-                <p id="loginError" class="login-error"></p>
-                <button type="button" id="mainLoginBtn" class="btn btn-primary"
-                    style="width:100%; margin-bottom:10px;">MASUK KE SISTEM</button>
-                <p style="font-size:12px; color:var(--muted); margin-top:18px;">Belum punya akun? <span
-                        id="showRegisterBtn" style="color:var(--japan-gold); cursor:pointer; font-weight:bold;">Buat
-                        Akun Baru</span></p>
-            </div>
-
-            <div id="registerForm" style="display: none;">
-                <input type="text" id="regUsername" placeholder="Nama Tampilan (Contoh: Budi)">
-                <input type="email" id="regEmail" placeholder="Alamat Email Aktif">
-                <input type="password" id="regPassword" placeholder="Buat Kata Sandi Kuat">
-                <p id="regError" class="login-error"></p>
-                <button type="button" id="mainRegBtn" class="btn btn-gold"
-                    style="width:100%; margin-bottom:10px;">DAFTAR SEKARANG</button>
-                <p style="font-size:12px; color:var(--muted); margin-top:18px;">Sudah punya akun? <span
-                        id="showLoginBtn" style="color:var(--japan-red); cursor:pointer; font-weight:bold;">Login di
-                        sini</span></p>
-            </div>
-        </div>
-    </div>
+    <!-- Efek Partikel Bunga Sakura Melayang -->
+    <canvas id="sakuraCanvas"></canvas>
 
     <!-- ========================================== -->
-    <!-- HERO HEADER: PUSAT KONTROL UTAMA -->
+    <!-- MOBILE-FIRST APP CONTAINER SHELL -->
     <!-- ========================================== -->
-    <header class="hub-header">
-        <div class="kanji-watermark-bg">日本語</div>
-        <div class="eyebrow">
-            <span>⛩️</span>
-            <span>【 学びの道 · Path of Mastery 】</span>
-        </div>
-        <h1>Bangun fondasi Jepangmu, satu kana setiap hari.</h1>
-        <p class="subtitle">Ruang belajar terstruktur dan terpadu untuk menguasai Hiragana, Katakana, Kanji esensial,
-            serta refleks percakapan bahasa Jepang dengan disiplin dan konsistensi.</p>
+    <main class="mobile-app-shell">
 
-        <!-- Motto Harian Interaktif -->
-        <div>
-            <div class="kotowaza-card" id="mottoSpeaker" title="Klik untuk mendengar pelafalan audio">
-                <span>🏮</span>
-                <strong>「継続は力なり」</strong>
-                <span>Keizoku wa chikara nari (Konsistensi adalah kekuatan)</span>
-                <span class="audio-btn">🔊</span>
+        <!-- STICKY TOP APP BAR -->
+        <header class="mobile-app-header">
+            <a href="index.html" class="mobile-brand-group">
+                <div class="mobile-brand-logo">
+                    <img src="gambar/icon.png" alt="Trinity Logo" onerror="this.style.display='none'">
+                </div>
+                <div class="mobile-brand-text">
+                    <span class="mobile-brand-title">TRINITY <span style="font-size: 11px; color: var(--japan-red);">日本語</span></span>
+                    <span class="mobile-brand-sub">System Mastery Hub</span>
+                </div>
+            </a>
+
+            <div class="mobile-header-actions">
+                <!-- Toggle Efek Kelopak Sakura -->
+                <button id="toggleSakuraBtn" class="nav-icon-btn is-active" title="Aktif/Nonaktifkan Efek Sakura" aria-label="Toggle Sakura">
+                    🌸
+                </button>
+
+                <!-- Tombol Login / Profil Member -->
+                <button id="topLoginToggle" class="mobile-profile-pill" aria-label="Profil Member">
+                    <img id="topAvatar" src="gambar/icon.png" alt="Avatar" class="mobile-profile-avatar" style="display: none;">
+                    <span class="icon" id="topIcon">👤</span>
+                    <span id="topLoginText">Login</span>
+                </button>
             </div>
-        </div>
+        </header>
 
-        <div class="action-buttons">
-            <a href="pages/belajar.html" class="btn btn-primary">
-                <span>あ</span> Belajar Hiragana →
-            </a>
-            <a href="pages/belajar-katakana.html" class="btn btn-primary">
-                <span>ア</span> Belajar Katakana →
-            </a>
-            <a href="pages/kuis.html" class="btn btn-gold">
-                <span>⚡</span> Uji Refleks Dojo →
-            </a>
-            <a href="pages/pesan.html" class="btn btn-outline">
-                <span>⛩️</span> Ruang Obrolan & AI Sensei →
-            </a>
-        </div>
-    </header>
-
-    <!-- ========================================== -->
-    <!-- PUSAT GERBANG BELAJAR (DOJO MASTERY GATES) -->
-    <!-- ========================================== -->
-    <section class="feature-section" id="dojoGatesSection" style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
-        <div class="section-header-row" style="text-align: center; margin-bottom: 25px; display: block;">
-            <div class="section-heading" style="text-align: center;">
-                <p class="eyebrow" style="margin-bottom: 8px;">【 道場入口 · Gates of Mastery 】</p>
-                <h2 style="font-size: 1.8rem; color: #fff; margin: 0 0 6px;">Pusat Modul Pembelajaran Jepang</h2>
-                <span style="color: var(--muted); font-size: 0.95rem;">Pilih modul latihan terstruktur yang ingin kamu kuasai hari ini:</span>
+        <!-- 1. HERO STUDENT PASS CARD (HOLOGRAM CYBER PASS) -->
+        <section class="student-pass-card">
+            <div class="pass-top-row">
+                <div class="pass-user-meta">
+                    <div class="pass-avatar-wrapper">
+                        <img id="heroPassAvatar" src="gambar/icon.png" alt="Student Avatar" class="pass-avatar-img">
+                    </div>
+                    <div class="pass-user-details">
+                        <h3 id="heroPassUserName">Konnichiwa, Gakusei! 🌸</h3>
+                        <span class="pass-rank-badge" id="heroPassRank">⚔️ 見習い MINARAI · LV.1</span>
+                    </div>
+                </div>
+                <div class="pass-streak-badge" id="heroPassStreak">
+                    🔥 <span>1 Hari</span>
+                </div>
             </div>
+
+            <!-- EXP Progress Bar -->
+            <div class="pass-exp-container">
+                <div class="pass-exp-header">
+                    <span class="pass-exp-label">Penguasaan Materi (EXP)</span>
+                    <span class="pass-exp-val" id="heroExpVal">120 / 300 XP</span>
+                </div>
+                <div class="pass-exp-track">
+                    <div class="pass-exp-fill" id="heroExpFill" style="width: 40%;"></div>
+                </div>
+            </div>
+
+            <!-- Daily Motto Banner (Audio Speaker) -->
+            <div class="pass-motto-row" id="mottoSpeaker" title="Ketuk untuk mendengarkan audio pelafalan">
+                <div class="pass-motto-text">
+                    <span>🏮</span>
+                    <div>
+                        <strong>「継続は力なり」</strong>
+                        <span style="font-size: 10px; color: var(--muted); display: block;">Keizoku wa chikara nari (Konsistensi adalah kekuatan)</span>
+                    </div>
+                </div>
+                <span class="pass-motto-speaker">🔊</span>
+            </div>
+        </section>
+
+        <!-- 2. QUICK ACTION CHIPS (HORIZONTAL SCROLL MENU) -->
+        <div class="quick-chips-wrapper" aria-label="Menu Pintas Kilat">
+            <a href="#fastRadarSection" class="quick-chip-item">
+                <span class="chip-icon">⚡</span>
+                <span>Kuis Kilat</span>
+            </a>
+            <a href="pages/pesan.html" class="quick-chip-item" style="border-color: rgba(255, 117, 143, 0.4);">
+                <span class="chip-icon">🌸</span>
+                <span>AI Sensei</span>
+            </a>
+            <a href="#dailyQuestsSection" class="quick-chip-item">
+                <span class="chip-icon">🎯</span>
+                <span>Misi Hari Ini</span>
+            </a>
+            <a href="#kanjiRadarSection" class="quick-chip-item">
+                <span class="chip-icon">漢</span>
+                <span>Kanji Radar</span>
+            </a>
+            <a href="pages/kotoba.html" class="quick-chip-item">
+                <span class="chip-icon">🎧</span>
+                <span>Kotoba Audio</span>
+            </a>
+            <a href="pages/tulis.html" class="quick-chip-item">
+                <span class="chip-icon">✍️</span>
+                <span>Kuas Zen</span>
+            </a>
+            <a href="#leaderboardSection" class="quick-chip-item">
+                <span class="chip-icon">🏆</span>
+                <span>Leaderboard</span>
+            </a>
         </div>
 
-        <div class="dojo-grid-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
-            
-            <!-- MODUL 1: HIRAGANA -->
-            <a href="pages/belajar.html" class="dojo-gate-card">
-                <div class="gate-icon-badge" style="background: rgba(230, 57, 70, 0.15); border-color: rgba(230, 57, 70, 0.4); color: var(--japan-red);">あ</div>
-                <div class="gate-content">
-                    <span class="gate-subtitle">FONDASI UTAMA · 46 HURUF</span>
-                    <h3>Belajar Hiragana <span>(平仮名)</span></h3>
-                    <p>Kuasai 46 huruf Seion dasar, Dakuon, dan Yoon lengkap dengan audio pelafalan asli & tes romaji.</p>
-                    <span class="gate-link-text">Buka Lab Hiragana →</span>
+        <!-- 3. NEW FEATURE: 🎯 MISI HARIAN DISIPLIN (DAILY MASTERY QUESTS) -->
+        <section class="daily-quests-card" id="dailyQuestsSection">
+            <div class="card-section-title-row">
+                <div class="card-title-group">
+                    <span style="font-size: 16px;">🎯</span>
+                    <h4>Misi Disiplin Hari Ini</h4>
                 </div>
-            </a>
+                <span class="card-title-badge" id="questProgressText">0 / 3 Selesai</span>
+            </div>
 
-            <!-- MODUL 2: KATAKANA -->
-            <a href="pages/belajar-katakana.html" class="dojo-gate-card">
-                <div class="gate-icon-badge" style="background: rgba(30, 136, 229, 0.15); border-color: rgba(30, 136, 229, 0.4); color: #42A5F5;">ア</div>
-                <div class="gate-content">
-                    <span class="gate-subtitle">KATA SERAPAN & NAMA ASING</span>
-                    <h3>Belajar Katakana <span>(片仮名)</span></h3>
-                    <p>Pelajari huruf kata serapan luar negeri, nama tempat, dan kosakata modern dengan pelafalan asli.</p>
-                    <span class="gate-link-text">Buka Lab Katakana →</span>
+            <!-- Quest Item 1 -->
+            <div class="quest-item" id="questItem1">
+                <div class="quest-left">
+                    <div class="quest-checkbox" id="questCheck1">✓</div>
+                    <span class="quest-title">Buka modul Hiragana atau Katakana</span>
                 </div>
-            </a>
+                <span class="quest-reward">+25 XP</span>
+            </div>
 
-            <!-- MODUL 3: KANJI DOJO -->
-            <a href="pages/kanji.html" class="dojo-gate-card">
-                <div class="gate-icon-badge" style="background: rgba(212, 175, 55, 0.15); border-color: rgba(212, 175, 55, 0.4); color: var(--japan-gold);">漢</div>
-                <div class="gate-content">
-                    <span class="gate-subtitle">JLPT N5 - N3 & KAMUS HARIAN</span>
-                    <h3>Kanji Dojo <span>(漢字道場)</span></h3>
-                    <p>Kanji pilihan setiap hari, jumlah goresan (stroke), bacaan Onyomi & Kunyomi, serta audio kalimat.</p>
-                    <span class="gate-link-text">Masuk Kanji Dojo →</span>
+            <!-- Quest Item 2 -->
+            <div class="quest-item" id="questItem2">
+                <div class="quest-left">
+                    <div class="quest-checkbox" id="questCheck2">✓</div>
+                    <span class="quest-title">Jawab kuis kilat refleks benar di bawah</span>
                 </div>
-            </a>
+                <span class="quest-reward">+35 XP</span>
+            </div>
 
-            <!-- MODUL 4: KOTOBA & PERCAKAPAN -->
-            <a href="pages/kotoba.html" class="dojo-gate-card">
-                <div class="gate-icon-badge" style="background: rgba(76, 175, 80, 0.15); border-color: rgba(76, 175, 80, 0.4); color: #81C784;">語</div>
-                <div class="gate-content">
-                    <span class="gate-subtitle">SOUNDBOARD 50 SUARA & FRASA</span>
-                    <h3>Kotoba & Percakapan <span>(日常会話)</span></h3>
-                    <p>Soundboard 50 suara audio penutur Jepang dan bank frasa praktis restoran, salam, anime & darurat.</p>
-                    <span class="gate-link-text">Buka Kotoba Vault →</span>
+            <!-- Quest Item 3 -->
+            <div class="quest-item" id="questItem3">
+                <div class="quest-left">
+                    <div class="quest-checkbox" id="questCheck3">✓</div>
+                    <span class="quest-title">Konsultasi atau sapa Aoi Sensei di chat</span>
                 </div>
-            </a>
+                <span class="quest-reward">+50 XP</span>
+            </div>
+        </section>
 
-            <!-- MODUL 5: LATIHAN TULIS KUAS & NAMA -->
-            <a href="pages/tulis.html" class="dojo-gate-card">
-                <div class="gate-icon-badge" style="background: rgba(142, 68, 173, 0.15); border-color: rgba(142, 68, 173, 0.4); color: #BA68C8;">筆</div>
-                <div class="gate-content">
-                    <span class="gate-subtitle">KANVAS MOTORIK & NAMA JEPANG</span>
-                    <h3>Latihan Tulis Kuas <span>(書道)</span></h3>
-                    <p>Kanvas gambar motorik dengan panduan kana, pengubah nama ke Katakana, dan Zen Pomodoro timer.</p>
-                    <span class="gate-link-text">Mulai Latihan Tulis →</span>
+        <!-- 4. NEW FEATURE: ⚡ FAST 1-TAP KANA RADAR (KUIS KILAT BERANDA) -->
+        <section class="fast-radar-card" id="fastRadarSection">
+            <div class="radar-header-row">
+                <div class="radar-title">
+                    <span style="color: var(--japan-red);">⚡</span>
+                    <span>Radar Refleks Kilat</span>
                 </div>
-            </a>
+                <div class="radar-streak-pill" id="fastRadarStreak">
+                    🔥 Kombo: <span>0</span>
+                </div>
+            </div>
 
-            <!-- MODUL 6: UJI REFLEKS DOJO -->
-            <a href="pages/kuis.html" class="dojo-gate-card">
-                <div class="gate-icon-badge" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(230, 57, 70, 0.2)); border-color: var(--japan-gold); color: #FFD54F;">⚡</div>
-                <div class="gate-content">
-                    <span class="gate-subtitle">TANTANGAN WAKTU & KOMBO SKOR</span>
-                    <h3>Uji Refleks Dojo <span>(反射テスト)</span></h3>
-                    <p>Uji seberapa cepat matamu mengenali karakter Jepang. Kumpulkan skor tertinggi ke leaderboard global!</p>
-                    <span class="gate-link-text">Mulai Uji Refleks →</span>
-                </div>
-            </a>
+            <div class="radar-display-box">
+                <div class="radar-char-target" id="fastRadarChar">あ</div>
+                <div class="radar-hint-text">Huruf apakah ini? Pilih romaji yang tepat:</div>
+            </div>
 
-            <!-- MODUL 7: RUANG OBROLAN & AOI SENSEI -->
-            <a href="pages/pesan.html" class="dojo-gate-card" style="border-color: rgba(255, 101, 132, 0.35);">
-                <div class="gate-icon-badge" style="background: linear-gradient(135deg, rgba(255, 101, 132, 0.2), rgba(142, 68, 173, 0.2)); border-color: rgba(255, 101, 132, 0.5); color: #FF758C;">🌸</div>
-                <div class="gate-content">
-                    <span class="gate-subtitle" style="color: #FF758C;">AI SENSEI 24/7 & KOMUNITAS</span>
-                    <h3>Aoi Sensei & Obrolan <span>(葵先生)</span></h3>
-                    <p>Konsultasi 1-on-1 dengan Aoi Sensei untuk tanya partikel atau kanji, serta ngobrol santai di Public Lounge.</p>
-                    <span class="gate-link-text" style="color: #FF758C;">Masuk Ruang Obrolan →</span>
-                </div>
-            </a>
+            <div class="radar-options-grid" id="fastRadarOptions">
+                <button type="button" class="radar-option-btn" data-romaji="a">a</button>
+                <button type="button" class="radar-option-btn" data-romaji="i">i</button>
+                <button type="button" class="radar-option-btn" data-romaji="u">u</button>
+                <button type="button" class="radar-option-btn" data-romaji="e">e</button>
+            </div>
 
-        </div>
-    </section>
+            <div class="radar-footer-row">
+                <button type="button" class="radar-speaker-btn" id="fastRadarSpeaker">
+                    <span>🔊</span> Dengarkan Bunyi
+                </button>
+                <span class="radar-feedback-msg" id="fastRadarFeedback" style="color: var(--muted);">Pilih salah satu jawaban</span>
+            </div>
+        </section>
 
-    <!-- ========================================== -->
-    <!-- DASHBOARD: TEAM ROSTER & LEADERBOARD -->
-    <!-- ========================================== -->
-    <div class="dashboard-wrapper">
-        <section class="team-main">
-            <h2>Team Roster <span>( チーム · Trinity Founders )</span></h2>
-            <div class="card-container">
-                <div class="card owner-card">
-                    <span class="badge">OWNER / FOUNDER</span>
-                    <h3>Umaedi</h3>
-                    <p class="role">IT & Technology Specialist</p>
-                    <p class="desc">Keahlian utama di bidang arsitektur perangkat lunak, pengembangan sistem cloud, dan
-                        otomasi teknologi.</p>
+        <!-- 5. NEW FEATURE: 漢 KANJI RADAR HARI INI (INTERACTIVE KANJI CARD) -->
+        <section class="kanji-radar-card" id="kanjiRadarSection">
+            <div class="card-section-title-row">
+                <div class="card-title-group">
+                    <span style="font-size: 16px;">漢</span>
+                    <h4>Kanji Pilihan Hari Ini</h4>
                 </div>
-                <div class="card">
-                    <span class="badge" style="background: var(--japan-red); color: #fff;">SENSEI</span>
-                    <h3>Iqbal</h3>
-                    <p class="role">Japanese Language Master</p>
-                    <p class="desc"><em>"Rapid language acquisition..."</em> Sang pakar tata bahasa dan pemandu hafalan
-                        bahasa Jepang di tim.</p>
+                <span class="card-title-badge" id="kanjiRadarCounter">Hafal: 0</span>
+            </div>
+
+            <div class="kanji-radar-body">
+                <div class="kanji-big-char-box" id="kanjiRadarChar" title="Ketuk untuk mendengar suara">
+                    日
                 </div>
-                <div class="card">
-                    <span class="badge" style="background: var(--japan-blue); color: #fff;">SPECIALIST</span>
-                    <h3>Rifki / Swing</h3>
-                    <p class="role">History, Politics & Religion</p>
-                    <p class="desc">Memiliki wawasan fundamental dan mendalam di bidang sejarah budaya, dinamika
-                        geopolitik, dan keilmuan.</p>
+                <div class="kanji-meta-box">
+                    <div class="kanji-meta-top">
+                        <span class="kanji-level-badge" id="kanjiRadarLevel">JLPT N5</span>
+                        <span class="kanji-stroke-badge" id="kanjiRadarStrokes">4 Goresan</span>
+                    </div>
+                    <div class="kanji-meaning-text" id="kanjiRadarMeaning">Matahari / Hari</div>
+                    <div class="kanji-readings-text" id="kanjiRadarReadings">
+                        <div><strong>On:</strong> ニチ (nichi)</div>
+                        <div><strong>Kun:</strong> ひ (hi)</div>
+                    </div>
                 </div>
-                <div class="card">
-                    <span class="badge" style="background: #8e44ad; color: #fff;">LEARNER</span>
-                    <h3>Fasya</h3>
-                    <p class="role">Kana Explorer & Creative</p>
-                    <p class="desc">Member aktif yang tekun berlatih kana dan ikut menjaga semangat belajar kelompok
-                        tetap solid dan ceria.</p>
+            </div>
+
+            <div class="kanji-example-box">
+                <div class="kanji-example-jp" id="kanjiRadarExJp">今日はいい天気ですね。</div>
+                <div class="kanji-example-id" id="kanjiRadarExId">Hari ini cuacanya sangat bagus ya.</div>
+            </div>
+
+            <div class="kanji-action-row">
+                <button type="button" class="btn btn-outline" id="kanjiRadarSpeaker" style="padding: 6px 12px; font-size: 11px;">
+                    🔊 Suara
+                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn btn-secondary" id="kanjiRadarMarkBtn" style="padding: 6px 12px; font-size: 11px;">
+                        ✓ Tandai Hafal
+                    </button>
+                    <button type="button" class="btn btn-gold" id="kanjiRadarRandomBtn" style="padding: 6px 12px; font-size: 11px;">
+                        🎲 Acak Kanji
+                    </button>
                 </div>
             </div>
         </section>
 
-        <!-- BAGIAN RANKING LEADERBOARD -->
-        <aside class="leaderboard-panel">
-            <h2>Peringkat <span>( 順位 )</span></h2>
-            <ol class="rank-list" id="leaderboardList">
-                <li style="text-align: center; justify-content: center; color: var(--muted); font-size: 12px;">
-                    Menghubungkan ke server database...</li>
-            </ol>
+        <!-- 6. PUSAT GERBANG MODUL PEMBELAJARAN (DOJO MASTERY GATES) -->
+        <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #fff; letter-spacing: 0.5px;">
+                ⛩️ MODUL PEMBELAJARAN (道場入口)
+            </div>
+            <span style="font-size: 10px; color: var(--japan-gold); font-weight: 700;">7 Lab Tersedia</span>
+        </div>
 
-            <a href="pages/donasi.html" class="donation-widget">
-                <div class="donation-icon">🍵</div>
-                <div class="donation-info">
-                    <strong>Support Our Journey</strong>
-                    <span>Dukung keberlanjutan server (Donasi)</span>
+        <div class="mobile-dojo-grid">
+            <!-- MODUL 1: HIRAGANA -->
+            <a href="pages/belajar.html" class="mobile-gate-card">
+                <div class="mobile-gate-icon" style="background: rgba(230, 57, 70, 0.15); border: 1px solid rgba(230, 57, 70, 0.4); color: var(--japan-red);">あ</div>
+                <div>
+                    <span class="mobile-gate-label">46 Huruf Dasar</span>
+                    <h4 class="mobile-gate-title">Hiragana <span>(平仮名)</span></h4>
+                    <p class="mobile-gate-desc">Audio asli & tabel Seion, Dakuon, Yoon.</p>
                 </div>
-                <div class="donation-arrow">→</div>
             </a>
-        </aside>
-    </div>
+
+            <!-- MODUL 2: KATAKANA -->
+            <a href="pages/belajar-katakana.html" class="mobile-gate-card">
+                <div class="mobile-gate-icon" style="background: rgba(30, 136, 229, 0.15); border: 1px solid rgba(30, 136, 229, 0.4); color: #42A5F5;">ア</div>
+                <div>
+                    <span class="mobile-gate-label">Kata Serapan</span>
+                    <h4 class="mobile-gate-title">Katakana <span>(片仮名)</span></h4>
+                    <p class="mobile-gate-desc">Pelajari huruf nama asing & bahasa gaul.</p>
+                </div>
+            </a>
+
+            <!-- MODUL 3: KANJI DOJO -->
+            <a href="pages/kanji.html" class="mobile-gate-card">
+                <div class="mobile-gate-icon" style="background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.4); color: var(--japan-gold);">漢</div>
+                <div>
+                    <span class="mobile-gate-label">JLPT N5 - N3</span>
+                    <h4 class="mobile-gate-title">Kanji Dojo <span>(漢字道場)</span></h4>
+                    <p class="mobile-gate-desc">Goresan stroke, Onyomi, Kunyomi & kalimat.</p>
+                </div>
+            </a>
+
+            <!-- MODUL 4: KOTOBA & AUDIO -->
+            <a href="pages/kotoba.html" class="mobile-gate-card">
+                <div class="mobile-gate-icon" style="background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.4); color: #81C784;">語</div>
+                <div>
+                    <span class="mobile-gate-label">Soundboard 50 Suara</span>
+                    <h4 class="mobile-gate-title">Kotoba Vault <span>(日常会話)</span></h4>
+                    <p class="mobile-gate-desc">Frasa restoran, anime, salam, & darurat.</p>
+                </div>
+            </a>
+
+            <!-- MODUL 5: LATIHAN TULIS KUAS -->
+            <a href="pages/tulis.html" class="mobile-gate-card">
+                <div class="mobile-gate-icon" style="background: rgba(142, 68, 173, 0.15); border: 1px solid rgba(142, 68, 173, 0.4); color: #BA68C8;">筆</div>
+                <div>
+                    <span class="mobile-gate-label">Kanvas Motorik</span>
+                    <h4 class="mobile-gate-title">Kuas Shodou <span>(書道)</span></h4>
+                    <p class="mobile-gate-desc">Latihan tulis kuas & ubah nama ke Katakana.</p>
+                </div>
+            </a>
+
+            <!-- MODUL 6: UJI REFLEKS DOJO -->
+            <a href="pages/kuis.html" class="mobile-gate-card">
+                <div class="mobile-gate-icon" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(230, 57, 70, 0.2)); border: 1px solid var(--japan-gold); color: #FFD54F;">⚡</div>
+                <div>
+                    <span class="mobile-gate-label">Tantangan Waktu</span>
+                    <h4 class="mobile-gate-title">Uji Refleks <span>(反射テスト)</span></h4>
+                    <p class="mobile-gate-desc">Kombo skor cepat bersaing di leaderboard.</p>
+                </div>
+            </a>
+
+            <!-- MODUL 7: AOI SENSEI & RUANG OBROLAN (FEATURED FULL-WIDTH) -->
+            <a href="pages/pesan.html" class="mobile-gate-card featured-card">
+                <div class="mobile-gate-icon" style="background: linear-gradient(135deg, rgba(255, 101, 132, 0.25), rgba(142, 68, 173, 0.25)); border: 1.5px solid rgba(255, 101, 132, 0.5); color: #FF758C;">🌸</div>
+                <div style="flex: 1;">
+                    <span class="mobile-gate-label" style="color: #FF758C;">AI Tutor 24 Jam & Komunitas</span>
+                    <h4 class="mobile-gate-title" style="font-size: 14.5px;">Aoi Sensei & Obrolan <span>(葵先生)</span></h4>
+                    <p class="mobile-gate-desc">Tanya partikel, kanji, atau ngobrol santai tanpa perlu ribet API key!</p>
+                </div>
+                <span style="color: #FF758C; font-size: 16px; font-weight: 800;">→</span>
+            </a>
+        </div>
+
+        <!-- 7. SEGMENTED TABS: LEADERBOARD & TEAM ROSTER -->
+        <section id="leaderboardSection" style="margin-bottom: 24px;">
+            <div class="hub-segmented-tabs">
+                <button type="button" class="hub-segment-btn is-active" id="tabBtnRank" data-target="paneRank">
+                    <span>🏆</span> Peringkat Global
+                </button>
+                <button type="button" class="hub-segment-btn" id="tabBtnTeam" data-target="paneTeam">
+                    <span>👥</span> Tim Pengembang
+                </button>
+            </div>
+
+            <!-- Tab Pane 1: Leaderboard Global -->
+            <div class="tab-pane-content is-active" id="paneRank">
+                <ol class="rank-list mobile-rank-list" id="leaderboardList">
+                    <li style="text-align: center; justify-content: center; color: var(--muted); font-size: 12px; padding: 14px;">
+                        Menghubungkan ke server database...
+                    </li>
+                </ol>
+
+                <a href="pages/donasi.html" class="donation-widget" style="margin-top: 10px;">
+                    <div class="donation-icon">🍵</div>
+                    <div class="donation-info">
+                        <strong>Dukung Server Trinity</strong>
+                        <span>Bantu operasional sistem & server (Donasi)</span>
+                    </div>
+                    <div class="donation-arrow">→</div>
+                </a>
+            </div>
+
+            <!-- Tab Pane 2: Team Roster -->
+            <div class="tab-pane-content" id="paneTeam">
+                <div class="mobile-team-grid">
+                    <div class="mobile-team-card founder-border">
+                        <div class="team-header-row">
+                            <h4 class="team-name">Umaedi</h4>
+                            <span class="team-role-tag" style="background: rgba(212, 175, 55, 0.2); color: var(--japan-gold);">Owner / Dev</span>
+                        </div>
+                        <p class="team-desc-text">Arsitektur perangkat lunak, otomatisasi kecerdasan buatan, dan infrastruktur cloud.</p>
+                    </div>
+
+                    <div class="mobile-team-card">
+                        <div class="team-header-row">
+                            <h4 class="team-name">Iqbal</h4>
+                            <span class="team-role-tag" style="background: rgba(230, 57, 70, 0.2); color: var(--japan-red);">Sensei</span>
+                        </div>
+                        <p class="team-desc-text">Pakar tata bahasa (bunpou) dan panduan kurikulum hafalan bahasa Jepang.</p>
+                    </div>
+
+                    <div class="mobile-team-card">
+                        <div class="team-header-row">
+                            <h4 class="team-name">Rifki / Swing</h4>
+                            <span class="team-role-tag" style="background: rgba(30, 136, 229, 0.2); color: #42A5F5;">Specialist</span>
+                        </div>
+                        <p class="team-desc-text">Wawasan sejarah kebudayaan Jepang kuno, dinamika peradaban, dan geopolitik.</p>
+                    </div>
+
+                    <div class="mobile-team-card">
+                        <div class="team-header-row">
+                            <h4 class="team-name">Fasya</h4>
+                            <span class="team-role-tag" style="background: rgba(142, 68, 173, 0.2); color: #BA68C8;">Learner</span>
+                        </div>
+                        <p class="team-desc-text">Eksplorasi grafis kreatif kana dan penjaga semangat belajar komunitas tetap ceria.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
 
     <!-- ========================================== -->
-    <!-- DOCK NAVIGASI BAWAH MODERN -->
+    <!-- FLOATING DOCK NAVIGASI BAWAH MODERN -->
     <!-- ========================================== -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
         <a class="main-bottom-item is-active" href="index.html">
@@ -364,6 +437,71 @@
         </a>
     </nav>
 
+    <!-- ========================================== -->
+    <!-- MODAL PENGATURAN PROFIL -->
+    <!-- ========================================== -->
+    <div id="profileModalOverlay" class="global-login-overlay" style="display: none; z-index: 10002;">
+        <div class="login-modal" style="text-align: center; max-width: 360px;">
+            <span id="closeProfileModal" class="close-modal" aria-label="Tutup">×</span>
+            <h2 style="margin-bottom: 20px; font-size: 1.4rem; color: #fff;">Pengaturan Profil</h2>
+
+            <div style="position: relative; width: 110px; height: 110px; margin: 0 auto 20px; border-radius: 50%; border: 3px solid var(--japan-gold); overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                <img id="profilePreviewImg" src="gambar/icon.png" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                <label for="profileImageUpload" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.75); color: #fff; font-size: 10px; padding: 6px 0; cursor: pointer; text-align: center; font-weight: 700; transition: 0.3s;">
+                    UBAH FOTO
+                </label>
+                <input type="file" id="profileImageUpload" accept="image/*" style="display: none;">
+            </div>
+
+            <div style="text-align: left; margin-bottom: 18px;">
+                <label style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block;">
+                    Nama Tampilan
+                </label>
+                <input type="text" id="profileNameInput" placeholder="Ketik nama baru...">
+            </div>
+
+            <button type="button" id="saveProfileBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 10px; padding: 12px;">SIMPAN PERUBAHAN</button>
+            <button type="button" id="logoutBtn" class="btn btn-secondary" style="width: 100%; padding: 12px;">KELUAR AKUN</button>
+        </div>
+    </div>
+
+    <!-- POPUP KECIL (Guest Prompt) -->
+    <div id="guestPromptPopup" class="guest-prompt-popup" style="display: none;">
+        <span class="prompt-icon">⛩️</span>
+        <p>Selamat datang di <strong>Nihongo Trinity</strong>! Masuk akun untuk menyimpan skor kuis dan mengakses seluruh ruang obrolan komunitas.</p>
+        <div class="prompt-buttons">
+            <button id="btnPromptNanti" class="btn-nanti">Nanti</button>
+            <button id="btnPromptLogin" class="btn-login">Login / Daftar</button>
+        </div>
+    </div>
+
+    <!-- OVERLAY LOGIN GLOBAL -->
+    <div id="globalLoginOverlay" class="global-login-overlay" style="display: none;">
+        <div class="login-modal">
+            <span id="closeLoginModal" class="close-modal" aria-label="Tutup">×</span>
+            <div class="modal-icon">⛩️</div>
+            <h2 id="modalTitle">Identifikasi Member</h2>
+            <p id="modalDesc">Silakan masuk untuk mengakses sistem latihan dan ruang obrolan Trinity.</p>
+
+            <div id="loginForm">
+                <input type="text" id="loginUsername" placeholder="Nama Akun / Username">
+                <input type="password" id="loginPassword" placeholder="Kata Sandi">
+                <p id="loginError" class="login-error"></p>
+                <button type="button" id="mainLoginBtn" class="btn btn-primary" style="width:100%; margin-bottom:10px;">MASUK KE SISTEM</button>
+                <p style="font-size:12px; color:var(--muted); margin-top:18px;">Belum punya akun? <span id="showRegisterBtn" style="color:var(--japan-gold); cursor:pointer; font-weight:bold;">Buat Akun Baru</span></p>
+            </div>
+
+            <div id="registerForm" style="display: none;">
+                <input type="text" id="regUsername" placeholder="Nama Tampilan (Contoh: Budi)">
+                <input type="email" id="regEmail" placeholder="Alamat Email Aktif">
+                <input type="password" id="regPassword" placeholder="Buat Kata Sandi Kuat">
+                <p id="regError" class="login-error"></p>
+                <button type="button" id="mainRegBtn" class="btn btn-gold" style="width:100%; margin-bottom:10px;">DAFTAR SEKARANG</button>
+                <p style="font-size:12px; color:var(--muted); margin-top:18px;">Sudah punya akun? <span id="showLoginBtn" style="color:var(--japan-red); cursor:pointer; font-weight:bold;">Login di sini</span></p>
+            </div>
+        </div>
+    </div>
+
     <!-- FITUR KHUSUS ADMIN (UMAEDI) & GLOBAL ALERT -->
     <button id="adminToggleBtn" class="admin-toggle-btn" style="display: none;">⚙️ SYSTEM OVERRIDE</button>
 
@@ -376,39 +514,35 @@
             <input type="text" id="announceTitle" placeholder="Judul Pengumuman (ex: UPDATE JADWAL)">
             <textarea id="announceMessage" rows="4" placeholder="Ketik isi pengumuman sistem di sini..."
                 style="width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(8,12,16,.8); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; font-family: 'Plus Jakarta Sans', sans-serif; resize: none;"></textarea>
-            <button type="button" id="sendAnnounceBtn" class="btn btn-primary" style="width: 100%;">BROADCAST
-                SEKARANG</button>
+            <button type="button" id="sendAnnounceBtn" class="btn btn-primary" style="width: 100%;">BROADCAST SEKARANG</button>
 
-            <!-- FITUR BARU: DATABASE CONTROL -->
+            <!-- DATABASE CONTROL -->
             <hr style="border-color: var(--border-subtle); margin: 25px 0;">
             <h3 style="color: var(--japan-red); font-size: 1.1rem; margin-bottom: 5px;">Database Maintenance</h3>
-            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5;">Bersihkan riwayat
-                pesan secara aman dengan sistem hitung mundur 10 detik otomatis.</p>
-            <button type="button" id="clearPublicBtn" class="btn btn-outline"
-                style="width: 100%; margin-bottom: 10px; font-size: 11px;">🧹 BERSIHKAN PUBLIC LOUNGE</button>
-            <button type="button" id="clearCoreBtn" class="btn btn-outline"
-                style="width: 100%; font-size: 11px; border-color: #D32F2F; color: #D32F2F;">🧹 BERSIHKAN TRINITY
-                CORE</button>
+            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5;">Bersihkan riwayat pesan secara aman dengan sistem hitung mundur 10 detik otomatis.</p>
+            <button type="button" id="clearPublicBtn" class="btn btn-outline" style="width: 100%; margin-bottom: 10px; font-size: 11px;">🧹 BERSIHKAN PUBLIC LOUNGE</button>
+            <button type="button" id="clearCoreBtn" class="btn btn-outline" style="width: 100%; font-size: 11px; border-color: #D32F2F; color: #D32F2F;">🧹 BERSIHKAN TRINITY CORE</button>
         </div>
     </div>
 
-    <!-- POP-UP PERINGATAN GLOBAL ALERT -->
-    <div id="globalAlert" class="global-alert" style="display: none;">
-        <div class="alert-glow"></div>
-        <div class="alert-content">
-            <div class="alert-header">
-                <div class="alert-icon-wrapper"><span class="alert-icon">⛩️</span></div>
-                <div class="alert-titles">
-                    <span class="alert-sender">System Broadcast // Dev: Umaedi</span>
-                    <strong id="alertTitle">PENGUMUMAN SISTEM</strong>
-                </div>
-                <span id="closeAlert" class="close-alert" title="Tutup">×</span>
+    <!-- POP-UP PERINGATAN GLOBAL ALERT (iOS PUSH BANNER) -->
+    <div id="globalAlert" class="global-alert ios-broadcast-banner" style="display: none;" role="alert" aria-live="assertive">
+        <div class="ios-banner-header">
+            <div class="ios-banner-app-icon"><span>⛩️</span></div>
+            <div class="ios-banner-meta">
+                <span class="ios-banner-app-name">TRINITY BROADCAST</span>
+                <span class="ios-banner-dev-badge" id="alertSenderBadge">👨‍💻 Dev: <strong id="alertSenderName">Umaedi</strong></span>
             </div>
-            <div class="alert-body">
-                <p id="alertMessage">Pesan dari sistem...</p>
-            </div>
+            <span class="ios-banner-time">Baru Saja</span>
+            <button type="button" id="closeAlert" class="ios-banner-close" title="Tutup Notifikasi" aria-label="Tutup">✕</button>
         </div>
-        <div class="alert-progress"></div>
+        <div class="ios-banner-body">
+            <h4 id="alertTitle" class="ios-banner-title">PENGUMUMAN SISTEM</h4>
+            <p id="alertMessage" class="ios-banner-msg">Pesan dari sistem...</p>
+        </div>
+        <div class="ios-banner-progress-track">
+            <div class="ios-banner-progress-bar"></div>
+        </div>
     </div>
 
     <script type="module" src="admin.js"></script>

@@ -354,44 +354,98 @@ if (adminToggleBtn && adminModal) {
     }
 }
 
-// Global Pop-Up Alert Broadcast
-const globalAlert = document.getElementById("globalAlert");
-const alertTitle = document.getElementById("alertTitle");
-const alertMessage = document.getElementById("alertMessage");
-const closeAlert = document.getElementById("closeAlert");
-const alertSound = new Audio('https://actions.google.com/sounds/v1/alarms/message_alert_sound.ogg');
+// ==========================================
+// 3. GLOBAL POP-UP ALERT BROADCAST (APPLE iOS BANNER PUSH NOTIFICATION)
+// ==========================================
+function escapeHtmlAlert(text) {
+    if (!text) return "";
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
+const alertSound = new Audio('https://actions.google.com/sounds/v1/alarms/message_alert_sound.ogg');
 const recentAnnouncements = query(announceRef, limitToLast(1));
 let lastSeenId = localStorage.getItem("lastSeenAnnounce");
 let hideTimeout; 
 
+function showIosBroadcastToast(data, key) {
+    let alertEl = document.getElementById("globalAlert");
+    if (!alertEl) {
+        alertEl = document.createElement("div");
+        alertEl.id = "globalAlert";
+        alertEl.className = "global-alert ios-broadcast-banner";
+        alertEl.style.display = "none";
+        alertEl.setAttribute("role", "alert");
+        alertEl.setAttribute("aria-live", "assertive");
+        document.body.appendChild(alertEl);
+    } else {
+        alertEl.className = "global-alert ios-broadcast-banner";
+    }
+
+    const devRawName = (data.sender || "Umaedi").trim();
+    const isLeadDev = devRawName.toLowerCase() === "umaedi";
+    const devBadgeText = isLeadDev ? `👑 Umaedi • Founder & Dev` : `👨‍💻 Dev: ${devRawName}`;
+
+    alertEl.innerHTML = `
+        <div class="ios-banner-header">
+            <div class="ios-banner-app-icon"><span>⛩️</span></div>
+            <div class="ios-banner-meta">
+                <span class="ios-banner-app-name">TRINITY BROADCAST</span>
+                <span class="ios-banner-dev-badge" title="Pesan Resmi dari Pengembang">${devBadgeText}</span>
+            </div>
+            <span class="ios-banner-time">Baru Saja</span>
+            <button type="button" class="ios-banner-close" aria-label="Tutup Notifikasi" title="Tutup">✕</button>
+        </div>
+        <div class="ios-banner-body">
+            <h4 class="ios-banner-title">${escapeHtmlAlert(data.title || "PENGUMUMAN SISTEM")}</h4>
+            <p class="ios-banner-msg">${escapeHtmlAlert(data.message || "")}</p>
+        </div>
+        <div class="ios-banner-progress-track">
+            <div class="ios-banner-progress-bar"></div>
+        </div>
+    `;
+
+    alertEl.classList.remove("hide-alert");
+    alertEl.style.display = "block";
+    alertSound.play().catch(() => {});
+
+    localStorage.setItem("lastSeenAnnounce", key);
+    lastSeenId = key;
+
+    const closeBtn = alertEl.querySelector(".ios-banner-close");
+    if (closeBtn) {
+        closeBtn.onclick = (e) => {
+            e.stopPropagation();
+            dismissIosBanner(alertEl);
+        };
+    }
+
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+        dismissIosBanner(alertEl);
+    }, 6500);
+}
+
+function dismissIosBanner(alertEl) {
+    if (!alertEl) return;
+    clearTimeout(hideTimeout);
+    alertEl.classList.add("hide-alert");
+    setTimeout(() => {
+        alertEl.style.display = "none";
+        alertEl.classList.remove("hide-alert");
+    }, 450);
+}
+
 onChildAdded(recentAnnouncements, (snapshot) => {
     const data = snapshot.val();
     const key = snapshot.key;
-    if (lastSeenId !== key) {
-        if (alertTitle && alertMessage && globalAlert) {
-            globalAlert.classList.remove("hide-alert");
-            alertTitle.textContent = data.title;
-            alertMessage.textContent = data.message;
-            globalAlert.style.display = "block";
-            alertSound.play().catch(e => console.log("Mute otomatis"));
-            
-            localStorage.setItem("lastSeenAnnounce", key);
-            lastSeenId = key;
-            
-            clearTimeout(hideTimeout);
-            hideTimeout = setTimeout(() => {
-                globalAlert.classList.add("hide-alert");
-                setTimeout(() => { globalAlert.style.display = "none"; globalAlert.classList.remove("hide-alert"); }, 500); 
-            }, 5000);
-        }
+    if (data && lastSeenId !== key) {
+        showIosBroadcastToast(data, key);
     }
-});
-
-if (closeAlert) closeAlert.addEventListener("click", () => {
-    clearTimeout(hideTimeout);
-    globalAlert.classList.add("hide-alert");
-    setTimeout(() => { globalAlert.style.display = "none"; globalAlert.classList.remove("hide-alert"); }, 500);
 });
 
 // ==========================================
@@ -409,39 +463,66 @@ if (leaderboardList) {
             ranks.sort((a, b) => b.score - a.score);
             
             leaderboardList.innerHTML = "";
-            const medals = ["👑 Level: Sensei", "💻 Level: Senpai", "📜 Level: Kouhai", "🌱 Level: Novice"];
             
             ranks.forEach((user, index) => {
                 const profile = window.userProfiles ? (window.userProfiles[user.name] || {}) : {};
-                const medal = medals[index] || "🌱 Level: Novice";
-                const rankClass = `rank-${index + 1 > 4 ? 4 : index + 1}`;
+                const rankNum = index + 1;
+                const rankClass = `rank-${rankNum > 4 ? 4 : rankNum}`;
                 
                 const displayName = profile.displayName || (user.name === "Rifki" ? "Rifki (Swing)" : user.name);
                 const isPages = window.location.pathname.includes('/pages/');
                 const basePath = isPages ? `../gambar/${user.name.toLowerCase()}.png` : `gambar/${user.name.toLowerCase()}.png`;
                 const finalPhoto = profile.photoBase64 || basePath;
-                const initial = displayName.charAt(0).toUpperCase();
+                const initial = (displayName || "U").charAt(0).toUpperCase();
+
+                // Position badge styling & rings
+                let posBadgeHtml = `<div class="rank-pos-badge">#${rankNum}</div>`;
+                let ringClass = "";
+                let levelBadgeHtml = `<span class="rank-level-badge level-novice">🌱 Novice</span>`;
+
+                if (rankNum === 1) {
+                    posBadgeHtml = `<div class="rank-pos-badge gold" title="Juara 1">🥇</div>`;
+                    ringClass = "gold-ring";
+                    levelBadgeHtml = `<span class="rank-level-badge level-sensei">👑 Level: Sensei</span>`;
+                } else if (rankNum === 2) {
+                    posBadgeHtml = `<div class="rank-pos-badge silver" title="Juara 2">🥈</div>`;
+                    ringClass = "silver-ring";
+                    levelBadgeHtml = `<span class="rank-level-badge level-senpai">💻 Level: Senpai</span>`;
+                } else if (rankNum === 3) {
+                    posBadgeHtml = `<div class="rank-pos-badge bronze" title="Juara 3">🥉</div>`;
+                    ringClass = "bronze-ring";
+                    levelBadgeHtml = `<span class="rank-level-badge level-kouhai">📜 Level: Kouhai</span>`;
+                }
                 
                 const li = document.createElement("li");
-                li.className = rankClass;
+                li.className = `${rankClass} rank-item-row`;
                 li.innerHTML = `
-                    <div class="rank-pic" style="background: rgba(255,255,255,0.05); display: grid; place-items: center; overflow: hidden; border-radius: 50%;">
-                        <img src="${finalPhoto}" alt="${initial}" 
-                             style="width: 100%; height: 100%; object-fit: cover; background-color: #fff;" 
-                             onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'color:#fff; font-size:20px; font-weight:bold; font-family:Noto Serif JP, serif;\\'>${initial}</span>';">
+                    ${posBadgeHtml}
+                    <div class="rank-avatar-wrapper ${ringClass}">
+                        <img src="${finalPhoto}" alt="${initial}" class="rank-avatar-img"
+                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='grid';">
+                        <div class="rank-avatar-fallback" style="display: none;">${initial}</div>
+                        <span class="rank-online-dot"></span>
                     </div>
-                    <div class="rank-info" style="flex: 1;">
-                        <strong>${displayName}</strong>
-                        <p>${medal}</p>
+                    <div class="rank-info">
+                        <div class="rank-user-title-row">
+                            <span class="rank-user-name">${displayName}</span>
+                            ${rankNum === 1 ? '<span class="rank-crown" title="Juara Bertahan">👑</span>' : ''}
+                        </div>
+                        <div>${levelBadgeHtml}</div>
                     </div>
-                    <div style="font-size: 1.3rem; font-weight: 700; color: var(--japan-gold); font-family: 'Montserrat', sans-serif;">
-                        ${user.score}
+                    <div class="rank-score-container">
+                        <div class="rank-score-number">
+                            ${Number(user.score || 0).toLocaleString()}
+                        </div>
+                        <span class="rank-score-label">POIN</span>
                     </div>
                 `;
                 leaderboardList.appendChild(li);
             });
         }
     });
+
 }
 
 // ==========================================

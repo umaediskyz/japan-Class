@@ -1,166 +1,708 @@
-/* =========================================
-   Info Page - Zen/Corporate Theme
-   ========================================= */
-.info-page { max-width: 800px; margin: 0 auto; padding: 40px 20px 100px; }
-.info-page .page-title { color: #fff; font-size: clamp(2rem, 4vw, 2.8rem); margin: 12px 0 8px; font-weight: 700; font-family: 'Noto Serif JP', serif; }
-.info-page .subtitle { color: var(--muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 40px; font-weight: 300; }
+/* ==========================================================================
+   INFO PAGE - Neo-Tokyo Cyber-Zen Architecture & Team Dossier
+   Nihongo Trinity Developer, Team Roster & System Health Radar
+   ========================================================================== */
 
-/* Kartu Tombol Profil */
-.developer-profile {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    padding: 20px 25px;
-    text-align: left;
-    background: var(--card-bg);
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.developer-profile::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--japan-gold);
-    transition: 0.3s ease;
-}
-
-.developer-profile:hover {
-    transform: translateY(-3px);
-    border-color: var(--japan-gold);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
-
-.developer-profile:hover::before {
-    background: var(--japan-red);
-}
-
-/* Avatar Inisial */
-.developer-avatar {
-    display: grid;
-    place-items: center;
-    width: 55px;
-    height: 55px;
-    flex: 0 0 55px;
-    border-radius: 50%;
-    background: rgba(212, 175, 55, 0.1);
-    color: var(--japan-gold);
-    border: 1px solid var(--japan-gold);
-    font-family: 'Noto Serif JP', serif;
-    font-size: 24px;
-    font-weight: 700;
-    transition: 0.3s ease;
-}
-
-.developer-profile:hover .developer-avatar {
-    color: var(--japan-red);
-    border-color: var(--japan-red);
-    background: rgba(211, 47, 47, 0.1);
-}
-
-/* Detail Teks */
-.developer-details { flex: 1; min-width: 0; }
-.developer-name-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 5px; }
-.developer-name-row h2 { margin: 0; color: #fff; font-size: 1.4rem; font-family: 'Noto Serif JP', serif; }
-.section-label { color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4px; }
-
-/* Status Aktif dengan Animasi Berdenyut */
-.active-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 20px; color: #4CAF50; background: rgba(76, 175, 80, 0.1); font-size: 10px; font-weight: 700; letter-spacing: 1px; }
-.active-dot { width: 6px; height: 6px; border-radius: 50%; background: #4CAF50; box-shadow: 0 0 8px #4CAF50; animation: pulse-green 2s infinite; }
-@keyframes pulse-green { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-
-/* Teks Bantuan */
-.profile-hint { color: var(--japan-red); font-size: 11px; font-weight: 500; letter-spacing: 1px; display: inline-block; margin-top: 5px; transition: 0.3s; }
-.developer-profile:hover .profile-hint { color: var(--japan-gold); }
-
-/* Kotak Pesan yang Terbuka */
-.info-message {
-    margin-top: 15px;
-    padding: 25px;
-    background: linear-gradient(135deg, rgba(211, 47, 47, 0.05), rgba(19, 25, 33, 0.8));
-    border-left: 3px solid var(--japan-red);
-    border-radius: 0 8px 8px 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 1;
-    transform: translateY(0);
-    max-height: 500px;
-    overflow: hidden;
-}
-
-.info-message.is-hidden {
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-top: 0;
-    opacity: 0;
-    transform: translateY(-10px);
-    border-width: 0;
-}
-
-.info-message p {
-    margin: 10px 0 0 0;
-    color: var(--text-main);
-    font-size: 1.05rem;
-    line-height: 1.8;
-    font-style: italic;
-    font-family: 'Noto Serif JP', serif;
-}
-
-/* Responsif untuk Layar HP */
-@media (max-width: 600px) {
-    .info-page { padding: 30px 15px 110px; }
-    .developer-profile { padding: 15px; flex-direction: column; align-items: flex-start; gap: 15px; text-align: left; }
-    .developer-avatar { width: 45px; height: 45px; font-size: 20px; }
-    .developer-name-row { flex-direction: column; align-items: flex-start; width: 100%; }
-    .active-status { margin-top: 5px; align-self: flex-start; }
-}
-
-/* =========================================
-   Penyempurnaan Posisi & Tombol Kembali
-   ========================================= */
-
-/* Pastikan section memiliki posisi relatif dan padding bawah agar tidak tertutup nav */
-.info-page, .jadwal-page { 
-    position: relative; 
-    padding: 80px 20px 110px; /* Padding atas ditambahkan agar tombol tidak menabrak judul */
+.info-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 85px 20px 130px;
     text-align: center;
+    position: relative;
 }
 
-/* Gaya Tombol Kembali yang tersembunyi sebelumnya */
+/* Floating Back Button */
 .back-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--muted);
+    color: var(--text-secondary, #a0aec0);
     text-decoration: none;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 8px 15px;
-    background: rgba(19, 25, 33, 0.5);
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    transition: all 0.3s ease;
+    letter-spacing: 1.2px;
+    padding: 9px 18px;
+    background: rgba(18, 24, 38, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     position: absolute;
-    top: 30px;
+    top: 25px;
     left: 20px;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .back-btn:hover {
-    color: var(--japan-red);
-    border-color: var(--japan-red);
-    background: rgba(211, 47, 47, 0.1);
+    color: #fff;
+    border-color: var(--japan-gold, #d4af37);
+    background: rgba(212, 175, 55, 0.15);
+    transform: translateX(-3px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.25);
 }
 
-.back-btn:hover .back-icon { 
-    transform: translateX(-4px); 
+.back-btn .back-icon {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.back-btn:hover .back-icon {
+    transform: translateX(-3px);
+}
+
+/* Header */
+.info-header {
+    margin-bottom: 35px;
+}
+
+.eyebrow-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(59, 130, 246, 0.1));
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    color: var(--japan-gold, #d4af37);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+}
+
+.eyebrow-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--japan-gold, #d4af37);
+    box-shadow: 0 0 8px var(--japan-gold, #d4af37);
+    animation: glowPulse 2s infinite ease-in-out;
+}
+
+.page-title {
+    color: #ffffff;
+    font-size: clamp(2.1rem, 4.5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 8px 0 14px;
+    font-family: 'Noto Serif JP', 'Cinzel', serif;
+    text-shadow: 0 2px 25px rgba(0, 0, 0, 0.6);
+}
+
+.page-title .title-accent {
+    background: linear-gradient(135deg, #fff, var(--japan-gold, #d4af37));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.page-subtitle {
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.98rem;
+    line-height: 1.8;
+    max-width: 680px;
+    margin: 0 auto;
+    font-weight: 300;
+}
+
+/* ==========================================================================
+   FEATURE 1: VIP HOLOGRAPHIC FOUNDER CARD (UMAEDI)
+   ========================================================================== */
+.founder-card {
+    background: linear-gradient(145deg, rgba(22, 28, 44, 0.9), rgba(12, 16, 26, 0.96));
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 22px;
+    padding: 28px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.45), 0 0 30px rgba(212, 175, 55, 0.1);
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.founder-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--japan-gold, #d4af37), var(--japan-red, #e63946), transparent);
+}
+
+.founder-main {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.founder-avatar-wrap {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(135deg, var(--japan-gold, #d4af37), #e63946, #3b82f6);
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+    flex-shrink: 0;
+}
+
+.founder-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #1a202c;
+    display: block;
+}
+
+.founder-avatar-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #3b82f6;
+    border: 2px solid #0d1117;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+}
+
+.founder-details {
+    flex: 1;
+    min-width: 260px;
+}
+
+.founder-badges-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.founder-role-badge {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--japan-gold, #d4af37);
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 3px 10px;
+    border-radius: 9999px;
+}
+
+.founder-status-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    padding: 3px 10px;
+    border-radius: 9999px;
+}
+
+.founder-status-online::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 6px #34d399;
+    animation: livePulse 1.5s infinite;
+}
+
+.founder-name {
+    color: #fff;
+    font-size: 1.7rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.founder-bio {
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0 0 16px;
+}
+
+.founder-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.founder-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s ease;
+}
+
+.founder-btn-gold {
+    background: linear-gradient(135deg, var(--japan-gold, #d4af37), #b7791f);
+    color: #1a202c;
+    border: none;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.founder-btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45);
+}
+
+.founder-btn-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+}
+
+.founder-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+
+/* Expandable Message Box */
+.founder-quote-box {
+    margin-top: 20px;
+    padding: 18px 20px;
+    background: rgba(10, 14, 22, 0.8);
+    border-left: 3px solid var(--japan-red, #e63946);
+    border-radius: 0 12px 12px 0;
+    position: relative;
+}
+
+.founder-quote-text {
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    margin: 0 0 10px;
+    font-style: italic;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.founder-quote-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--text-secondary, #94a3b8);
+}
+
+/* ==========================================================================
+   FEATURE 2: CORE TRINITY TEAM ROSTER GRID
+   ========================================================================== */
+.team-section-head {
+    text-align: left;
+    margin: 35px 0 20px;
+}
+
+.team-section-title {
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.team-section-sub {
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.88rem;
+    margin: 0;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-bottom: 35px;
+}
+
+.team-card {
+    background: linear-gradient(160deg, rgba(22, 28, 44, 0.85), rgba(14, 18, 30, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.team-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--team-accent, var(--japan-gold, #d4af37));
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.team-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.45);
+}
+
+.team-card:hover::before {
+    opacity: 1;
+    height: 4px;
+}
+
+.team-avatar-wrap {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    padding: 2px;
+    background: var(--team-accent, var(--japan-gold, #d4af37));
+    margin-bottom: 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.team-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #1a202c;
+    display: block;
+}
+
+.team-role-tag {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--team-accent, var(--japan-gold, #d4af37));
+    margin-bottom: 4px;
+}
+
+.team-name {
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.team-desc {
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 0 0 16px;
+    flex-grow: 1;
+}
+
+.team-btn {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.team-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+
+/* ==========================================================================
+   FEATURE 3: LIVE SYSTEM HEALTH & DIAGNOSTICS RADAR
+   ========================================================================== */
+.system-radar {
+    background: linear-gradient(145deg, rgba(16, 22, 36, 0.85), rgba(10, 14, 24, 0.95));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 20px;
+    padding: 26px;
+    margin-bottom: 35px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+    text-align: left;
+}
+
+.radar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.radar-title-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.radar-icon {
+    font-size: 26px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    display: grid;
+    place-items: center;
+}
+
+.radar-title {
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.radar-sub {
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.8rem;
+    margin: 2px 0 0;
+}
+
+.radar-btn-scan {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border: none;
+    border-radius: 9999px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all 0.3s ease;
+}
+
+.radar-btn-scan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+}
+
+.radar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+}
+
+.radar-stat-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: all 0.25s ease;
+}
+
+.radar-stat-box:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.radar-stat-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary, #94a3b8);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.radar-stat-val {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.radar-stat-meta {
+    font-size: 0.74rem;
+    color: #34d399;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   FEATURE 4: INTERACTIVE CHANGELOG & FEEDBACK
+   ========================================================================== */
+.extra-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.extra-card {
+    background: linear-gradient(160deg, rgba(20, 26, 42, 0.85), rgba(12, 16, 26, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 24px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.extra-title {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 14px;
+    font-family: 'Noto Serif JP', serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Changelog List */
+.changelog-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.changelog-item {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 14px;
+    border-left: 2px solid rgba(212, 175, 55, 0.4);
+}
+
+.changelog-ver {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--japan-gold, #d4af37);
+    margin-bottom: 2px;
+    display: block;
+}
+
+.changelog-text {
+    font-size: 0.84rem;
+    color: #cbd5e0;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Feedback Box */
+.feedback-textarea {
+    width: 100%;
+    height: 80px;
+    background: rgba(10, 14, 22, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.84rem;
+    resize: none;
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.feedback-textarea:focus {
+    border-color: var(--japan-gold, #d4af37);
+}
+
+.feedback-send-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    background: linear-gradient(135deg, var(--japan-red, #e63946), #b91c1c);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.feedback-send-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .info-page {
+        padding: 85px 16px 120px;
+    }
+
+    .founder-card {
+        padding: 20px 16px;
+    }
+
+    .founder-main {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .founder-badges-row {
+        justify-content: center;
+    }
+
+    .founder-actions {
+        justify-content: center;
+    }
+
+    .extra-section {
+        grid-template-columns: 1fr;
+    }
+
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
 }

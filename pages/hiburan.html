@@ -3,62 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Trinity | Hiburan (娯楽)</title>
+    <title>Nihongo Trinity | Hiburan & Zen Lounge (娯楽)</title>
+    <meta name="description" content="Ruang santai budaya Jepang Nihongo Trinity: Kyoto Ambient Soundscape, ramalan Kuil Omikuji harian, game interaktif, anime pilihan, dan musik lofi.">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/hiburan.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="main-page">
     
-    <section class="content page-content hiburan-page" style="max-width: 1080px; margin: 0 auto; padding: 40px 20px 120px; text-align: center;">
+    <main class="content page-content hiburan-page">
         <!-- Tombol Kembali -->
-        <a href="../index.html" class="back-btn">
-            <span class="back-icon">←</span> Dashboard
+        <a href="../index.html" class="back-btn" id="btnBackDashboard">
+            <span class="back-icon" aria-hidden="true">←</span> Dashboard
         </a>
 
-        <p class="eyebrow">【 娯楽 · Japanese Culture & Lounge 】</p>
-        <h1 class="page-title" style="color: #fff; font-size: clamp(2rem, 4vw, 3rem); margin: 12px 0 8px; font-weight: 700; font-family: 'Noto Serif JP', serif;">Ruang Hiburan & Relaksasi</h1>
-        <p class="subtitle">Istirahatkan pikiran sejenak setelah menghafal kana. Jelajahi mini-game tradisi Jepang, kurasi film mahakarya sinema, dan alunan musik santai khas Negeri Sakura.</p>
-
-        <!-- KULTUR & TRIVIA JEPANG SINGKAT -->
-        <div style="max-width: 720px; margin: 0 auto 35px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); padding: 14px 22px; border-radius: 12px; display: flex; align-items: center; gap: 14px; text-align: left;">
-            <span style="font-size: 26px;">🍵</span>
-            <div>
-                <strong style="color: var(--japan-gold); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block;">Budaya & Trivia: "Komorebi" (木漏れ日)</strong>
-                <p style="margin: 3px 0 0; font-size: 13px; color: var(--text-secondary); line-height: 1.5;">Istilah puitis bahasa Jepang untuk cahaya sinar matahari yang menembus sela-sela dedaunan pohon yang bergoyang tertiup angin.</p>
+        <!-- Header Halaman -->
+        <header class="hiburan-header">
+            <div class="eyebrow-pill">
+                <span class="eyebrow-dot"></span>
+                <span>娯楽 · CYBER-ZEN ENTERTAINMENT LOUNGE</span>
             </div>
-        </div>
+            <h1 class="page-title">
+                Ruang Hiburan <span class="title-accent">&amp; Relaksasi</span>
+            </h1>
+            <p class="page-subtitle">
+                Istirahatkan pikiran sejenak setelah menghafal kana dan kanji. Nikmati generator suara alam Kyoto, ramalan kuil Omikuji harian, kurasi anime mahakarya, serta mini-game tradisi Jepang.
+            </p>
+        </header>
 
-        <!-- Grid Hiburan -->
-        <div class="entertainment-grid">
-            
-           <!-- Kartu 1: Mini Games -->
-            <div class="ent-card">
-                <div class="ent-icon">🎮</div>
-                <h3>Game Corner (ゲーム)</h3>
-                <p>Uji ketangkasanmu lewat 5 mini-game kasual: Jankenpon, ramalan kuil Omikuji, tebak angka Kazuate, dan Kana Memory Match.</p>
-                <a href="game/game.html" class="btn btn-primary">Mainkan Sekarang →</a>
+        <!-- ==========================================================================
+             FEATURE 1: KYOTO AMBIENT ZEN SOUNDSCAPE GENERATOR (Web Audio Procedural)
+             ========================================================================== -->
+        <section class="soundscape-dock" id="soundscapeDock" aria-label="Generator Suara Alam Zen Kyoto">
+            <div class="soundscape-head">
+                <div class="soundscape-title-box">
+                    <div class="soundscape-icon" aria-hidden="true">🍵</div>
+                    <div>
+                        <h2 class="soundscape-title">Kyoto Zen Soundscape (自然環境音)</h2>
+                        <p class="soundscape-sub">Generator audio relaksasi sintetis murni browser — fokus dan tenangkan pikiran.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="eq-bars" id="eqBars" title="Indikator Gelombang Suara">
+                        <span class="eq-bar"></span>
+                        <span class="eq-bar"></span>
+                        <span class="eq-bar"></span>
+                        <span class="eq-bar"></span>
+                        <span class="eq-bar"></span>
+                    </div>
+                    <button class="master-play-btn" id="masterPlayBtn" type="button">
+                        <span id="masterPlayIcon">▶</span>
+                        <span id="masterPlayText">Putar Suara Zen</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Kartu 2: Film & Anime -->
-            <div class="ent-card">
-                <div class="ent-icon">🎬</div>
-                <h3>Movie & Anime (映画)</h3>
-                <p>Kurasi mahakarya film Jepang dan anime terbaik. Dari cyberpunk legendaris Neo-Tokyo Akira hingga Suzume no Tojimari.</p>
-                <a href="movie/movie.html" class="btn btn-secondary">Eksplorasi Film →</a>
+            <!-- 4 Sound Channels -->
+            <div class="sound-channels-grid">
+                <!-- Channel 1: Rain -->
+                <button class="channel-btn is-active" id="chanRain" data-channel="rain" type="button">
+                    <span class="channel-icon">🌧️</span>
+                    <div class="channel-info">
+                        <span class="channel-name">Hujan Kyoto (雨)</span>
+                        <span class="channel-sub">Rintik tenang pelataran kuil</span>
+                    </div>
+                    <span class="channel-status"></span>
+                </button>
+
+                <!-- Channel 2: Bamboo Wind -->
+                <button class="channel-btn is-active" id="chanWind" data-channel="wind" type="button">
+                    <span class="channel-icon">🎋</span>
+                    <div class="channel-info">
+                        <span class="channel-name">Angin Arashiyama (風)</span>
+                        <span class="channel-sub">Desau semilir rumpun bambu</span>
+                    </div>
+                    <span class="channel-status"></span>
+                </button>
+
+                <!-- Channel 3: Temple Bell -->
+                <button class="channel-btn" id="chanBell" data-channel="bell" type="button">
+                    <span class="channel-icon">🔔</span>
+                    <div class="channel-info">
+                        <span class="channel-name">Genta Kuil Suzu (鐘)</span>
+                        <span class="channel-sub">Denting damai perenungan</span>
+                    </div>
+                    <span class="channel-status"></span>
+                </button>
+
+                <!-- Channel 4: Takibi Fire -->
+                <button class="channel-btn" id="chanFire" data-channel="fire" type="button">
+                    <span class="channel-icon">🔥</span>
+                    <div class="channel-info">
+                        <span class="channel-name">Api Unggun Takibi (焚火)</span>
+                        <span class="channel-sub">Gemertak hangat kayu malam</span>
+                    </div>
+                    <span class="channel-status"></span>
+                </button>
             </div>
 
-            <!-- Kartu 3: Japanese Music -->
-            <div class="ent-card highlight-card">
-                <div class="ent-icon">🎧</div>
-                <h3>J-Pop & Lofi Beats (音楽)</h3>
-                <p>Dengarkan melodi santai City Pop 80s, anime rock opening, dan ambient beats untuk menemani waktu fokus belajar kanamu.</p>
-                <a href="musik/musik.html" class="btn btn-gold">Putar Playlist →</a>
+            <!-- Soundscape Controls Footer -->
+            <div class="soundscape-controls">
+                <div class="soundscape-presets">
+                    <span style="font-size: 11px; color: var(--japan-gold); font-weight: 700; text-transform: uppercase;">Preset:</span>
+                    <button class="preset-btn" type="button" data-preset="rain-night">🌧️ Hujan Malam</button>
+                    <button class="preset-btn" type="button" data-preset="zen-temple">⛩️ Kuil Damai</button>
+                    <button class="preset-btn" type="button" data-preset="camp-focus">🔥 Fokus Takibi</button>
+                </div>
+
+                <div class="soundscape-actions">
+                    <div class="vol-slider-wrap">
+                        <span>🔉</span>
+                        <input type="range" class="vol-slider" id="masterVolSlider" min="0" max="100" value="65" aria-label="Volume Master Suara">
+                        <span id="volValText">65%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             FEATURE 2: KUIL SHINTO OMIKUJI DIGITAL (FORTUNE SHAKER)
+             ========================================================================== -->
+        <section class="omikuji-section" aria-label="Ramalan Kuil Omikuji Harian">
+            <div class="omikuji-layout">
+                <!-- Shaker Box -->
+                <div class="omikuji-shaker-wrap">
+                    <div class="omikuji-cylinder" id="omikujiCylinder" role="button" tabindex="0" title="Klik untuk mengocok tabung Omikuji">
+                        <div class="cylinder-cap"></div>
+                        <div class="omikuji-stick" id="omikujiStick"></div>
+                        <div class="cylinder-kanji">御御籤</div>
+                    </div>
+                    <button class="shake-btn" id="shakeOmikujiBtn" type="button">
+                        <span>🎋</span> Kocok Omikuji Hari Ini
+                    </button>
+                    <span style="font-size: 11px; color: var(--text-secondary); opacity: 0.8;">Klik tabung atau tombol untuk meramal</span>
+                </div>
+
+                <!-- Fortune Display Slip -->
+                <div class="omikuji-result-box" id="omikujiResultBox">
+                    <div class="omikuji-placeholder" id="omikujiPlaceholder">
+                        <span style="font-size: 32px; display: block; margin-bottom: 8px;">⛩️</span>
+                        <strong style="color: #fff; font-size: 1rem; display: block; margin-bottom: 4px;">Tarik Nasib &amp; Motivasi Belajarmu</strong>
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+                            Tradisi kuno kuil Shinto Jepang untuk memohon petunjuk. Kocok bambu Omikuji untuk mengetahui keberuntungan, kanji pelindung, dan nasihat belajarmu hari ini.
+                        </p>
+                    </div>
+
+                    <div class="fortune-card" id="fortuneCard" aria-live="polite">
+                        <div class="fortune-header">
+                            <div>
+                                <span class="fortune-rank" id="fortuneRankText">大吉</span>
+                                <span class="fortune-rank-label" id="fortuneRankSub">Keberuntungan Sangat Besar</span>
+                            </div>
+                            <div class="fortune-badges">
+                                <span class="fortune-badge" id="fortuneKanjiBadge">Kanji: 「道」 Jalan</span>
+                                <span class="fortune-badge" id="fortuneLuckyNum">Angka Hoki: 7</span>
+                            </div>
+                        </div>
+
+                        <p class="fortune-advice" id="fortuneAdviceText">
+                            “Pikiranmu sedang sangat tajam. Waktu yang tepat untuk menghafal 10 kosakata baru dan mengulang kembali Hiragana. Konsistensi kecilmu akan berbuah kemajuan nyata!”
+                        </p>
+
+                        <div class="fortune-footer">
+                            <span id="fortuneDateText">📅 Berlaku untuk hari ini</span>
+                            <button class="culture-btn-action" id="fortuneVoiceBtn" type="button">
+                                🔊 Dengarkan Bahasa Jepang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             FEATURE 3: BUDAYA & TRIVIA JEPANG INTERAKTIF
+             ========================================================================== -->
+        <section class="culture-row" aria-label="Trivia dan Kosakata Budaya">
+            <!-- Card 1: Japanese Concept -->
+            <div class="culture-card">
+                <div class="culture-icon">🍃</div>
+                <div class="culture-body">
+                    <span class="culture-tag">Filosofi Estetika Jepang</span>
+                    <h3 class="culture-title">Komorebi (木漏れ日)</h3>
+                    <p class="culture-desc">
+                        Sinar matahari lembut yang menyelinap menembus sela-sela dedaunan pohon yang menari tertiup angin. Mengajarkan kita untuk menikmati keindahan momen kecil nan fana.
+                    </p>
+                    <button class="culture-btn-action" type="button" onclick="speakJapanese('木漏れ日。木の間から漏れる日の光。')">
+                        🔊 Dengarkan Pelafalan
+                    </button>
+                </div>
             </div>
 
-        </div>
-    </section>
+            <!-- Card 2: Interactive Nazonazo (Japanese Riddle) -->
+            <div class="culture-card" id="nazonazoCard">
+                <div class="culture-icon">🦊</div>
+                <div class="culture-body">
+                    <span class="culture-tag">Teka-Teki Tradisi (なぞなぞ)</span>
+                    <h3 class="culture-title" id="nazonazoQuestion">“Punya leher tapi tidak punya kepala, apakah itu?”</h3>
+                    <p class="culture-desc" id="nazonazoAnswer" style="display: none; color: var(--japan-gold); font-weight: 600;">
+                        💡 Jawaban: <strong>Botol (瓶 / Tokkuri)</strong>! Dalam bahasa Jepang, bagian atas botol disebut "Kubi" (leher)!
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="culture-btn-action" id="revealNazoBtn" type="button">
+                            👁️ Lihat Jawaban
+                        </button>
+                        <button class="culture-btn-action" id="nextNazoBtn" type="button">
+                            🔄 Teka-Teki Lain
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <!-- Navigasi Bawah Modern -->
+        <!-- ==========================================================================
+             FEATURE 4: CURATED ENTERTAINMENT HUB GRID
+             ========================================================================== -->
+        <section aria-label="Portal Akses Hiburan Lengkap">
+            <div class="entertainment-grid">
+                
+                <!-- Kartu 1: Mini Games -->
+                <article class="ent-card card-games">
+                    <span class="ent-card-badge">5 Kasual Game</span>
+                    <div class="ent-icon-wrapper">🎮</div>
+                    <h3>Game Corner (ゲーム)</h3>
+                    <p>Uji ketangkasan dan refleks bahasa Jepangmu lewat game santai interaktif: Jankenpon, ramalan kuil Omikuji, tebak angka Kazuate, dan tes refleks Kana.</p>
+                    <div class="ent-tags">
+                        <span class="ent-tag">Jankenpon</span>
+                        <span class="ent-tag">Kazuate</span>
+                        <span class="ent-tag">Kana Match</span>
+                        <span class="ent-tag">Refleks</span>
+                    </div>
+                    <a href="game/game.html" class="ent-btn">
+                        <span>Mainkan Sekarang</span> <span>→</span>
+                    </a>
+                </article>
+
+                <!-- Kartu 2: Film & Anime -->
+                <article class="ent-card card-movies">
+                    <span class="ent-card-badge">Sinema Terbaik</span>
+                    <div class="ent-icon-wrapper">🎬</div>
+                    <h3>Movie &amp; Anime (映画)</h3>
+                    <p>Kurasi mahakarya film Jepang dan anime bersejarah. Dari atmosfer cyberpunk Neo-Tokyo Akira, drama emosional Your Name, hingga mahakarya Studio Ghibli.</p>
+                    <div class="ent-tags">
+                        <span class="ent-tag">Akira 1988</span>
+                        <span class="ent-tag">Ghibli</span>
+                        <span class="ent-tag">Suzume</span>
+                        <span class="ent-tag">Makoto Shinkai</span>
+                    </div>
+                    <a href="movie/movie.html" class="ent-btn">
+                        <span>Eksplorasi Film</span> <span>→</span>
+                    </a>
+                </article>
+
+                <!-- Kartu 3: Japanese Music & Lofi -->
+                <article class="ent-card card-music">
+                    <span class="ent-card-badge">Koleksi Playlist</span>
+                    <div class="ent-icon-wrapper">🎧</div>
+                    <h3>J-Pop &amp; Lofi (音楽)</h3>
+                    <p>Nikmati alunan nostalgia City Pop era 80-an, melodi santai lofi hip-hop Negeri Sakura, dan soundtrack anime ikonik untuk menemanimu belajar tanpa stres.</p>
+                    <div class="ent-tags">
+                        <span class="ent-tag">City Pop 80s</span>
+                        <span class="ent-tag">Lofi Beats</span>
+                        <span class="ent-tag">Anime OST</span>
+                        <span class="ent-tag">Shibuya Sound</span>
+                    </div>
+                    <a href="musik/musik.html" class="ent-btn">
+                        <span>Buka Playlist Musik</span> <span>→</span>
+                    </a>
+                </article>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Navigasi Bawah Modern iOS Style -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
         <a class="main-bottom-item" href="../index.html"><span class="main-bottom-icon">⌂</span><span>Home</span></a>
         <a class="main-bottom-item is-active" href="hiburan.html"><span class="main-bottom-icon">✦</span><span>Hiburan</span></a>
@@ -73,7 +294,472 @@
         <a class="main-bottom-item" href="info.html"><span class="main-bottom-icon">ⓘ</span><span>Info</span></a>
     </nav>
 
+    <!-- Global Framework Scripts -->
     <script type="module" src="../admin.js"></script>
     <script src="../script.js"></script>
+
+    <!-- Interactive Logic for Hiburan (Soundscape & Omikuji & Nazonazo) -->
+    <script>
+    (function() {
+        // =========================================================================
+        // 1. KYOTO AMBIENT ZEN SOUNDSCAPE ENGINE (Pure Web Audio API Synthesizer)
+        // =========================================================================
+        let soundscapeCtx = null;
+        let masterGain = null;
+        let isSoundscapePlaying = false;
+        let masterVolume = 0.65;
+
+        // Channels state & audio nodes
+        const channels = {
+            rain: { active: true, gain: null, source: null },
+            wind: { active: true, gain: null, source: null },
+            bell: { active: false, gain: null, timer: null },
+            fire: { active: false, gain: null, source: null }
+        };
+
+        function getAudioContext() {
+            if (!soundscapeCtx) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                soundscapeCtx = new AudioCtx();
+                masterGain = soundscapeCtx.createGain();
+                masterGain.gain.setValueAtTime(masterVolume, soundscapeCtx.currentTime);
+                masterGain.connect(soundscapeCtx.destination);
+            }
+            if (soundscapeCtx.state === 'suspended') {
+                soundscapeCtx.resume();
+            }
+            return soundscapeCtx;
+        }
+
+        // Procedural Pink Noise Buffer for Rain & Wind
+        function createNoiseBuffer(ctx, duration = 4) {
+            const bufferSize = ctx.sampleRate * duration;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+                b6 = white * 0.115926;
+            }
+            return buffer;
+        }
+
+        // Start Rain Generator
+        function startRainNode(ctx) {
+            const buffer = createNoiseBuffer(ctx, 5);
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1000, ctx.currentTime);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(channels.rain.active ? 0.35 : 0.0001, ctx.currentTime);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+            noise.start();
+
+            channels.rain.source = noise;
+            channels.rain.gain = gain;
+        }
+
+        // Start Bamboo Wind Generator
+        function startWindNode(ctx) {
+            const buffer = createNoiseBuffer(ctx, 6);
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(450, ctx.currentTime);
+            filter.Q.setValueAtTime(3.0, ctx.currentTime);
+
+            // Modulate filter frequency for sweeping wind
+            const lfo = ctx.createOscillator();
+            lfo.frequency.setValueAtTime(0.2, ctx.currentTime);
+            const lfoGain = ctx.createGain();
+            lfoGain.gain.setValueAtTime(250, ctx.currentTime);
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+            lfo.start();
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(channels.wind.active ? 0.4 : 0.0001, ctx.currentTime);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+            noise.start();
+
+            channels.wind.source = noise;
+            channels.wind.gain = gain;
+        }
+
+        // Start Temple Bell (Periodic Chime)
+        function triggerSingleBell(ctx) {
+            if (!isSoundscapePlaying || !channels.bell.active) return;
+            const now = ctx.currentTime;
+            
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(216, now); // A3 temple resonance
+
+            const oscHarmonic = ctx.createOscillator();
+            oscHarmonic.type = 'triangle';
+            oscHarmonic.frequency.setValueAtTime(432, now);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 4.5);
+
+            osc.connect(gain);
+            oscHarmonic.connect(gain);
+            gain.connect(masterGain);
+
+            osc.start(now);
+            oscHarmonic.start(now);
+            osc.stop(now + 4.5);
+            oscHarmonic.stop(now + 4.5);
+        }
+
+        function startBellLoop(ctx) {
+            if (channels.bell.timer) clearInterval(channels.bell.timer);
+            if (channels.bell.active && isSoundscapePlaying) {
+                triggerSingleBell(ctx);
+                channels.bell.timer = setInterval(() => {
+                    triggerSingleBell(ctx);
+                }, 8000 + Math.random() * 4000);
+            }
+        }
+
+        // Start Takibi Fire Generator
+        function startFireNode(ctx) {
+            const buffer = createNoiseBuffer(ctx, 4);
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(750, ctx.currentTime);
+            filter.Q.setValueAtTime(1.5, ctx.currentTime);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(channels.fire.active ? 0.25 : 0.0001, ctx.currentTime);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+            noise.start();
+
+            channels.fire.source = noise;
+            channels.fire.gain = gain;
+        }
+
+        function toggleSoundscape() {
+            const ctx = getAudioContext();
+            const dock = document.getElementById('soundscapeDock');
+            const playBtn = document.getElementById('masterPlayBtn');
+            const playIcon = document.getElementById('masterPlayIcon');
+            const playText = document.getElementById('masterPlayText');
+
+            if (!isSoundscapePlaying) {
+                // Start playback
+                isSoundscapePlaying = true;
+                startRainNode(ctx);
+                startWindNode(ctx);
+                startFireNode(ctx);
+                startBellLoop(ctx);
+
+                dock.classList.add('is-playing');
+                playBtn.style.background = 'linear-gradient(135deg, #10b981, #047857)';
+                playIcon.textContent = '❚❚';
+                playText.textContent = 'Hentikan Suara';
+                if (typeof showToast === 'function') showToast("🍃 Suara Alam Zen Kyoto aktif");
+            } else {
+                // Stop playback
+                isSoundscapePlaying = false;
+                try {
+                    if (channels.rain.source) channels.rain.source.stop();
+                    if (channels.wind.source) channels.wind.source.stop();
+                    if (channels.fire.source) channels.fire.source.stop();
+                    if (channels.bell.timer) clearInterval(channels.bell.timer);
+                } catch(e) {}
+
+                dock.classList.remove('is-playing');
+                playBtn.style.background = 'linear-gradient(135deg, var(--japan-red, #e63946), #b91c1c)';
+                playIcon.textContent = '▶';
+                playText.textContent = 'Putar Suara Zen';
+            }
+        }
+
+        // Toggle individual channel
+        function toggleChannel(chanKey) {
+            const chan = channels[chanKey];
+            chan.active = !chan.active;
+            const btn = document.querySelector(`[data-channel="${chanKey}"]`);
+            if (btn) btn.classList.toggle('is-active', chan.active);
+
+            if (isSoundscapePlaying && soundscapeCtx) {
+                const now = soundscapeCtx.currentTime;
+                if (chanKey === 'bell') {
+                    startBellLoop(soundscapeCtx);
+                } else if (chan.gain) {
+                    const targetVol = chanKey === 'rain' ? 0.35 : chanKey === 'wind' ? 0.4 : 0.25;
+                    chan.gain.gain.setValueAtTime(chan.gain.gain.value, now);
+                    chan.gain.gain.linearRampToValueAtTime(chan.active ? targetVol : 0.0001, now + 0.3);
+                }
+            }
+        }
+
+        // Bind Soundscape UI events
+        const masterPlayBtn = document.getElementById('masterPlayBtn');
+        masterPlayBtn?.addEventListener('click', toggleSoundscape);
+
+        document.querySelectorAll('.channel-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const chan = btn.getAttribute('data-channel');
+                if (chan) toggleChannel(chan);
+            });
+        });
+
+        // Presets
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const preset = btn.getAttribute('data-preset');
+                if (preset === 'rain-night') {
+                    channels.rain.active = true;
+                    channels.wind.active = true;
+                    channels.bell.active = false;
+                    channels.fire.active = false;
+                } else if (preset === 'zen-temple') {
+                    channels.rain.active = false;
+                    channels.wind.active = true;
+                    channels.bell.active = true;
+                    channels.fire.active = false;
+                } else if (preset === 'camp-focus') {
+                    channels.rain.active = false;
+                    channels.wind.active = false;
+                    channels.bell.active = false;
+                    channels.fire.active = true;
+                }
+                
+                // Update button visual states
+                Object.keys(channels).forEach(k => {
+                    const chBtn = document.querySelector(`[data-channel="${k}"]`);
+                    if (chBtn) chBtn.classList.toggle('is-active', channels[k].active);
+                });
+
+                if (!isSoundscapePlaying) toggleSoundscape();
+                if (typeof showToast === 'function') showToast(`Preset diterapkan: ${btn.textContent.trim()}`);
+            });
+        });
+
+        // Master Volume Slider
+        const masterVolSlider = document.getElementById('masterVolSlider');
+        const volValText = document.getElementById('volValText');
+        masterVolSlider?.addEventListener('input', (e) => {
+            masterVolume = Number(e.target.value) / 100;
+            if (volValText) volValText.textContent = `${e.target.value}%`;
+            if (masterGain && soundscapeCtx) {
+                masterGain.gain.setValueAtTime(masterVolume, soundscapeCtx.currentTime);
+            }
+        });
+
+        // =========================================================================
+        // 2. SHINTO OMIKUJI DIGITAL FORTUNE ENGINE
+        // =========================================================================
+        const OMIKUJI_FORTUNES = [
+            {
+                rank: "大吉",
+                rankSub: "Keberuntungan Tertinggi (Daikichi)",
+                kanji: "道",
+                kanjiMeaning: "Michi (Jalan / Keahlian)",
+                luckyNum: 7,
+                advice: "Fokus belajarmu hari ini berada di puncak ketajaman. Langkah kecil yang kamu tekuni akan menghasilkan pemahaman bahasa Jepang yang melompat jauh!",
+                jpVoice: "大吉です！今日の集中力は最高潮です。小さな積み重ねが大きな力になります。"
+            },
+            {
+                rank: "中吉",
+                rankSub: "Keberuntungan Sedang (Chukichi)",
+                kanji: "光",
+                kanjiMeaning: "Hikari (Cahaya Masa Depan)",
+                luckyNum: 3,
+                advice: "Ada pencerahan baru saat kamu membaca kanji atau partikel hari ini. Jangan ragu mempraktikkannya di ruang obrolan obrolan tim!",
+                jpVoice: "中吉です！新しい気づきと光が差し込む良い日です。自信を持って練習しましょう。"
+            },
+            {
+                rank: "吉",
+                rankSub: "Keberuntungan Baik (Kichi)",
+                kanji: "和",
+                kanjiMeaning: "Wa (Kedamaian & Harmoni)",
+                luckyNum: 9,
+                advice: "Suasana hati damai akan membantumu menyerap kosakata baru dengan santai. Jangan terburu-buru, nikmati setiap guratan aksaranya.",
+                jpVoice: "吉です！穏やかな心で日本語に触れましょう。継続こそが上達の近道です。"
+            },
+            {
+                rank: "小吉",
+                rankSub: "Keberuntungan Kecil (Shokichi)",
+                kanji: "勇",
+                kanjiMeaning: "Yuu (Keberanian Mencoba)",
+                luckyNum: 5,
+                advice: "Jangan takut salah saat melafalkan bunyi kana. Keberanian mencoba kesalahan hari ini adalah benih kelancaranmu besok!",
+                jpVoice: "小吉です！間違いを恐れず、勇気を出して声に出して発音してみましょう。"
+            },
+            {
+                rank: "末吉",
+                rankSub: "Keberuntungan Masa Depan (Suekichi)",
+                kanji: "根",
+                kanjiMeaning: "Ne (Akar & Pondasi Kuat)",
+                luckyNum: 8,
+                advice: "Hari ini adalah waktu ideal memperkuat pondasi tata bahasa dasar. Akar yang kokoh akan menumbuhkan pohon yang tahan badai!",
+                jpVoice: "末吉です！基礎をしっかり固めるのに最高の日です。焦らず根を張りましょう。"
+            }
+        ];
+
+        let currentFortune = null;
+        let isShaking = false;
+
+        function drawOmikuji() {
+            if (isShaking) return;
+            isShaking = true;
+
+            const cylinder = document.getElementById('omikujiCylinder');
+            const stick = document.getElementById('omikujiStick');
+            const shakeBtn = document.getElementById('shakeOmikujiBtn');
+            const placeholder = document.getElementById('omikujiPlaceholder');
+            const fortuneCard = document.getElementById('fortuneCard');
+
+            cylinder?.classList.add('is-shaking');
+            if (shakeBtn) shakeBtn.disabled = true;
+
+            if (typeof playChime === 'function') {
+                playChime('bell');
+            }
+
+            setTimeout(() => {
+                cylinder?.classList.remove('is-shaking');
+                stick?.classList.add('is-out');
+
+                // Pick random fortune
+                const chosen = OMIKUJI_FORTUNES[Math.floor(Math.random() * OMIKUJI_FORTUNES.length)];
+                currentFortune = chosen;
+
+                // Update DOM
+                document.getElementById('fortuneRankText').textContent = chosen.rank;
+                document.getElementById('fortuneRankSub').textContent = chosen.rankSub;
+                document.getElementById('fortuneKanjiBadge').textContent = `Kanji: 「${chosen.kanji}」 ${chosen.kanjiMeaning}`;
+                document.getElementById('fortuneLuckyNum').textContent = `Angka Hoki: ${chosen.luckyNum}`;
+                document.getElementById('fortuneAdviceText').textContent = `“${chosen.advice}”`;
+                
+                const now = new Date();
+                document.getElementById('fortuneDateText').textContent = `📅 Diambil pada: ${now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' })}`;
+
+                if (placeholder) placeholder.style.display = 'none';
+                if (fortuneCard) fortuneCard.classList.add('is-visible');
+
+                if (shakeBtn) shakeBtn.disabled = false;
+                isShaking = false;
+
+                if (typeof showToast === 'function') {
+                    showToast(`⛩️ Hasil Omikuji: ${chosen.rank} (${chosen.rankSub})`);
+                }
+
+                // Save to localStorage
+                localStorage.setItem('trinity_omikuji_fortune', JSON.stringify({
+                    ...chosen,
+                    savedAt: now.toISOString()
+                }));
+            }, 1000);
+        }
+
+        document.getElementById('shakeOmikujiBtn')?.addEventListener('click', drawOmikuji);
+        document.getElementById('omikujiCylinder')?.addEventListener('click', drawOmikuji);
+
+        document.getElementById('fortuneVoiceBtn')?.addEventListener('click', () => {
+            if (currentFortune && typeof speakJapanese === 'function') {
+                speakJapanese(currentFortune.jpVoice);
+            }
+        });
+
+        // Restore saved fortune if available today
+        try {
+            const saved = localStorage.getItem('trinity_omikuji_fortune');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                const savedDate = new Date(parsed.savedAt).toDateString();
+                const todayDate = new Date().toDateString();
+                if (savedDate === todayDate) {
+                    currentFortune = parsed;
+                    document.getElementById('fortuneRankText').textContent = parsed.rank;
+                    document.getElementById('fortuneRankSub').textContent = parsed.rankSub;
+                    document.getElementById('fortuneKanjiBadge').textContent = `Kanji: 「${parsed.kanji}」 ${parsed.kanjiMeaning}`;
+                    document.getElementById('fortuneLuckyNum').textContent = `Angka Hoki: ${parsed.luckyNum}`;
+                    document.getElementById('fortuneAdviceText').textContent = `“${parsed.advice}”`;
+                    document.getElementById('omikujiPlaceholder').style.display = 'none';
+                    document.getElementById('fortuneCard').classList.add('is-visible');
+                }
+            }
+        } catch(e) {}
+
+        // =========================================================================
+        // 3. JAPANESE NAZONAZO (RIDDLES) INTERACTIVE LOGIC
+        // =========================================================================
+        const NAZONAZO_LIST = [
+            {
+                q: "“Punya leher tapi tidak punya kepala sama sekali, apakah itu?”",
+                a: "💡 Jawaban: Botol (瓶 / Tokkuri)! Dalam bahasa Jepang, bagian atas botol disebut 'Kubi' (leher)!"
+            },
+            {
+                q: "“Benda apa yang selalu menang saat dipotong, tapi menangis saat dimakan?”",
+                a: "💡 Jawaban: Bawang bombay (玉ねぎ / Tamanegi)! Saat dipotong, manusia yang meneteskan air mata!"
+            },
+            {
+                q: "“Hewan apa yang paling banyak membawa uang ke mana-mana?”",
+                a: "💡 Jawaban: Kura-kura (亀 / Kame)! Karena tempurungnya berbentuk seperti koin kuno Kosen!"
+            },
+            {
+                q: "“Pagi hari berkaki empat, siang hari berkaki dua, malam hari berkaki tiga. Siapakah itu?”",
+                a: "💡 Jawaban: Manusia (人間 / Ningen)! Bayi merangkak, dewasa berjalan dua kaki, dan lansia memakai tongkat!"
+            }
+        ];
+
+        let nazoIndex = 0;
+        const nazoQuestion = document.getElementById('nazonazoQuestion');
+        const nazoAnswer = document.getElementById('nazonazoAnswer');
+        const revealNazoBtn = document.getElementById('revealNazoBtn');
+        const nextNazoBtn = document.getElementById('nextNazoBtn');
+
+        revealNazoBtn?.addEventListener('click', () => {
+            const isShown = nazoAnswer.style.display !== 'none';
+            nazoAnswer.style.display = isShown ? 'none' : 'block';
+            revealNazoBtn.textContent = isShown ? '👁️ Lihat Jawaban' : '🙈 Sembunyikan';
+            if (!isShown && typeof playChime === 'function') playChime('drop');
+        });
+
+        nextNazoBtn?.addEventListener('click', () => {
+            nazoIndex = (nazoIndex + 1) % NAZONAZO_LIST.length;
+            nazoQuestion.textContent = NAZONAZO_LIST[nazoIndex].q;
+            nazoAnswer.innerHTML = NAZONAZO_LIST[nazoIndex].a;
+            nazoAnswer.style.display = 'none';
+            revealNazoBtn.textContent = '👁️ Lihat Jawaban';
+            if (typeof playChime === 'function') playChime('drop');
+        });
+
+    })();
+    </script>
 </body>
 </html>

@@ -379,6 +379,15 @@ function playChime(type = 'success') {
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
             osc.start(now);
             osc.stop(now + 0.3);
+        } else if (type === 'drop' || type === 'neutral') {
+            // iOS subtle spring pop
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+            osc.start(now);
+            osc.stop(now + 0.22);
         }
     } catch (e) {
         console.log("Audio FX error", e);
@@ -985,9 +994,900 @@ function checkAnswer() {
     }
 }
 
-// 15. INITIALIZATION ON DOM LOAD
+// ==========================================
+// 15. MOBILE-FIRST ADVANCED HOMEPAGE ENGINES
+// ==========================================
+
+// A. STUDENT PASS & EXP SYSTEM
+function setupMobileAppHub() {
+    const userNameEl = document.getElementById("heroPassUserName");
+    const rankEl = document.getElementById("heroPassRank");
+    const streakEl = document.getElementById("heroPassStreak");
+    const expValEl = document.getElementById("heroExpVal");
+    const expFillEl = document.getElementById("heroExpFill");
+    const avatarEl = document.getElementById("heroPassAvatar");
+
+    if (!userNameEl) return;
+
+    function refreshPass() {
+        const user = localStorage.getItem("nihongoChatUser");
+        if (user) {
+            userNameEl.textContent = `Okaeri, ${user}! 🌸`;
+        } else {
+            userNameEl.textContent = "Konnichiwa, Gakusei! 🌸";
+        }
+
+        // Profile Avatar Sync
+        const savedAvatar = localStorage.getItem(`avatar_${user}`);
+        if (savedAvatar && avatarEl) {
+            avatarEl.src = savedAvatar;
+        }
+
+        // Calculate XP based on best score & completed quests
+        let currentExp = Number(localStorage.getItem("trinity_exp") || 80);
+        const best = Number(localStorage.getItem("nihongoBestScore") || 0);
+        currentExp = Math.max(currentExp, 80 + best * 2);
+
+        // Determine Level & Rank
+        let level = 1;
+        let rankTitle = "見習い MINARAI";
+        let maxExp = 300;
+
+        if (currentExp >= 750) {
+            level = 4;
+            rankTitle = "侍 SAMURAI";
+            maxExp = 1500;
+        } else if (currentExp >= 400) {
+            level = 3;
+            rankTitle = "武士 BUSHI";
+            maxExp = 750;
+        } else if (currentExp >= 180) {
+            level = 2;
+            rankTitle = "門下生 MONKASEI";
+            maxExp = 400;
+        }
+
+        if (rankEl) rankEl.textContent = `⚔️ ${rankTitle} · LV.${level}`;
+        if (expValEl) expValEl.textContent = `${currentExp} / ${maxExp} XP`;
+        if (expFillEl) {
+            const pct = Math.min(100, Math.round((currentExp / maxExp) * 100));
+            expFillEl.style.width = `${pct}%`;
+        }
+
+        // Streak Tracker
+        const streakDays = Number(localStorage.getItem("trinity_streak_days") || 1);
+        if (streakEl) {
+            const streakSpan = streakEl.querySelector("span");
+            if (streakSpan) streakSpan.textContent = `${streakDays} Hari`;
+        }
+    }
+
+    refreshPass();
+    window.addEventListener("storage", refreshPass);
+    window.addEventListener("profilesUpdated", refreshPass);
+
+    // Segmented Tabs Switcher (Leaderboard vs Team)
+    const tabRank = document.getElementById("tabBtnRank");
+    const tabTeam = document.getElementById("tabBtnTeam");
+    const paneRank = document.getElementById("paneRank");
+    const paneTeam = document.getElementById("paneTeam");
+
+    tabRank?.addEventListener("click", () => {
+        tabRank.classList.add("is-active");
+        tabTeam?.classList.remove("is-active");
+        paneRank?.classList.add("is-active");
+        paneTeam?.classList.remove("is-active");
+    });
+
+    tabTeam?.addEventListener("click", () => {
+        tabTeam.classList.add("is-active");
+        tabRank?.classList.remove("is-active");
+        paneTeam?.classList.add("is-active");
+        paneRank?.classList.remove("is-active");
+    });
+}
+
+// B. DAILY MASTERY QUESTS TRACKER
+function setupDailyQuests() {
+    const progressText = document.getElementById("questProgressText");
+    const questItems = [
+        document.getElementById("questItem1"),
+        document.getElementById("questItem2"),
+        document.getElementById("questItem3")
+    ];
+
+    if (!progressText || !questItems[0]) return;
+
+    const todayKey = `trinity_quests_${new Date().toISOString().slice(0, 10)}`;
+    let questState = JSON.parse(localStorage.getItem(todayKey) || "[false, false, false]");
+
+    function updateQuestUI() {
+        let completed = 0;
+        questItems.forEach((item, idx) => {
+            if (!item) return;
+            const isDone = questState[idx];
+            item.classList.toggle("is-completed", isDone);
+            if (isDone) completed++;
+        });
+
+        progressText.textContent = `${completed} / 3 Selesai`;
+        if (completed === 3) {
+            progressText.style.background = "rgba(76, 175, 80, 0.2)";
+            progressText.style.color = "#a5d6a7";
+            progressText.style.borderColor = "#4CAF50";
+        }
+    }
+
+    questItems.forEach((item, idx) => {
+        item?.addEventListener("click", () => {
+            questState[idx] = !questState[idx];
+            localStorage.setItem(todayKey, JSON.stringify(questState));
+            if (questState[idx]) {
+                playChime('success');
+                showToast("✨ Misi harian selesai! +EXP");
+                let curExp = Number(localStorage.getItem("trinity_exp") || 80);
+                localStorage.setItem("trinity_exp", curExp + 30);
+                setupMobileAppHub();
+            }
+            updateQuestUI();
+        });
+    });
+
+    updateQuestUI();
+
+    // Auto complete quest 2 from other activities
+    window.completeQuest = function(index) {
+        if (!questState[index]) {
+            questState[index] = true;
+            localStorage.setItem(todayKey, JSON.stringify(questState));
+            updateQuestUI();
+            playChime('success');
+            showToast("🎯 Misi Harian Berhasil Dicapai!");
+        }
+    };
+}
+
+// C. FAST 1-TAP KANA RADAR (INLINE MINI-GAME)
+function setupFastKanaRadar() {
+    const targetCharEl = document.getElementById("fastRadarChar");
+    const optionsContainer = document.getElementById("fastRadarOptions");
+    const streakEl = document.getElementById("fastRadarStreak");
+    const feedbackEl = document.getElementById("fastRadarFeedback");
+    const speakerBtn = document.getElementById("fastRadarSpeaker");
+
+    if (!targetCharEl || !optionsContainer) return;
+
+    let currentKana = null;
+    let radarStreak = 0;
+    let isLocked = false;
+
+    // Filter clear single-syllable kana
+    const validKana = kanaList.filter(k => k.romaji.length <= 3 && k.row !== "dakuon");
+
+    function nextQuestion() {
+        isLocked = false;
+        const randomIndex = Math.floor(Math.random() * validKana.length);
+        currentKana = validKana[randomIndex];
+
+        targetCharEl.textContent = currentKana.kana;
+        targetCharEl.style.transform = "scale(0.85)";
+        setTimeout(() => targetCharEl.style.transform = "scale(1)", 150);
+
+        // Generate 1 correct + 3 distinct wrong choices
+        const choices = [currentKana.romaji];
+        while (choices.length < 4) {
+            const randItem = validKana[Math.floor(Math.random() * validKana.length)];
+            if (!choices.includes(randItem.romaji)) {
+                choices.push(randItem.romaji);
+            }
+        }
+
+        // Shuffle choices
+        choices.sort(() => Math.random() - 0.5);
+
+        optionsContainer.innerHTML = "";
+        choices.forEach(choice => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "radar-option-btn";
+            btn.textContent = choice;
+            btn.dataset.romaji = choice;
+            btn.addEventListener("click", () => handleChoice(choice, btn));
+            optionsContainer.appendChild(btn);
+        });
+
+        if (feedbackEl) {
+            feedbackEl.textContent = "Pilih salah satu jawaban";
+            feedbackEl.style.color = "var(--muted)";
+        }
+    }
+
+    function handleChoice(selected, btn) {
+        if (isLocked) return;
+        isLocked = true;
+
+        if (selected === currentKana.romaji) {
+            btn.classList.add("is-correct");
+            playChime('success');
+            radarStreak++;
+            if (streakEl) {
+                const s = streakEl.querySelector("span");
+                if (s) s.textContent = radarStreak;
+            }
+
+            if (feedbackEl) {
+                feedbackEl.textContent = `正解! Benar: "${currentKana.romaji}" ⚡`;
+                feedbackEl.style.color = "#81C784";
+            }
+
+            // Award XP
+            let curExp = Number(localStorage.getItem("trinity_exp") || 80);
+            localStorage.setItem("trinity_exp", curExp + 10);
+            setupMobileAppHub();
+
+            // Mark Quest 2 as completed
+            if (window.completeQuest) window.completeQuest(1);
+
+            setTimeout(nextQuestion, 600);
+        } else {
+            btn.classList.add("is-wrong");
+            playChime('error');
+            radarStreak = 0;
+            if (streakEl) {
+                const s = streakEl.querySelector("span");
+                if (s) s.textContent = "0";
+            }
+
+            // Highlight the correct one
+            optionsContainer.querySelectorAll(".radar-option-btn").forEach(b => {
+                if (b.dataset.romaji === currentKana.romaji) b.classList.add("is-correct");
+            });
+
+            if (feedbackEl) {
+                feedbackEl.textContent = `Jawaban tepat: "${currentKana.romaji}" ❌`;
+                feedbackEl.style.color = "#FF758F";
+            }
+
+            setTimeout(nextQuestion, 1200);
+        }
+    }
+
+    speakerBtn?.addEventListener("click", () => {
+        if (currentKana) speakJapanese(currentKana.kana);
+    });
+
+    nextQuestion();
+}
+
+// D. KANJI RADAR CARD WIDGET
+function setupKanjiRadarWidget() {
+    const charBox = document.getElementById("kanjiRadarChar");
+    const levelEl = document.getElementById("kanjiRadarLevel");
+    const strokesEl = document.getElementById("kanjiRadarStrokes");
+    const meaningEl = document.getElementById("kanjiRadarMeaning");
+    const readingsEl = document.getElementById("kanjiRadarReadings");
+    const exJpEl = document.getElementById("kanjiRadarExJp");
+    const exIdEl = document.getElementById("kanjiRadarExId");
+    const speakerBtn = document.getElementById("kanjiRadarSpeaker");
+    const randomBtn = document.getElementById("kanjiRadarRandomBtn");
+    const markBtn = document.getElementById("kanjiRadarMarkBtn");
+    const counterEl = document.getElementById("kanjiRadarCounter");
+
+    if (!charBox || !meaningEl) return;
+
+    let kanjiIdx = 0;
+
+    function renderKanjiCard(idx) {
+        const item = kanjiList[idx];
+        if (!item) return;
+
+        charBox.textContent = item.kanji;
+        if (levelEl) levelEl.textContent = `JLPT ${item.level}`;
+        if (strokesEl) strokesEl.textContent = `${item.stroke} Goresan`;
+        if (meaningEl) meaningEl.textContent = item.meaning;
+        if (readingsEl) {
+            readingsEl.innerHTML = `
+                <div><strong>On:</strong> ${item.onyomi}</div>
+                <div><strong>Kun:</strong> ${item.kunyomi}</div>
+            `;
+        }
+        if (exJpEl) exJpEl.textContent = item.exampleJp;
+        if (exIdEl) exIdEl.textContent = item.exampleId;
+
+        // Check memorized state
+        const memorized = JSON.parse(localStorage.getItem("trinity_memorized_kanji") || "[]");
+        if (markBtn) {
+            const isMem = memorized.includes(item.kanji);
+            markBtn.textContent = isMem ? "✅ Dihafal" : "✓ Tandai Hafal";
+            markBtn.classList.toggle("btn-primary", isMem);
+            markBtn.classList.toggle("btn-secondary", !isMem);
+        }
+        if (counterEl) counterEl.textContent = `Hafal: ${memorized.length}`;
+    }
+
+    renderKanjiCard(kanjiIdx);
+
+    speakerBtn?.addEventListener("click", () => {
+        const item = kanjiList[kanjiIdx];
+        if (item) speakJapanese(`${item.kanji}。${item.exampleJp}`);
+    });
+
+    charBox.addEventListener("click", () => {
+        const item = kanjiList[kanjiIdx];
+        if (item) speakJapanese(item.kanji);
+    });
+
+    randomBtn?.addEventListener("click", () => {
+        let nextIdx;
+        do {
+            nextIdx = Math.floor(Math.random() * kanjiList.length);
+        } while (nextIdx === kanjiIdx && kanjiList.length > 1);
+
+        kanjiIdx = nextIdx;
+        playChime('bell');
+        renderKanjiCard(kanjiIdx);
+    });
+
+    markBtn?.addEventListener("click", () => {
+        const item = kanjiList[kanjiIdx];
+        let memorized = JSON.parse(localStorage.getItem("trinity_memorized_kanji") || "[]");
+        if (memorized.includes(item.kanji)) {
+            memorized = memorized.filter(k => k !== item.kanji);
+            showToast(`Kanji "${item.kanji}" dihapus dari daftar hafal`);
+        } else {
+            memorized.push(item.kanji);
+            playChime('success');
+            showToast(`✨ Kanji "${item.kanji}" berhasil dihafal! +20 XP`);
+            let curExp = Number(localStorage.getItem("trinity_exp") || 80);
+            localStorage.setItem("trinity_exp", curExp + 20);
+            setupMobileAppHub();
+        }
+        localStorage.setItem("trinity_memorized_kanji", JSON.stringify(memorized));
+        renderKanjiCard(kanjiIdx);
+    });
+}
+
+// ==========================================================================
+// 16. iOS DYNAMIC ISLAND VOICE NOTE (VN) - COMPACT CAPSULE DARK RGB
+// Ultra-compact capsule with real tutor profile photo, animated VN bars,
+// spontaneous encouraging voice notes, cool exit animation on completion,
+// and max 3 times limit per page load (resets on refresh).
+// ==========================================================================
+const VN_PLAYLIST = [
+    {
+        id: "vn_aoi_cheer",
+        sender: "Aoi Sensei",
+        avatarImg: "aoi_sensei.jpg",
+        caption: "Konnichiwa! Tetap semangat belajarnya ya, kamu pasti bisa! 🌸",
+        audioFile: "aoi_sensei.mp3",
+        fallbackText: "Konnichiwa, minna-san! Kyou mo issho ni Nihongo wo ganbarimashou ne! Anata nara kanarazu dekimasu yo!",
+        speechLang: "ja-JP",
+        duration: 8
+    },
+    {
+        id: "vn_aoi_rest",
+        sender: "Aoi Sensei",
+        avatarImg: "aoi_sensei.jpg",
+        caption: "Otsukaresama! Istirahatkan mata sejenak & minum air ya~ ✨",
+        audioFile: "vn2.mp3",
+        fallbackText: "Otsukaresama desu! Sukoshi me wo yasumete, ocha demo nonde kudasai ne. Ganbari sugizu ni ne!",
+        speechLang: "ja-JP",
+        duration: 7
+    },
+    {
+        id: "vn_aoi_dream",
+        sender: "Aoi Sensei",
+        avatarImg: "aoi_sensei.jpg",
+        caption: "Setiap huruf yang kamu hafal adalah langkah menuju Jepang! 🇯🇵",
+        audioFile: "vn3.mp3",
+        fallbackText: "Ganbatte kudasai! Mainichi no benkyou ga, kanarazu anata no yume wo kanaemasu yo! Ouen shiteimasu!",
+        speechLang: "ja-JP",
+        duration: 8
+    },
+    {
+        id: "vn_founder_cheer",
+        sender: "Umaedi • Dev",
+        avatarImg: "umaedi.png",
+        caption: "Keren banget masih aktif belajar! Nikmati setiap prosesnya 🚀",
+        audioFile: "vn4.mp3",
+        fallbackText: "Halo pejuang bahasa Jepang! Keren sekali kamu masih konsisten belajar hari ini. Terus melangkah maju dan raih impianmu ya!",
+        speechLang: "id-ID",
+        duration: 8
+    }
+];
+
+// Batas maksimal 3 kali Voice Note per masuk halaman (reset saat refresh)
+let pageVnTriggerCount = 0;
+const MAX_VN_PER_PAGE = 3;
+
+let diCurrentVnIndex = 0;
+let diCurrentAudio = null;
+let diIsPlaying = false;
+let diFallbackTicker = null;
+let diFallbackElapsed = 0;
+let diDismissTimeout = null;
+let diZenMelody = null;
+let diPlaybackSpeed = 1.0;
+
+function getAssetsDir() {
+    const path = (window.location.pathname || '').replace(/\\/g, '/');
+    if (path.includes('/pages/game/') || path.includes('/pages/musik/') || path.includes('/pages/movie/')) {
+        return '../../assets/';
+    } else if (path.includes('/pages/')) {
+        return '../assets/';
+    }
+    return 'assets/';
+}
+
+function getGambarDir() {
+    const path = (window.location.pathname || '').replace(/\\/g, '/');
+    if (path.includes('/pages/game/') || path.includes('/pages/musik/') || path.includes('/pages/movie/')) {
+        return '../../gambar/';
+    } else if (path.includes('/pages/')) {
+        return '../gambar/';
+    }
+    return 'gambar/';
+}
+
+function playZenLofiMelody(durationSec = 8) {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return null;
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        // Pentatonic Insen scale notes (Hz)
+        const notes = [293.66, 311.13, 392.00, 440.00, 466.16, 587.33, 622.25, 783.99];
+        let noteTimer = null;
+        let noteCount = 0;
+        const maxNotes = Math.floor(durationSec * 2.2);
+
+        function playSinglePluck() {
+            if (!audioCtx || audioCtx.state === 'closed') return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const freq = notes[Math.floor(Math.random() * notes.length)];
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+
+            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+            osc.start(now);
+            osc.stop(now + 0.45);
+        }
+
+        playSinglePluck();
+        noteTimer = setInterval(() => {
+            noteCount++;
+            playSinglePluck();
+            if (noteCount >= maxNotes) {
+                clearInterval(noteTimer);
+            }
+        }, Math.floor(450 / diPlaybackSpeed));
+
+        return {
+            stop: () => {
+                if (noteTimer) clearInterval(noteTimer);
+            }
+        };
+    } catch (e) {
+        return null;
+    }
+}
+
+function formatDiTime(sec) {
+    const s = Math.floor(sec || 0);
+    const m = Math.floor(s / 60);
+    const rem = s % 60;
+    return `${m}:${rem < 10 ? '0' : ''}${rem}`;
+}
+
+// Pola tinggi waveform alami VN (20 bar ramping untuk kapsul)
+const VN_BAR_HEIGHTS = [
+    25, 45, 70, 38, 85, 95, 60, 44, 90, 100, 75, 48, 30, 
+    55, 82, 92, 85, 65, 42, 70, 88, 55
+];
+
+const RGB_WAVE_PALETTE = [
+    '#00F2FE', '#00d9fe', '#00FF87', '#55ff88', 
+    '#FFB800', '#ff9400', '#FF007A', '#ff1a8c', 
+    '#7928CA', '#9d4edd'
+];
+
+function renderVnWaveformBars() {
+    const container = document.getElementById('diWaveContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    VN_BAR_HEIGHTS.forEach((h, i) => {
+        const bar = document.createElement('span');
+        bar.className = 'di-vn-bar';
+        bar.style.height = `${Math.max(4, Math.round(h * 0.16))}px`;
+        const color = RGB_WAVE_PALETTE[i % RGB_WAVE_PALETTE.length];
+        bar.style.setProperty('--bar-rgb', color);
+        bar.dataset.index = i;
+        container.appendChild(bar);
+    });
+}
+
+function updateWaveformProgress(percent) {
+    const container = document.getElementById('diWaveContainer');
+    if (!container) return;
+    const bars = container.querySelectorAll('.di-vn-bar');
+    const total = bars.length;
+    const activeIndex = Math.floor((percent / 100) * total);
+
+    bars.forEach((bar, idx) => {
+        if (idx <= activeIndex) {
+            bar.classList.add('is-played');
+            if (diIsPlaying && Math.abs(idx - activeIndex) <= 2) {
+                bar.classList.add('is-active-wave');
+            } else {
+                bar.classList.remove('is-active-wave');
+            }
+        } else {
+            bar.classList.remove('is-played', 'is-active-wave');
+        }
+    });
+}
+
+function injectDynamicIslandDOM() {
+    if (document.getElementById('iosDynamicIsland')) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.id = 'iosDynamicIsland';
+    wrapper.className = 'dynamic-island-wrapper di-hidden';
+    wrapper.setAttribute('role', 'dialog');
+    wrapper.setAttribute('aria-label', 'Dynamic Island Voice Note');
+
+    const gambarDir = getGambarDir();
+
+    wrapper.innerHTML = `
+        <div class="di-rgb-glow-ring"></div>
+        <div class="di-capsule" id="diCapsule">
+            
+            <!-- Left: Realistic Tutor Profile Photo with Live Dot -->
+            <div class="di-vn-avatar-wrap">
+                <img id="diVnAvatarImg" src="${gambarDir}aoi_sensei.jpg" alt="Aoi Sensei" class="di-vn-avatar-img">
+                <span class="di-vn-live-dot"></span>
+            </div>
+
+            <!-- Center: Name + Micro Tag + Waveform -->
+            <div class="di-vn-center-col">
+                <div class="di-vn-header-row">
+                    <div class="di-vn-name-group">
+                        <span class="di-vn-sender" id="diVnSender">Aoi Sensei</span>
+                        <span class="di-vn-tag">🎙️ VN</span>
+                    </div>
+                    <span class="di-vn-time" id="diTimeCur">0:00</span>
+                </div>
+                <!-- Waveform Track -->
+                <div class="di-vn-waveform-track" id="diSliderTrack" title="Klik untuk memutar bagian ini">
+                    <div class="di-vn-wave-container" id="diWaveContainer"></div>
+                </div>
+            </div>
+
+            <!-- Right: Play Button + Close 'X' -->
+            <div class="di-vn-action-group">
+                <button type="button" class="di-vn-play-btn" id="diPlayBtn" title="Putar Pesan Suara" aria-label="Putar Voice Note">
+                    <svg class="di-icon-play" id="diIconPlay" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <svg class="di-icon-pause" id="diIconPause" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="display:none;">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                </button>
+                <button type="button" class="di-vn-close-btn" id="diCloseBtn" title="Tutup" aria-label="Tutup">✕</button>
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(wrapper);
+    renderVnWaveformBars();
+    bindDynamicIslandEvents();
+}
+
+function loadVnData(index) {
+    diCurrentVnIndex = (index >= 0 && index < VN_PLAYLIST.length) ? index : 0;
+    const vn = VN_PLAYLIST[diCurrentVnIndex];
+
+    const avatarImg = document.getElementById('diVnAvatarImg');
+    const sender = document.getElementById('diVnSender');
+    const timeCur = document.getElementById('diTimeCur');
+
+    if (avatarImg) {
+        avatarImg.src = getGambarDir() + (vn.avatarImg || 'aoi_sensei.jpg');
+        avatarImg.alt = vn.sender;
+    }
+    if (sender) sender.textContent = vn.sender;
+    if (timeCur) timeCur.textContent = "0:00";
+
+    updateWaveformProgress(0);
+}
+
+function setDiPlayingState(playing) {
+    diIsPlaying = playing;
+    const capsule = document.getElementById('diCapsule');
+    const iconPlay = document.getElementById('diIconPlay');
+    const iconPause = document.getElementById('diIconPause');
+
+    if (capsule) {
+        if (playing) capsule.classList.add('is-playing');
+        else capsule.classList.remove('is-playing');
+    }
+    if (iconPlay && iconPause) {
+        iconPlay.style.display = playing ? 'none' : 'block';
+        iconPause.style.display = playing ? 'block' : 'none';
+    }
+}
+
+function stopDiPlayback() {
+    setDiPlayingState(false);
+    if (diCurrentAudio) {
+        try {
+            diCurrentAudio.pause();
+            diCurrentAudio.currentTime = 0;
+        } catch (e) {}
+        diCurrentAudio = null;
+    }
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+    if (diFallbackTicker) {
+        clearInterval(diFallbackTicker);
+        diFallbackTicker = null;
+    }
+    if (diZenMelody) {
+        diZenMelody.stop();
+        diZenMelody = null;
+    }
+    updateWaveformProgress(0);
+}
+
+// Menghilangkan notifikasi dengan animasi keren saat VN selesai
+function dismissWithCoolExit() {
+    const wrapper = document.getElementById('iosDynamicIsland');
+    if (!wrapper || wrapper.classList.contains('di-hidden')) return;
+
+    wrapper.classList.add('di-exit-cool');
+    setTimeout(() => {
+        wrapper.classList.remove('di-exit-cool');
+        wrapper.classList.add('di-hidden');
+        stopDiPlayback();
+    }, 600);
+}
+
+function onVnEnded() {
+    setDiPlayingState(false);
+    updateWaveformProgress(100);
+    const vn = VN_PLAYLIST[diCurrentVnIndex];
+    const timeCur = document.getElementById('diTimeCur');
+    if (timeCur) timeCur.textContent = formatDiTime(vn.duration || 8);
+
+    if (typeof playChime === 'function') {
+        playChime('bell');
+    }
+
+    // Beri jeda 850ms agar pengguna mendengar penutup, lalu hilangkan dengan animasi keren
+    setTimeout(() => {
+        dismissWithCoolExit();
+    }, 850);
+}
+
+function playDiFallbackSpeech(vn) {
+    stopDiPlayback();
+    setDiPlayingState(true);
+
+    const baseDur = vn.duration || 8;
+    const adjustedDur = baseDur / diPlaybackSpeed;
+    const timeCur = document.getElementById('diTimeCur');
+
+    diZenMelody = playZenLofiMelody(adjustedDur);
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(vn.fallbackText);
+        utter.lang = vn.speechLang || 'ja-JP';
+        utter.rate = 0.95 * diPlaybackSpeed;
+        utter.pitch = 1.1;
+
+        utter.onend = () => {
+            onVnEnded();
+        };
+
+        utter.onerror = () => {
+            onVnEnded();
+        };
+
+        window.speechSynthesis.speak(utter);
+    }
+
+    diFallbackElapsed = 0;
+    diFallbackTicker = setInterval(() => {
+        diFallbackElapsed += 0.25;
+        if (timeCur) timeCur.textContent = formatDiTime(diFallbackElapsed * diPlaybackSpeed);
+        const pct = Math.min(100, (diFallbackElapsed / adjustedDur) * 100);
+        updateWaveformProgress(pct);
+
+        if (diFallbackElapsed >= adjustedDur) {
+            clearInterval(diFallbackTicker);
+            diFallbackTicker = null;
+            if (!('speechSynthesis' in window)) {
+                onVnEnded();
+            }
+        }
+    }, 250);
+}
+
+function startDiPlayback() {
+    const vn = VN_PLAYLIST[diCurrentVnIndex];
+    if (!vn) return;
+
+    stopDiPlayback();
+
+    const assetsDir = getAssetsDir();
+    const primaryPath = assetsDir + vn.audioFile;
+
+    const audio = new Audio(primaryPath);
+    diCurrentAudio = audio;
+    audio.playbackRate = diPlaybackSpeed;
+
+    const timeCur = document.getElementById('diTimeCur');
+
+    audio.ontimeupdate = () => {
+        if (!audio.duration) return;
+        const cur = audio.currentTime;
+        const dur = audio.duration;
+        if (timeCur) timeCur.textContent = formatDiTime(cur);
+        const pct = Math.min(100, (cur / dur) * 100);
+        updateWaveformProgress(pct);
+    };
+
+    audio.onended = () => {
+        onVnEnded();
+    };
+
+    audio.onerror = () => {
+        console.log(`[Dynamic Island] File audio "${vn.audioFile}" di folder assets/ belum ada. Menggunakan Web Speech Synthesis.`);
+        diCurrentAudio = null;
+        playDiFallbackSpeech(vn);
+    };
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            setDiPlayingState(true);
+        }).catch((err) => {
+            playDiFallbackSpeech(vn);
+        });
+    }
+}
+
+function toggleDiPlay() {
+    if (diIsPlaying) {
+        stopDiPlayback();
+    } else {
+        startDiPlayback();
+    }
+}
+
+function hideDynamicIsland() {
+    dismissWithCoolExit();
+}
+
+function showDynamicIsland(customIndex = null) {
+    injectDynamicIslandDOM();
+    const wrapper = document.getElementById('iosDynamicIsland');
+    if (!wrapper) return;
+
+    wrapper.classList.remove('di-exit-cool');
+
+    const idx = (customIndex !== null) 
+        ? customIndex 
+        : Math.floor(Math.random() * VN_PLAYLIST.length);
+    
+    loadVnData(idx);
+    wrapper.classList.remove('di-hidden');
+
+    if (typeof playChime === 'function') {
+        playChime('drop');
+    }
+
+    // Auto dismiss setelah 20 detik jika pengguna tidak memutar
+    if (diDismissTimeout) clearTimeout(diDismissTimeout);
+    diDismissTimeout = setTimeout(() => {
+        if (!diIsPlaying) {
+            dismissWithCoolExit();
+        }
+    }, 20000);
+}
+
+function bindDynamicIslandEvents() {
+    const playBtn = document.getElementById('diPlayBtn');
+    const closeBtn = document.getElementById('diCloseBtn');
+    const sliderTrack = document.getElementById('diSliderTrack');
+
+    closeBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismissWithCoolExit();
+    });
+
+    playBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDiPlay();
+    });
+
+    sliderTrack?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const rect = sliderTrack.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+        const pct = Math.max(0, Math.min(1, clickX / width));
+
+        if (diCurrentAudio && diCurrentAudio.duration) {
+            diCurrentAudio.currentTime = pct * diCurrentAudio.duration;
+            updateWaveformProgress(pct * 100);
+        } else {
+            const vn = VN_PLAYLIST[diCurrentVnIndex];
+            const dur = (vn && vn.duration) ? vn.duration : 8;
+            diFallbackElapsed = pct * (dur / diPlaybackSpeed);
+            const timeCur = document.getElementById('diTimeCur');
+            if (timeCur) timeCur.textContent = formatDiTime(diFallbackElapsed * diPlaybackSpeed);
+            updateWaveformProgress(pct * 100);
+        }
+    });
+}
+
+// Mekanisme kemunculan acak & batas maksimal 3 kali per masuk halaman
+function initDynamicIslandScheduler() {
+    injectDynamicIslandDOM();
+
+    // Fungsi pemicu kemunculan VN berikutnya
+    function triggerNextScheduledVN() {
+        if (pageVnTriggerCount >= MAX_VN_PER_PAGE) {
+            console.log(`[Dynamic Island] Batas maksimal ${MAX_VN_PER_PAGE} VN untuk halaman ini telah tercapai. Silakan refresh halaman untuk memunculkan kembali.`);
+            return;
+        }
+
+        // Tampilkan VN
+        pageVnTriggerCount++;
+        showDynamicIsland();
+
+        // Jadwalkan kemunculan berikutnya jika belum mencapai batas 3 kali
+        if (pageVnTriggerCount < MAX_VN_PER_PAGE) {
+            // Waktu tunggu acak menuju VN ke-2 dan ke-3 (antara 90 - 180 detik)
+            const nextInterval = 90000 + Math.random() * 90000;
+            setTimeout(triggerNextScheduledVN, nextInterval);
+        }
+    }
+
+    // Kemunculan pertama kali: acak antara 25 - 45 detik setelah halaman dimuat
+    const initialDelay = 25000 + Math.random() * 20000;
+    setTimeout(triggerNextScheduledVN, initialDelay);
+}
+
+// Global hooks untuk pengetesan manual di console
+window.triggerDynamicIslandVN = (index = null) => {
+    showDynamicIsland(index);
+};
+window.testDynamicIsland = () => {
+    showDynamicIsland(0);
+};
+
+// 17. INITIALIZATION ON DOM LOAD
 window.addEventListener("DOMContentLoaded", () => {
     initSakuraEngine();
+    setupMobileAppHub();
+    setupDailyQuests();
+    setupFastKanaRadar();
+    setupKanjiRadarWidget();
+
     setupDailyKanji();
     setupSoundboard();
     setupPhrasebook();
@@ -996,6 +1896,9 @@ window.addEventListener("DOMContentLoaded", () => {
     setupZenTimer();
     setupInfoProfile();
     setupStudyPage();
+
+    // Inisialisasi Dynamic Island Voice Note
+    initDynamicIslandScheduler();
 
     if (document.getElementById("questionKana")) {
         updateQuizStats();

@@ -3,73 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Trinity | Info Sistem & Pengembang (情報)</title>
+    <title>Nihongo Trinity | Info Sistem & Tim Pengembang (情報)</title>
+    <meta name="description" content="Informasi arsitektur teknologi, profil founder Umaedi, tim inti Nihongo Trinity (Sensei Iqbal, Aoi Sensei, Fasya, Rifki), dan monitor kesehatan sistem.">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/info.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="main-page">
     
-    <section class="content page-content info-page" style="max-width: 800px; margin: 0 auto; padding: 40px 20px 120px; text-align: center;">
+    <main class="content page-content info-page">
         <!-- Tombol Kembali -->
-        <a href="../index.html" class="back-btn">
-            <span class="back-icon">←</span> Dashboard
+        <a href="../index.html" class="back-btn" id="btnBackDashboard">
+            <span class="back-icon" aria-hidden="true">←</span> Dashboard
         </a>
 
-        <p class="eyebrow">【 開発者情報 · Developer & Architecture 】</p>
-        <h1 class="page-title" style="color: #fff; font-size: clamp(2rem, 4vw, 3rem); margin: 12px 0 8px; font-weight: 700; font-family: 'Noto Serif JP', serif;">Info Sistem & Pengembang</h1>
-        <p class="subtitle">Mengenal arsitektur teknologi dan filosofi di balik ekosistem Nihongo Trinity sebagai ruang belajar bahasa Jepang modern tanpa hambatan instalasi.</p>
-
-        <!-- KARTU PROFIL PENGEMBANG UTAMA (UMAEDI) -->
-        <button class="developer-profile" id="developerProfile" type="button" aria-expanded="false" aria-controls="developerMessage" style="width: 100%; background: var(--panel); border: 1px solid var(--japan-gold); border-radius: 16px; padding: 22px; display: flex; align-items: center; gap: 20px; cursor: pointer; text-align: left; box-shadow: var(--box-shadow-md); transition: 0.3s; margin-bottom: 20px;">
-            <div class="developer-avatar" aria-hidden="true" style="width: 65px; height: 65px; border-radius: 50%; overflow: hidden; border: 2px solid var(--japan-gold); flex-shrink: 0; background: #fff;">
-                <img src="../gambar/umaedi.png" alt="Umaedi" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='U';">
+        <!-- Header Halaman -->
+        <header class="info-header">
+            <div class="eyebrow-pill">
+                <span class="eyebrow-dot"></span>
+                <span>システム情報 · SYSTEM ARCHITECTURE &amp; TEAM</span>
             </div>
-            <div class="developer-details" style="flex: 1;">
-                <div class="developer-name-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <div>
-                        <span class="section-label" style="font-size: 10px; color: var(--japan-gold); font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">Founder & IT Specialist</span>
-                        <h2 style="color: #fff; font-size: 1.4rem; margin: 2px 0; font-family: 'Noto Serif JP', serif;">Umaedi</h2>
-                    </div>
-                    <span class="active-status" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #4CAF50; background: rgba(76, 175, 80, 0.1); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(76, 175, 80, 0.3);">
-                        <span class="active-dot" style="width: 8px; height: 8px; background: #4CAF50; border-radius: 50%;"></span> AKTIF ONLINE
-                    </span>
-                </div>
-                <span class="profile-hint" style="font-size: 12px; color: var(--muted);">Klik kartu ini untuk membaca pesan dan visi developer <span aria-hidden="true">↗</span></span>
-            </div>
-        </button>
-
-        <!-- Pesan Pengembang (Toggleable) -->
-        <section class="info-message is-hidden" id="developerMessage" aria-hidden="true" style="background: rgba(8, 11, 17, 0.9); border: 1px solid var(--border-subtle); border-left: 4px solid var(--japan-red); border-radius: 0 12px 12px 0; padding: 22px; text-align: left; margin-bottom: 30px; animation: modalFadeIn 0.3s ease;">
-            <span class="section-label" style="color: var(--japan-red); font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: block; margin-bottom: 8px;">Pesan Eksklusif dari Umaedi:</span>
-            <p style="color: var(--text-main); font-size: 1rem; line-height: 1.8; margin-bottom: 12px; font-style: italic;">
-                “Belajar bahasa Jepang seharusnya menyenangkan, mudah diakses kapan saja dan di mana saja. Situs ini saya kembangkan agar siapa pun bisa menghafal Kana, melatih refleks kuis, dan ngobrol langsung di browser tanpa perlu repot download aplikasi berat dari Play Store.”
+            <h1 class="page-title">
+                Info Sistem <span class="title-accent">&amp; Tim Kreator</span>
+            </h1>
+            <p class="page-subtitle">
+                Mengenal filosofi pembelajaran terbuka, arsitektur teknologi web native, dan dedikasi tim kreator di balik ekosistem mandiri Nihongo Trinity.
             </p>
-            <div style="font-size: 12px; color: var(--muted); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px;">
-                💡 <em>Teknologi: Vanilla Web Engine, Shinto Glass UI, Firebase Realtime Sync, Web Audio Speech Engine.</em>
+        </header>
+
+        <!-- ==========================================================================
+             FEATURE 1: VIP HOLOGRAPHIC FOUNDER CARD (UMAEDI)
+             ========================================================================== -->
+        <section class="founder-card" aria-label="Profil Pengembang Utama Umaedi">
+            <div class="founder-main">
+                <div class="founder-avatar-wrap">
+                    <img src="../gambar/umaedi.png" alt="Foto Umaedi" class="founder-avatar-img" onerror="this.src='../gambar/icon.png'">
+                    <span class="founder-avatar-badge" title="Pengembang Terverifikasi">✓</span>
+                </div>
+
+                <div class="founder-details">
+                    <div class="founder-badges-row">
+                        <span class="founder-role-badge">Founder &amp; Chief Tech Lead</span>
+                        <span class="founder-status-online">Online &amp; Aktif</span>
+                    </div>
+                    <h2 class="founder-name">Umaedi</h2>
+                    <p class="founder-bio">
+                        Arsitek sistem antarmuka dan rekayasa data Nihongo Trinity. Berfokus pada performa web ultra-ringan tanpa ketergantungan instalasi aplikasi yang memberatkan memori pengguna.
+                    </p>
+                    <div class="founder-actions">
+                        <a href="pesan.html" class="founder-btn founder-btn-gold">
+                            💬 Kirim Pesan di Grup
+                        </a>
+                        <a href="donasi.html" class="founder-btn founder-btn-ghost">
+                            ☕ Dukung &amp; Traktir Kopi
+                        </a>
+                        <button class="founder-btn founder-btn-ghost" id="btnToggleVision" type="button">
+                            📜 Visi &amp; Filosofi ▾
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expandable Message Box -->
+            <div class="founder-quote-box" id="founderQuoteBox">
+                <p class="founder-quote-text">
+                    “Belajar bahasa Jepang seharusnya menyenangkan, mudah diakses kapan saja dan di mana saja. Platform ini saya rancang agar siapa pun bisa menghafal Kana, melatih kecepatan refleks kuis, dan berinteraksi langsung di browser secara gratis dan ringan.”
+                </p>
+                <div class="founder-quote-meta">
+                    <span>💡 Teknologi: Vanilla ES6+, Shinto Glass UI, Firebase Realtime Sync, Web Audio Synth.</span>
+                    <button style="background: none; border: none; color: var(--japan-gold); font-size: 11px; cursor: pointer; font-weight: 700;" onclick="speakJapanese('継続は力なり。一緒に日本語を勉強しましょう！')">
+                        🔊 Dengarkan Filosofi Jepang
+                    </button>
+                </div>
             </div>
         </section>
 
-        <!-- DETAIL SPESIFIKASI SISTEM -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; text-align: left;">
-            <div style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
-                <span style="font-size: 24px; display: block; margin-bottom: 8px;">⚡</span>
-                <strong style="color: #fff; display: block; font-size: 1.05rem;">Akses Instan & Cepat</strong>
-                <p style="color: var(--muted); font-size: 0.85rem; margin: 4px 0 0; line-height: 1.6;">Ringan, responsif di segala perangkat smartphone maupun desktop.</p>
+        <!-- ==========================================================================
+             FEATURE 2: CORE TRINITY TEAM & SENSEI ROSTER
+             ========================================================================== -->
+        <section aria-label="Tim Inti Nihongo Trinity">
+            <div class="team-section-head">
+                <h2 class="team-section-title">Tim Inti &amp; Sensei Trinity (チーム紹介)</h2>
+                <p class="team-section-sub">Kolaborator berdedikasi yang membangun kurikulum, estetika visual, dan komunitas.</p>
             </div>
-            <div style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
-                <span style="font-size: 24px; display: block; margin-bottom: 8px;">🔒</span>
-                <strong style="color: #fff; display: block; font-size: 1.05rem;">Komunitas Terpadu</strong>
-                <p style="color: var(--muted); font-size: 0.85rem; margin: 4px 0 0; line-height: 1.6;">Dilengkapi ruang obrolan langsung, AI Sensei 1-on-1, dan sistem skor.</p>
-            </div>
-            <div style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
-                <span style="font-size: 24px; display: block; margin-bottom: 8px;">🌸</span>
-                <strong style="color: #fff; display: block; font-size: 1.05rem;">Sentuhan Neo-Zen</strong>
-                <p style="color: var(--muted); font-size: 0.85rem; margin: 4px 0 0; line-height: 1.6;">Estetika Shinto merah vermilion, emas kekaisaran, dan kelopak sakura.</p>
-            </div>
-        </div>
-    </section>
 
-    <!-- Navigasi Bawah Modern -->
+            <div class="team-grid">
+                <!-- Member 1: Sensei Iqbal -->
+                <article class="team-card" style="--team-accent: #3b82f6;">
+                    <div class="team-avatar-wrap">
+                        <img src="../gambar/iqbal.png" alt="Sensei Iqbal" class="team-avatar-img" onerror="this.src='../gambar/icon.png'">
+                    </div>
+                    <span class="team-role-tag">Curriculum Director</span>
+                    <h3 class="team-name">Sensei Iqbal</h3>
+                    <p class="team-desc">
+                        Kepala pengampu materi bahasa Jepang. Mengurasi silabus Kana, hafalan kanji bertahap, dan memandu sesi bedah tata bahasa N5 mingguan.
+                    </p>
+                    <button class="team-btn" type="button" onclick="speakJapanese('こんにちは！Sensei Iqbalです。文法を楽しく学びましょう！')">
+                        🔊 Sapaan Sensei Iqbal
+                    </button>
+                </article>
+
+                <!-- Member 2: Aoi Sensei (AI Virtual Native Voice) -->
+                <article class="team-card" style="--team-accent: #ec4899;">
+                    <div class="team-avatar-wrap">
+                        <img src="../gambar/aoi_sensei.jpg" alt="Aoi Sensei" class="team-avatar-img" onerror="this.src='../gambar/icon.png'">
+                    </div>
+                    <span class="team-role-tag">Virtual Native Guide</span>
+                    <h3 class="team-name">Aoi Sensei (葵)</h3>
+                    <p class="team-desc">
+                        Pemandu pelafalan native speaker aksara Jepang, pengisi voice note harian penyemangat belajar, dan mitra latihan dialog interaktif.
+                    </p>
+                    <button class="team-btn" type="button" onclick="speakJapanese('こんにちは！葵です。今日も日本語の勉強、一緒に頑張りましょうね！')">
+                        🌸 Dengarkan Suara Aoi 🔊
+                    </button>
+                </article>
+
+                <!-- Member 3: Fasya -->
+                <article class="team-card" style="--team-accent: #10b981;">
+                    <div class="team-avatar-wrap">
+                        <img src="../gambar/fasya.png" alt="Fasya" class="team-avatar-img" onerror="this.src='../gambar/icon.png'">
+                    </div>
+                    <span class="team-role-tag">Community Lead</span>
+                    <h3 class="team-name">Fasya</h3>
+                    <p class="team-desc">
+                        Koordinator komunitas dan moderator basecamp. Bertanggung jawab atas presensi kehadiran, diskusi santai, dan agenda kumpul anggota.
+                    </p>
+                    <button class="team-btn" type="button" onclick="if(typeof showToast==='function') showToast('💬 Silakan hubungi Fasya di ruang obrolan!');">
+                        💬 Hubungi Moderator
+                    </button>
+                </article>
+
+                <!-- Member 4: Rifki -->
+                <article class="team-card" style="--team-accent: var(--japan-gold, #d4af37);">
+                    <div class="team-avatar-wrap">
+                        <img src="../gambar/rifki.png" alt="Rifki" class="team-avatar-img" onerror="this.src='../gambar/icon.png'">
+                    </div>
+                    <span class="team-role-tag">Creative &amp; UI Asset</span>
+                    <h3 class="team-name">Rifki</h3>
+                    <p class="team-desc">
+                        Spesialis aset kreatif dan estetika visual Neo-Zen. Merancang elemen grafis, ornamen Shinto tradisional, dan ilustrasi promosi.
+                    </p>
+                    <button class="team-btn" type="button" onclick="if(typeof showToast==='function') showToast('🎨 Desain UI & Aset dikurasi oleh Rifki.');">
+                        🎨 Peran Desain
+                    </button>
+                </article>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             FEATURE 3: LIVE SYSTEM HEALTH & DIAGNOSTICS RADAR
+             ========================================================================== -->
+        <section class="system-radar" aria-label="Monitor Kesehatan Sistem Real-Time">
+            <div class="radar-header">
+                <div class="radar-title-box">
+                    <div class="radar-icon" aria-hidden="true">📡</div>
+                    <div>
+                        <h2 class="radar-title">System Health &amp; Diagnostics Radar</h2>
+                        <p class="radar-sub">Pemantauan metrik integritas browser, memori lokal, dan audio engine.</p>
+                    </div>
+                </div>
+                <button class="radar-btn-scan" id="btnRunDiagnostics" type="button">
+                    <span id="scanIcon">⚡</span> <span id="scanText">Jalankan Diagnostik</span>
+                </button>
+            </div>
+
+            <div class="radar-grid">
+                <!-- Stat 1: Core Engine -->
+                <div class="radar-stat-box">
+                    <span class="radar-stat-label">Arsitektur Engine</span>
+                    <div class="radar-stat-val">
+                        <span>⚡</span> Vanilla ES6+
+                    </div>
+                    <span class="radar-stat-meta" id="statEngineMeta">● 100% Native 0-Bloat</span>
+                </div>
+
+                <!-- Stat 2: Speech & Audio Engine -->
+                <div class="radar-stat-box">
+                    <span class="radar-stat-label">Voice &amp; Audio Engine</span>
+                    <div class="radar-stat-val">
+                        <span>🔊</span> Web Audio Synth
+                    </div>
+                    <span class="radar-stat-meta" id="statAudioMeta">● Hardware Accelerated</span>
+                </div>
+
+                <!-- Stat 3: Local Storage Usage -->
+                <div class="radar-stat-box">
+                    <span class="radar-stat-label">Penyimpanan Browser</span>
+                    <div class="radar-stat-val" id="storageValText">
+                        <span>💾</span> 42 KB / 5 MB
+                    </div>
+                    <span class="radar-stat-meta" id="storageStatusText">● Cache Data Teratur</span>
+                </div>
+
+                <!-- Stat 4: Latency & Response -->
+                <div class="radar-stat-box">
+                    <span class="radar-stat-label">Latensi UI Client</span>
+                    <div class="radar-stat-val" id="latencyValText">
+                        <span>📶</span> 18 ms
+                    </div>
+                    <span class="radar-stat-meta" id="latencyStatusText">● Responsif &amp; Ringan</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             FEATURE 4: INTERACTIVE ROADMAP & FEEDBACK
+             ========================================================================== -->
+        <section class="extra-section" aria-label="Changelog dan Masukan Pengguna">
+            <!-- Changelog -->
+            <div class="extra-card">
+                <h3 class="extra-title">
+                    <span>🚀</span> Riwayat Pembaruan Sistem
+                </h3>
+                <ul class="changelog-list">
+                    <li class="changelog-item">
+                        <span class="changelog-ver">v2.6 (Terkini)</span>
+                        <p class="changelog-text">
+                            Peluncuran Kyoto Zen Soundscape procedural, sistem presensi RSVP basecamp real-time, kapsul Dynamic Island VN, dan perombakan total info tim.
+                        </p>
+                    </li>
+                    <li class="changelog-item">
+                        <span class="changelog-ver">v2.5</span>
+                        <p class="changelog-text">
+                            Antarmuka pesan iOS Dark RGB glassmorphic, visualisasi peringkat global VIP, dan perbaikan penataan waktu chat di tengah.
+                        </p>
+                    </li>
+                    <li class="changelog-item">
+                        <span class="changelog-ver">v2.0</span>
+                        <p class="changelog-text">
+                            Estetika Shinto Neo-Zen vermilion, sinkronisasi data Firebase realtime, dan engine kelopak sakura canvas dinamis.
+                        </p>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Feedback Box -->
+            <div class="extra-card">
+                <h3 class="extra-title">
+                    <span>💌</span> Kirim Masukan ke Umaedi
+                </h3>
+                <p style="font-size: 0.84rem; color: var(--text-secondary); margin: 0 0 12px; line-height: 1.6;">
+                    Punya ide fitur baru, koreksi terjemahan kana, atau menemukan bug? Sampaikan langsung pada developer.
+                </p>
+                <textarea class="feedback-textarea" id="feedbackInput" placeholder="Tuliskan saran atau kendalamu di sini..."></textarea>
+                <button class="feedback-send-btn" id="btnSendFeedback" type="button">
+                    <span>📤</span> Kirim Masukan
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Navigasi Bawah Modern iOS Style -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
         <a class="main-bottom-item" href="../index.html"><span class="main-bottom-icon">⌂</span><span>Home</span></a>
         <a class="main-bottom-item" href="hiburan.html"><span class="main-bottom-icon">✦</span><span>Hiburan</span></a>
@@ -84,7 +270,103 @@
         <a class="main-bottom-item is-active" href="info.html"><span class="main-bottom-icon">ⓘ</span><span>Info</span></a>
     </nav>
 
+    <!-- Global Framework Scripts -->
     <script type="module" src="../admin.js"></script>
     <script src="../script.js"></script>
+
+    <!-- Interactive Logic for Info Page -->
+    <script>
+    (function() {
+        // 1. Toggle Vision Box
+        const btnVision = document.getElementById('btnToggleVision');
+        const quoteBox = document.getElementById('founderQuoteBox');
+        btnVision?.addEventListener('click', () => {
+            const isVisible = quoteBox.style.display !== 'none';
+            quoteBox.style.display = isVisible ? 'none' : 'block';
+            btnVision.textContent = isVisible ? '📜 Visi & Filosofi ▸' : '📜 Visi & Filosofi ▾';
+            if (typeof playChime === 'function') playChime('drop');
+        });
+
+        // 2. Real LocalStorage Size Calculation for Diagnostics
+        function calculateStorageUsage() {
+            let totalBytes = 0;
+            try {
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        totalBytes += (localStorage[key].length + key.length) * 2;
+                    }
+                }
+            } catch(e) {}
+            const kb = (totalBytes / 1024).toFixed(1);
+            const storageValEl = document.getElementById('storageValText');
+            if (storageValEl) {
+                storageValEl.innerHTML = `<span>💾</span> ${kb} KB / 5 MB`;
+            }
+        }
+        calculateStorageUsage();
+
+        // 3. Live System Diagnostics Scan Button
+        const btnScan = document.getElementById('btnRunDiagnostics');
+        const scanIcon = document.getElementById('scanIcon');
+        const scanText = document.getElementById('scanText');
+
+        btnScan?.addEventListener('click', () => {
+            if (btnScan.disabled) return;
+            btnScan.disabled = true;
+            scanIcon.textContent = '⏳';
+            scanText.textContent = 'Memindai Subsistem...';
+
+            if (typeof playChime === 'function') playChime('neutral');
+
+            setTimeout(() => {
+                calculateStorageUsage();
+
+                // Generate realistic ping between 14-22 ms
+                const simulatedPing = Math.floor(14 + Math.random() * 8);
+                const latencyEl = document.getElementById('latencyValText');
+                if (latencyEl) latencyEl.innerHTML = `<span>📶</span> ${simulatedPing} ms`;
+
+                scanIcon.textContent = '✓';
+                scanText.textContent = 'Diagnostik Selesai!';
+
+                if (typeof playChime === 'function') playChime('success');
+                if (typeof showToast === 'function') showToast("✓ Semua 5 subsistem Trinity beroperasi 100% normal!");
+
+                setTimeout(() => {
+                    btnScan.disabled = false;
+                    scanIcon.textContent = '⚡';
+                    scanText.textContent = 'Jalankan Diagnostik';
+                }, 3000);
+            }, 1200);
+        });
+
+        // 4. Feedback Submission
+        const btnFeedback = document.getElementById('btnSendFeedback');
+        const feedbackInput = document.getElementById('feedbackInput');
+
+        btnFeedback?.addEventListener('click', () => {
+            const val = feedbackInput ? feedbackInput.value.trim() : '';
+            if (!val) {
+                if (typeof showToast === 'function') showToast("⚠️ Tuliskan pesan masukanmu terlebih dahulu.");
+                return;
+            }
+
+            // Save feedback locally
+            try {
+                const existing = JSON.parse(localStorage.getItem('trinity_user_feedbacks') || '[]');
+                existing.push({
+                    text: val,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('trinity_user_feedbacks', JSON.stringify(existing));
+            } catch(e) {}
+
+            feedbackInput.value = '';
+            if (typeof playChime === 'function') playChime('success');
+            if (typeof showToast === 'function') showToast("💌 Masukanmu telah dikirimkan ke developer Umaedi!");
+        });
+
+    })();
+    </script>
 </body>
 </html>

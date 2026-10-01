@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>Ruang Obrolan | Trinity 日本語</title>
+    <title>Pesan | Trinity 日本語</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/pesan.css">
     <script>
@@ -12,76 +12,91 @@
         }
     </script>
 </head>
-<body class="message-page">
-    <main class="message-layout">
+<body class="message-page ios-theme">
+    <main class="message-layout ios-layout">
 
         <!-- ================================================================ -->
-        <!-- 1. TAMPILAN DAFTAR OBROLAN (ROOM LIST VIEW - NEAT & ORGANIZED) -->
+        <!-- 1. TAMPILAN DAFTAR PESAN (iOS MESSAGES HOME SCREEN) -->
         <!-- ================================================================ -->
-        <section id="chatListView" class="chat-list-panel">
-            <header class="chat-header">
-                <div>
-                    <p class="section-label">TRINITY COMMUNITY HUB</p>
-                    <h1>Pesan & Obrolan</h1>
-                    <span id="chatUserStatusText" style="font-size: 11px; color: var(--japan-gold);"></span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button type="button" id="switchUserBtn" class="header-action-btn" title="Ganti Nama / Login Member" aria-label="Ganti Akun" style="width: auto; height: 32px; border-radius: 16px; padding: 0 12px; font-size: 11px; color: #fff; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 5px; cursor: pointer;">👤 <span id="switchUserBtnLabel">Akun</span></button>
-                    <a href="../index.html" class="chat-back" aria-label="Kembali ke dashboard" title="Kembali ke Home">×</a>
-                </div>
+        <section id="chatListView" class="chat-list-panel ios-message-list">
+            <!-- iOS Top Navigation Bar -->
+            <header class="ios-nav-bar">
+                <button type="button" id="switchUserBtn" class="ios-nav-link" title="Ganti Nama / Login Member" aria-label="Ganti Akun">
+                    👤 <span id="switchUserBtnLabel">Akun</span>
+                </button>
+                <div class="ios-nav-center-title">Pesan</div>
+                <a href="../index.html" class="ios-nav-link ios-done-link" title="Kembali ke Dashboard">Selesai</a>
             </header>
+
+            <!-- iOS Large Title Header -->
+            <div class="ios-large-header">
+                <h1 class="ios-large-title">Pesan</h1>
+                <span id="chatUserStatusText" class="ios-user-badge"></span>
+            </div>
+
+            <!-- iOS Search Bar Capsule -->
+            <div class="ios-search-container">
+                <div class="ios-search-capsule">
+                    <span class="ios-search-glyph">🔍</span>
+                    <input type="text" id="roomFilterInput" class="ios-search-field" placeholder="Cari percakapan..." autocomplete="off">
+                </div>
+            </div>
             
-            <div class="chat-list-container">
+            <!-- iOS Message Rooms List -->
+            <div class="chat-list-container ios-rooms-container">
                 <!-- RUANGAN 1: PUBLIC LOUNGE (Semua Member) -->
-                <div id="roomCardPublic" class="room-card" onclick="openRoom('public')">
-                    <div class="room-avatar" style="background: linear-gradient(135deg, #1E88E5, #1565C0);">
+                <div id="roomCardPublic" class="room-card ios-room-row" onclick="openRoom('public')">
+                    <div class="room-avatar ios-room-avatar" style="background: linear-gradient(135deg, #0A84FF, #0066CC);">
                         🌐
                         <span class="status-indicator"></span>
                     </div>
-                    <div class="room-info">
+                    <div class="room-info ios-room-content">
                         <div class="room-title-row">
-                            <h3>PUBLIC LOUNGE <span>(広場)</span></h3>
-                            <span class="room-time" id="timePublic"></span>
+                            <h3 class="ios-room-name">Public Lounge <span class="ios-room-tag">広場</span></h3>
+                            <span class="room-time ios-room-time" id="timePublic"></span>
                         </div>
                         <div class="room-desc-row">
-                            <p id="lastMsgPublic">Memuat obrolan komunitas...</p>
-                            <span id="badgePublic" class="room-badge" style="display: none;">0</span>
+                            <p id="lastMsgPublic" class="ios-room-snippet">Memuat obrolan komunitas...</p>
+                            <span id="badgePublic" class="room-badge ios-unread-dot" style="display: none;"></span>
+                            <span class="ios-chevron-cell">›</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- RUANGAN 2: AOI AI SENSEI (Tutor Bahasa Jepang Ramah & Pintar) -->
-                <div id="roomCardSensei" class="room-card" onclick="openRoom('sensei')">
-                    <div class="room-avatar" style="background: linear-gradient(135deg, #FF6584, #8e44ad);">
+                <div id="roomCardSensei" class="room-card ios-room-row" onclick="openRoom('sensei')">
+                    <div class="room-avatar ios-room-avatar" style="background: linear-gradient(135deg, #FF758C, #8E44AD);">
                         🌸
                         <span class="status-indicator" style="background: #00F2FE;"></span>
                     </div>
-                    <div class="room-info">
+                    <div class="room-info ios-room-content">
                         <div class="room-title-row">
-                            <h3>AOI AI SENSEI <span>(葵先生)</span></h3>
-                            <span class="room-time" id="timeSensei">Aktif</span>
+                            <h3 class="ios-room-name">Aoi Sensei <span class="ios-room-tag" style="color: #FF758C;">葵先生</span></h3>
+                            <span class="room-time ios-room-time" id="timeSensei">Aktif</span>
                         </div>
                         <div class="room-desc-row">
-                            <p id="lastMsgSensei">Tanya tata bahasa, kanji, arti kata, atau latihan percakapan...</p>
-                            <span class="room-badge" style="background: linear-gradient(135deg, #FF6584, #8e44ad); color: #fff;">AI</span>
+                            <p id="lastMsgSensei" class="ios-room-snippet">Tanya tata bahasa, kanji, arti kata, atau latihan percakapan...</p>
+                            <span class="ios-ai-pill">AI TUTOR</span>
+                            <span class="ios-chevron-cell">›</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- RUANGAN 3: TRINITY CORE (Ruangan Chat Privat Tim & Founder) -->
-                <div id="roomCardCore" class="room-card" onclick="openRoom('core')">
-                    <div class="room-avatar" style="background: linear-gradient(135deg, #D32F2F, #8e44ad);">
+                <div id="roomCardCore" class="room-card ios-room-row" onclick="openRoom('core')">
+                    <div class="room-avatar ios-room-avatar" style="background: linear-gradient(135deg, #FF453A, #B71C1C);">
                         🛡️
-                        <span class="status-indicator" style="background: #D4AF37;"></span>
+                        <span class="status-indicator" style="background: #FFD60A;"></span>
                     </div>
-                    <div class="room-info">
+                    <div class="room-info ios-room-content">
                         <div class="room-title-row">
-                            <h3 id="titleCore">TRINITY CORE <span>(Private Chat 🔒)</span></h3>
-                            <span class="room-time" id="timeCore"></span>
+                            <h3 id="titleCore" class="ios-room-name">Trinity Core <span class="ios-room-tag">🔒 Tim</span></h3>
+                            <span class="room-time ios-room-time" id="timeCore"></span>
                         </div>
                         <div class="room-desc-row">
-                            <p id="lastMsgCore">Memuat obrolan privat tim...</p>
-                            <span id="badgeCore" class="room-badge" style="display: none;">0</span>
+                            <p id="lastMsgCore" class="ios-room-snippet">Ruangan khusus komunikasi internal tim dev & founder...</p>
+                            <span id="badgeCore" class="room-badge ios-unread-dot" style="display: none;"></span>
+                            <span class="ios-chevron-cell">›</span>
                         </div>
                     </div>
                 </div>
@@ -89,35 +104,60 @@
         </section>
 
         <!-- ================================================================ -->
-        <!-- 2. TAMPILAN DALAM ROOM (CHAT ROOM VIEW) -->
+        <!-- 2. TAMPILAN DALAM ROOM (iOS iMESSAGE CONVERSATION SCREEN) -->
         <!-- ================================================================ -->
-        <section id="chatRoomView" class="chat-panel group-chat" style="display: none;">
-            <header class="chat-header">
-                <div class="header-info-group">
-                    <button id="backToListBtn" class="chat-back-arrow" aria-label="Kembali ke Daftar">←</button>
-                    <div class="chat-group-avatar" id="roomIcon">♧</div>
-                    <div>
-                        <p class="section-label" id="roomLabel">TRINITY COMMUNITY</p>
-                        <h1 id="roomTitle">Ruang Obrolan</h1>
-                        <span><i class="online-dot"></i> <span id="onlineCountText">Mendeteksi jaringan...</span></span>
+        <section id="chatRoomView" class="chat-panel group-chat ios-chat-screen" style="display: none;">
+            
+            <!-- iOS Frosted Glass Chat Header -->
+            <header class="chat-header ios-chat-header">
+                <!-- Left: iOS Back Button (< Pesan) -->
+                <div class="header-info-group ios-header-left">
+                    <button id="backToListBtn" class="chat-back-arrow ios-chat-back" aria-label="Kembali ke Daftar">
+                        <span class="ios-back-arrow-icon">‹</span>
+                        <span class="ios-back-text">Pesan</span>
+                    </button>
+                </div>
+
+                <!-- Center: Contact Info & Status -->
+                <div class="ios-chat-center-contact">
+                    <div class="chat-group-avatar ios-avatar-small" id="roomIcon">♧</div>
+                    <div class="ios-contact-text-box">
+                        <h1 id="roomTitle" class="ios-contact-title">Ruang Obrolan</h1>
+                        <span class="ios-contact-sub"><i class="online-dot"></i> <span id="onlineCountText">iMessage</span></span>
+                        <p class="section-label" id="roomLabel" style="display: none;">TRINITY COMMUNITY</p>
                     </div>
                 </div>
 
-                <div class="chat-header-actions">
-                    <button type="button" id="clearSenseiBtn" class="header-action-btn" title="Bersihkan Database Chat AI Sensei" aria-label="Bersihkan Chat AI" style="display: none; color: #FF6584; border-color: rgba(255, 101, 132, 0.4);">🧹</button>
-                    <button type="button" id="toggleSearchBtn" class="header-action-btn" title="Cari Pesan" aria-label="Cari Pesan">🔍</button>
-                    <button type="button" id="ttsRecentBtn" class="header-action-btn" title="Dengarkan Pesan Terakhir" aria-label="Audio TTS">🔊</button>
+                <!-- Right: Action Buttons -->
+                <div class="chat-header-actions ios-header-actions">
+                    <button type="button" id="clearSenseiBtn" class="header-action-btn ios-action-btn" title="Bersihkan Database Chat AI Sensei" aria-label="Bersihkan Chat AI" style="display: none; color: #FF758C;">🧹</button>
+                    <button type="button" id="toggleSearchBtn" class="header-action-btn ios-action-btn" title="Cari Pesan" aria-label="Cari Pesan">🔍</button>
+                    <button type="button" id="ttsRecentBtn" class="header-action-btn ios-action-btn" title="Dengarkan Pesan Terakhir" aria-label="Audio TTS">🔊</button>
                 </div>
             </header>
 
+            <!-- PINNED MESSAGE BAR -->
+            <div id="pinnedMessageBar" class="pinned-message-bar ios-pinned-bar" style="display: none;">
+                <div class="pinned-icon">📌</div>
+                <div class="pinned-content" id="pinnedContent">
+                    <strong id="pinnedAuthor">Pesan Tersemat</strong>
+                    <p id="pinnedText">Memuat...</p>
+                </div>
+                <button type="button" id="unpinBtn" class="chat-tool-btn ios-unpin-btn" title="Lepas sematan" aria-label="Tutup Sematan">✕</button>
+            </div>
+
             <!-- BAR PENCARIAN DI DALAM PESAN -->
-            <div id="inchatSearchBar" class="inchat-search-bar" style="display: none;">
-                <input type="search" id="inchatSearchInput" placeholder="Cari percakapan di ruangan ini...">
-                <button type="button" id="closeSearchBtn" class="chat-tool-btn" style="color: var(--muted); font-size: 16px;">×</button>
+            <div id="inchatSearchBar" class="inchat-search-bar ios-inchat-search" style="display: none;">
+                <div class="ios-search-capsule" style="width: 100%;">
+                    <span class="ios-search-glyph">🔍</span>
+                    <input type="search" id="inchatSearchInput" placeholder="Cari di percakapan ini..." autocomplete="off" enterkeyhint="search" class="ios-search-field">
+                    <span id="searchMatchCount" class="ios-search-count" style="display: none;">0 pesan</span>
+                    <button type="button" id="closeSearchBtn" class="ios-search-close">✕</button>
+                </div>
             </div>
             
             <!-- DAFTAR MEMBER (Hanya muncul di Trinity Core) -->
-            <div id="coreMemberAvatarList" class="group-members" aria-label="Member grup">
+            <div id="coreMemberAvatarList" class="group-members ios-group-members" aria-label="Member grup">
                 <div class="member-avatar"><img src="../gambar/umaedi.png" alt="U" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='U';"></div>
                 <div class="member-avatar"><img src="../gambar/iqbal.png" alt="I" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='I';"></div>
                 <div class="member-avatar"><img src="../gambar/rifki.png" alt="R" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='R';"></div>
@@ -125,43 +165,94 @@
                 <span class="member-count">Umaedi, Iqbal, Rifki, Fasya</span>
             </div>
             
-            <!-- AREA KONTEN PESAN -->
-            <div class="chat-box" id="chatBox">
-                <div class="chat-day">HARI INI</div>
+            <!-- AREA KONTEN PESAN (BUBBLES CONTAINER) -->
+            <div class="chat-box ios-bubbles-container" id="chatBox">
+                <div class="chat-day ios-chat-day">HARI INI</div>
             </div>
 
-            <!-- STRIP STIKER / QUOTE JEPANG 1-KLIK -->
-            <div class="quick-phrase-bar" id="quickPhraseBar">
-                <span class="phrase-chip" data-text="お疲れ様でした！ (Otsukaresama deshita!)">「お疲れ様！」</span>
-                <span class="phrase-chip" data-text="ありがとうございます！ (Arigatou gozaimasu!)">「ありがとう！」</span>
-                <span class="phrase-chip" data-text="すごいですね！ (Sugoi desu ne!)">「すごい！」</span>
-                <span class="phrase-chip" data-text="草 (www)">「草 (笑)」</span>
-                <span class="phrase-chip" data-text="なるほど、分かりました！ (Naruhodo, wakarimashita!)">「なるほど」</span>
-                <span class="phrase-chip" data-text="よろしくお願いします！ (Yoroshiku onegaishimasu!)">「よろしく！」</span>
-                <span class="phrase-chip" data-text="頑張ってください！ (Ganbatte kudasai!)">「頑張って！」</span>
-                <span class="phrase-chip" data-text="こんにちは！ (Konnichiwa!)">「こんにちは」</span>
-                <span class="phrase-chip" data-text="はい、了解です！ (Hai, ryoukai desu!)">「はい！」</span>
+            <!-- TOMBOL SCROLL KE BAWAH OTOMATIS -->
+            <button type="button" id="scrollToBottomBtn" class="scroll-to-bottom-btn ios-scroll-down-btn" style="display: none;" title="Scroll ke pesan terbaru" aria-label="Scroll ke pesan terbaru">
+                <span class="scroll-arrow">↓</span>
+                <span id="unreadScrollBadge" class="unread-scroll-badge ios-scroll-badge" style="display: none;">0</span>
+            </button>
+
+            <!-- STRIP STIKER / QUOTE JEPANG 1-KLIK (iOS CAPSULES) -->
+            <div class="quick-phrase-bar ios-quick-chips-bar" id="quickPhraseBar">
+                <span class="phrase-chip ios-chip" data-text="お疲れ様でした！ (Otsukaresama deshita!)">お疲れ様！</span>
+                <span class="phrase-chip ios-chip" data-text="ありがとうございます！ (Arigatou gozaimasu!)">ありがとう！</span>
+                <span class="phrase-chip ios-chip" data-text="すごいですね！ (Sugoi desu ne!)">すごい！</span>
+                <span class="phrase-chip ios-chip" data-text="草 (www)">草 (笑)</span>
+                <span class="phrase-chip ios-chip" data-text="なるほど、分かりました！ (Naruhodo, wakarimashita!)">なるほど</span>
+                <span class="phrase-chip ios-chip" data-text="よろしくお願いします！ (Yoroshiku onegaishimasu!)">よろしく！</span>
+                <span class="phrase-chip ios-chip" data-text="頑張ってください！ (Ganbatte kudasai!)">頑張って！</span>
+                <span class="phrase-chip ios-chip" data-text="こんにちは！ (Konnichiwa!)">こんにちは</span>
+                <span class="phrase-chip ios-chip" data-text="はい、了解です！ (Hai, ryoukai desu!)">了解です</span>
             </div>
             
-            <!-- AREA PRATINJAU BALASAN (REPLY) -->
-            <div id="replyPreviewArea" class="reply-preview-area" style="display: none;">
+            <!-- AREA PRATINJAU BALASAN (REPLY PREVIEW) -->
+            <div id="replyPreviewArea" class="reply-preview-area ios-reply-preview" style="display: none;">
                 <div class="reply-preview-content">
-                    <strong id="replyPreviewName">Nama</strong>
+                    <strong id="replyPreviewName" style="color: #0A84FF;">Nama</strong>
                     <p id="replyPreviewText">Pesan...</p>
                 </div>
                 <button type="button" id="cancelReplyBtn" class="cancel-reply-btn" aria-label="Batal Balas">×</button>
             </div>
+
+            <!-- MENU LAMPIRAN (iOS ACTION SHEET POPOVER) -->
+            <div id="attachmentMenuPopover" class="attachment-popover ios-attach-sheet" style="display: none;">
+                <button type="button" id="attachImageBtn" class="attachment-item ios-sheet-item">
+                    <span class="attach-icon" style="background: #0A84FF;">📷</span>
+                    <div>
+                        <strong>Kirim Foto</strong>
+                        <small style="display:block; color:var(--muted); font-size:10px;">Catatan atau materi kanji</small>
+                    </div>
+                </button>
+                <button type="button" id="attachVoiceBtn" class="attachment-item ios-sheet-item">
+                    <span class="attach-icon" style="background: #30D158;">🎤</span>
+                    <div>
+                        <strong>Pesan Suara</strong>
+                        <small style="display:block; color:var(--muted); font-size:10px;">Latihan pelafalan suara</small>
+                    </div>
+                </button>
+                <button type="button" id="attachStickerBtn" class="attachment-item ios-sheet-item">
+                    <span class="attach-icon" style="background: #FF9F0A;">🌸</span>
+                    <div>
+                        <strong>Stiker Bahasa Jepang</strong>
+                        <small style="display:block; color:var(--muted); font-size:10px;">Frasa cepat & kanji</small>
+                    </div>
+                </button>
+            </div>
+
+            <!-- TABBED EMOJI & STICKER DRAWER -->
+            <div id="inchatEmojiDrawer" class="inchat-emoji-drawer ios-emoji-drawer" style="display: none;">
+                <div class="emoji-tabs-bar ios-emoji-tabs">
+                    <button type="button" class="emoji-tab-btn is-active" data-tab="popular" title="Populer">😊 Populer</button>
+                    <button type="button" class="emoji-tab-btn" data-tab="japan" title="Jepang">🌸 Jepang</button>
+                    <button type="button" class="emoji-tab-btn" data-tab="stickers" title="Frasa Stiker">🎌 Stiker Kana</button>
+                </div>
+                <div class="emoji-grid-content" id="emojiGridContent">
+                    <!-- Terisi oleh script -->
+                </div>
+            </div>
             
-            <!-- INPUT PESAN -->
-            <div class="chat-input-area" id="chatInputArea">
-                <button class="chat-emoji chat-tool-btn" id="chatEmojiBtn" type="button" aria-label="Pilih emoji">☺</button>
+            <!-- iOS iMESSAGE INPUT BAR -->
+            <div class="chat-input-area ios-input-bar" id="chatInputArea">
+                <!-- Circular Plus (+) Attachment Button -->
+                <button class="chat-tool-btn ios-plus-btn" id="attachBtn" type="button" title="Lampiran media" aria-label="Lampirkan Media">＋</button>
+                <button class="chat-emoji chat-tool-btn ios-emoji-btn" id="chatEmojiBtn" type="button" title="Emoji & Stiker" aria-label="Pilih emoji">☺</button>
                 
                 <input type="file" id="chatImageUpload" accept="image/*" style="display: none;">
-                <button id="sendImageBtn" class="chat-tool-btn" type="button" style="display: none;" aria-label="Kirim Gambar">📷</button>
-                <button id="recordAudioBtn" class="chat-tool-btn" type="button" style="display: none;" aria-label="Tahan untuk merekam">🎤</button>
                 
-                <input type="text" id="chatInput" placeholder="Tulis pesan (bisa romaji atau kana)...">
-                <button id="sendBtn" type="button" aria-label="Kirim pesan">➤</button>
+                <!-- Input Capsule -->
+                <div class="chat-input-wrapper ios-input-capsule">
+                    <textarea id="chatInput" rows="1" placeholder="iMessage..." autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send"></textarea>
+                </div>
+                
+                <!-- Voice Memo Mic Button -->
+                <button id="recordAudioBtn" class="chat-tool-btn ios-mic-btn" type="button" title="Rekam Suara (Voice Note)" aria-label="Tahan untuk merekam">🎤</button>
+                
+                <!-- Iconic iOS Blue Circular Send Button with Up Arrow (↑) -->
+                <button id="sendBtn" class="ios-send-bubble-btn" type="button" aria-label="Kirim pesan" title="Kirim Pesan">↑</button>
             </div>
         </section>
 
@@ -169,6 +260,77 @@
         <div id="imageLightboxOverlay" class="image-lightbox-overlay" style="display: none;">
             <span class="close-lightbox" id="closeLightbox">×</span>
             <img id="lightboxImg" src="" alt="Pratinjau Foto">
+        </div>
+
+        <!-- FLOATING TOAST NOTIFICATION -->
+        <div id="chatToast" class="chat-toast ios-toast"></div>
+
+        <!-- MESSAGE ACTION POPUP MENU (iOS TAPBACK & CONTEXT MENU) -->
+        <div id="msgActionPopup" class="msg-action-popup ios-context-menu" style="display: none;">
+            <div class="reaction-quick-bar ios-tapback-bar" id="reactionQuickBar">
+                <button type="button" class="quick-react-btn" data-emoji="❤️" title="Love">❤️</button>
+                <button type="button" class="quick-react-btn" data-emoji="👍" title="Jempol">👍</button>
+                <button type="button" class="quick-react-btn" data-emoji="🌸" title="Sakura">🌸</button>
+                <button type="button" class="quick-react-btn" data-emoji="⛩️" title="Torii">⛩️</button>
+                <button type="button" class="quick-react-btn" data-emoji="😂" title="Tertawa">😂</button>
+                <button type="button" class="quick-react-btn" data-emoji="🔥" title="Semangat">🔥</button>
+            </div>
+            <div class="ios-menu-items-group">
+                <button type="button" class="msg-action-item ios-menu-action" id="actionReplyBtn">
+                    <span>Balas</span> <span>💬</span>
+                </button>
+                <button type="button" class="msg-action-item ios-menu-action" id="actionCopyBtn">
+                    <span>Salin</span> <span>📋</span>
+                </button>
+                <button type="button" class="msg-action-item ios-menu-action" id="actionTtsBtn">
+                    <span>Dengarkan</span> <span>🔊</span>
+                </button>
+                <button type="button" class="msg-action-item ios-menu-action" id="actionPinBtn">
+                    <span id="actionPinLabel">Sematkan</span> <span>📌</span>
+                </button>
+                <button type="button" class="msg-action-item ios-menu-action is-danger" id="actionDeleteBtn">
+                    <span>Hapus</span> <span>🗑️</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL PERINGATAN AKSES KHUSUS PENGEMBANG / TIM -->
+        <div id="coreAccessDeniedModal" class="core-denied-modal-overlay ios-alert-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="deniedModalTitle">
+            <div class="core-denied-modal-box ios-alert-box">
+                <div class="denied-icon-wrap" style="background: rgba(255, 69, 58, 0.15); border-color: #FF453A;">
+                    <span class="denied-shield-icon">🛡️</span>
+                    <span class="denied-lock-badge">🔒</span>
+                </div>
+                <h3 id="deniedModalTitle" class="denied-title" style="font-family: -apple-system, system-ui, sans-serif;">Akses Ditolak</h3>
+                <p class="denied-subtitle" style="color: #FF453A;">TRINITY CORE • KHUSUS TIM PENGEMBANG</p>
+                <div class="denied-desc">
+                    <p>Mohon maaf, Anda <strong>tidak diperbolehkan masuk</strong> ke ruangan ini.</p>
+                    <p class="denied-desc-sub">Ruang obrolan privat ini dibatasi secara ketat hanya untuk <strong>Founders & Tim Pengembang (Developers)</strong> Nihongo Trinity. Silakan berdiskusi di <strong>Public Lounge</strong> atau belajar bersama <strong>Aoi Sensei</strong>.</p>
+                </div>
+                <div class="denied-actions">
+                    <button type="button" id="closeDeniedModalBtn" class="denied-btn-primary" style="background: #0A84FF; border-radius: 12px; font-weight: 700;">Saya Mengerti</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTIFIKASI BROADCAST ADMIN (iOS PUSH BANNER) -->
+        <div id="globalAlert" class="global-alert ios-broadcast-banner" style="display: none;" role="alert" aria-live="assertive">
+            <div class="ios-banner-header">
+                <div class="ios-banner-app-icon"><span>⛩️</span></div>
+                <div class="ios-banner-meta">
+                    <span class="ios-banner-app-name">TRINITY BROADCAST</span>
+                    <span class="ios-banner-dev-badge" id="alertSenderBadge">👨‍💻 Dev: <strong id="alertSenderName">Umaedi</strong></span>
+                </div>
+                <span class="ios-banner-time">Baru Saja</span>
+                <button type="button" id="closeAlert" class="ios-banner-close" title="Tutup Notifikasi" aria-label="Tutup">✕</button>
+            </div>
+            <div class="ios-banner-body">
+                <h4 id="alertTitle" class="ios-banner-title">PENGUMUMAN SISTEM</h4>
+                <p id="alertMessage" class="ios-banner-msg">Pesan dari sistem...</p>
+            </div>
+            <div class="ios-banner-progress-track">
+                <div class="ios-banner-progress-bar"></div>
+            </div>
         </div>
 
     </main>

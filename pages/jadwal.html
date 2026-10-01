@@ -3,76 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Trinity | Jadwal Pertemuan (スケジュール)</title>
+    <title>Nihongo Trinity | Jadwal Pertemuan & Basecamp (スケジュール)</title>
+    <meta name="description" content="Jadwal pertemuan rutin, latihan intensif Kana & Kanji, live countdown sesi malam minggu, presensi kehadiran RSVP, dan koordinasi markas Basecamp Trinity.">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/jadwal.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="main-page">
     
-    <section class="content page-content jadwal-page" style="max-width: 900px; margin: 0 auto; padding: 40px 20px 120px; text-align: center;">
+    <main class="content page-content jadwal-page">
         <!-- Tombol Kembali -->
-        <a href="../index.html" class="back-btn">
-            <span class="back-icon">←</span> Dashboard
+        <a href="../index.html" class="back-btn" id="btnBackDashboard">
+            <span class="back-icon" aria-hidden="true">←</span> Dashboard
         </a>
 
-        <p class="eyebrow">【 スケジュール · Gathering & Study Sessions 】</p>
-        <h1 class="page-title" style="color: #fff; font-size: clamp(2rem, 4vw, 3rem); margin: 12px 0 8px; font-weight: 700; font-family: 'Noto Serif JP', serif;">Jadwal & Basecamp Trinity</h1>
-        <p class="subtitle">Waktu khusus untuk berkumpul, berdiskusi, evaluasi progres kana, dan mempererat silaturahmi bersama tim Nihongo Trinity.</p>
-
-        <!-- LOKASI KUMPUL BANNER (BASECAMP) -->
-        <div class="location-banner" style="display: flex; align-items: center; gap: 18px; padding: 22px; background: var(--panel); border: 1px solid var(--japan-gold); border-radius: 14px; text-align: left; margin-bottom: 25px; box-shadow: var(--box-shadow-md);">
-            <div class="location-icon" style="font-size: 32px; width: 55px; height: 55px; border-radius: 50%; background: rgba(212, 175, 55, 0.15); border: 1px solid var(--japan-gold); display: grid; place-items: center;">📍</div>
-            <div class="location-text" style="flex: 1;">
-                <span class="location-label" style="font-size: 11px; color: var(--japan-gold); font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">Markas Pertemuan Utama (Basecamp)</span>
-                <h3 style="color: #fff; font-size: 1.35rem; margin: 4px 0 2px; font-family: 'Noto Serif JP', serif;">Kediaman Umaedi (Founder & Tech Dev)</h3>
-                <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Pusat koordinasi sistem teknologi, server data, dan workshop belajar kana bersama.</p>
+        <!-- Header Halaman -->
+        <header class="jadwal-header">
+            <div class="eyebrow-pill">
+                <span class="eyebrow-dot"></span>
+                <span>道場スケジュール · BASECAMP &amp; STUDY TRACKER</span>
             </div>
-        </div>
+            <h1 class="page-title">
+                Jadwal Pertemuan <span class="title-accent">&amp; Basecamp</span>
+            </h1>
+            <p class="page-subtitle">
+                Waktu khusus berkumpul, evaluasi progres kana &amp; kanji, bedah tata bahasa N5 bersama Sensei Iqbal, dan mempererat silaturahmi di markas Nihongo Trinity.
+            </p>
+        </header>
 
-        <!-- COUNTDOWN TIMER PERTEMUAN -->
-        <div style="background: rgba(230, 57, 70, 0.08); border: 1px solid rgba(230, 57, 70, 0.3); border-radius: 12px; padding: 16px 20px; margin-bottom: 35px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-            <div style="text-align: left;">
-                <strong style="color: var(--japan-red); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; display: block;">Sesi Kumpul Terdekat:</strong>
-                <span style="color: #fff; font-size: 1.1rem; font-weight: 700;">Malam Minggu (Sesi Evaluasi Utama)</span>
-            </div>
-            <a href="pesan.html" class="btn btn-primary" style="padding: 10px 20px; font-size: 11px;">
-                💬 Konfirmasi di Chat Tim →
-            </a>
-        </div>
-
-        <!-- Grid Jadwal Mingguan -->
-        <div class="schedule-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
-            <!-- Jumat Malam -->
-            <div class="schedule-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; text-align: left; transition: all 0.3s ease;">
-                <div class="schedule-day" style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Jumat Malam (金曜の夜)</div>
-                <h3 class="schedule-title" style="color: #fff; font-size: 1.2rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Malam Sabtu</h3>
-                <p class="schedule-desc" style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">Sesi kumpul malam pembuka akhir pekan untuk santai, ngobrol ringan, dan evaluasi update mingguan.</p>
-            </div>
-            
-            <!-- Hari Sabtu -->
-            <div class="schedule-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; text-align: left; transition: all 0.3s ease;">
-                <div class="schedule-day" style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Sabtu Siang / Sore (土曜)</div>
-                <h3 class="schedule-title" style="color: #fff; font-size: 1.2rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Hari Sabtu</h3>
-                <p class="schedule-desc" style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">Fokus pemantapan materi bahasa Jepang, hafalan kana baru, dan bedah kosakata bersama Sensei Iqbal.</p>
+        <!-- ==========================================================================
+             FEATURE 1: LIVE REAL-TIME COUNTDOWN TIMER TO SATURDAY NIGHT SESSION
+             ========================================================================== -->
+        <section class="countdown-banner" id="countdownBanner" aria-label="Hitung Mundur Sesi Pertemuan">
+            <div class="countdown-top">
+                <div>
+                    <span class="countdown-badge">
+                        <span class="countdown-badge-dot"></span>
+                        <span id="countdownStatusBadge">SESI BERIKUTNYA</span>
+                    </span>
+                    <h2 class="countdown-session-title" id="countdownTitle">Sesi Kumpul Akbar &amp; Evaluasi (Malam Minggu 20:00 WIB)</h2>
+                </div>
+                <a href="pesan.html" class="basecamp-btn basecamp-btn-gold" style="font-size: 11px;">
+                    💬 Diskusi di Chat Tim →
+                </a>
             </div>
 
-            <!-- Malam Minggu (Highlight Sesi Inti) -->
-            <div class="schedule-card active-night" style="background: linear-gradient(145deg, rgba(230, 57, 70, 0.12), rgba(16, 22, 33, 0.95)); border: 1px solid var(--japan-red); border-radius: 12px; padding: 24px; text-align: left; box-shadow: 0 10px 30px rgba(230, 57, 70, 0.25);">
-                <div class="schedule-day" style="font-size: 11px; color: var(--japan-red); font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">⭐ Sesi Kumpul Utama</div>
-                <h3 class="schedule-title" style="color: #fff; font-size: 1.3rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Malam Minggu</h3>
-                <p class="schedule-desc" style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; margin: 0;">Sesi kumpul wajib tim! Latihan tes refleks cepat, review bersama tim Trinity, dan nongkrong produktif.</p>
+            <!-- LED Countdown Digits Boxes -->
+            <div class="countdown-boxes">
+                <div class="countdown-box">
+                    <span class="countdown-num" id="cdDays">00</span>
+                    <span class="countdown-label">Hari</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-box">
+                    <span class="countdown-num" id="cdHours">00</span>
+                    <span class="countdown-label">Jam</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-box">
+                    <span class="countdown-num" id="cdMinutes">00</span>
+                    <span class="countdown-label">Menit</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-box">
+                    <span class="countdown-num" id="cdSeconds">00</span>
+                    <span class="countdown-label">Detik</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             FEATURE 2: INTERACTIVE RSVP / PRESENSI KEHADIRAN ANGGOTA
+             ========================================================================== -->
+        <section class="rsvp-card" id="rsvpCard" aria-label="Konfirmasi Presensi Kehadiran">
+            <div class="rsvp-header">
+                <div>
+                    <h3 class="rsvp-title">Konfirmasi Kehadiranmu Minggu Ini</h3>
+                    <p class="rsvp-sub">Bantu tim menyiapkan kapasitas tempat duduk basecamp &amp; sesi online.</p>
+                </div>
+                <span id="rsvpYourStatus" style="font-size: 11px; font-weight: 700; color: var(--japan-gold);">
+                    Status: Belum memilih
+                </span>
             </div>
 
-            <!-- Hari Minggu -->
-            <div class="schedule-card" style="background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; text-align: left; transition: all 0.3s ease;">
-                <div class="schedule-day" style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Minggu Pagi / Siang (日曜)</div>
-                <h3 class="schedule-title" style="color: #fff; font-size: 1.2rem; margin: 0 0 8px; font-family: 'Noto Serif JP', serif;">Hari Minggu</h3>
-                <p class="schedule-desc" style="color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin: 0;">Sesi tambahan santai, persiapan target belajar untuk minggu berikutnya, dan istirahat pemulihan energi.</p>
+            <!-- 3 Pilihan RSVP Interaktif -->
+            <div class="rsvp-buttons">
+                <button class="rsvp-btn" id="btnRsvpHadir" type="button" data-status="hadir">
+                    <span>🟢</span> Saya Hadir di Basecamp
+                </button>
+                <button class="rsvp-btn" id="btnRsvpOnline" type="button" data-status="online">
+                    <span>🌐</span> Hadir Online (Discord)
+                </button>
+                <button class="rsvp-btn" id="btnRsvpIzin" type="button" data-status="izin">
+                    <span>❌</span> Berhalangan / Izin
+                </button>
             </div>
-        </div>
-    </section>
 
-    <!-- Navigasi Bawah Modern -->
+            <!-- Attendee Counters & Avatar Stack -->
+            <div class="rsvp-attendees-bar">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="avatar-stack">
+                        <img src="../gambar/umaedi.png" class="avatar-stack-img" alt="Umaedi" onerror="this.style.display='none'">
+                        <img src="../gambar/iqbal.png" class="avatar-stack-img" alt="Iqbal" onerror="this.style.display='none'">
+                        <img src="../gambar/fasya.png" class="avatar-stack-img" alt="Fasya" onerror="this.style.display='none'">
+                        <img src="../gambar/rifki.png" class="avatar-stack-img" alt="Rifki" onerror="this.style.display='none'">
+                        <span class="avatar-stack-more">+11</span>
+                    </div>
+                    <span id="rsvpCountText" style="font-weight: 600; color: #e2e8f0;">
+                        15 Anggota Terkonfirmasi Hadir
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: var(--text-secondary);">
+                    📌 Update otomatis tersimpan
+                </span>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             FEATURE 3: BASECAMP GPS CARD & QUICK ACTIONS
+             ========================================================================== -->
+        <section class="basecamp-card" aria-label="Informasi Lokasi Basecamp">
+            <div class="basecamp-icon-box" aria-hidden="true">📍</div>
+            <div class="basecamp-details">
+                <span class="basecamp-label">Markas Pertemuan Resmi (Basecamp Dojo)</span>
+                <h3 class="basecamp-title">Kediaman Umaedi (Founder &amp; Tech Lead)</h3>
+                <p class="basecamp-address" id="basecampAddressText">
+                    Jl. Basecamp Trinity, Pusat Koordinasi Server &amp; Workshop Nihongo Trinity, Indonesia.
+                </p>
+                <div class="basecamp-actions">
+                    <button class="basecamp-btn basecamp-btn-gold" id="btnCopyAddress" type="button">
+                        <span id="copyIcon">📋</span> <span id="copyText">Salin Alamat Lengkap</span>
+                    </button>
+                    <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="basecamp-btn basecamp-btn-ghost">
+                        🗺️ Buka di Google Maps ↗
+                    </a>
+                    <a id="btnAddToCalendar" href="#" target="_blank" rel="noopener noreferrer" class="basecamp-btn basecamp-btn-ghost">
+                        📅 Tambah ke Google Calendar
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             FEATURE 4: FILTERABLE WEEKLY SCHEDULE TIMELINE
+             ========================================================================== -->
+        <section aria-label="Daftar Jadwal Mingguan">
+            <!-- Filter Tabs -->
+            <div class="schedule-filter-tabs">
+                <button class="filter-tab is-active" type="button" data-filter="all">Semua Sesi (全日程)</button>
+                <button class="filter-tab" type="button" data-filter="offline">Markas Basecamp (対面)</button>
+                <button class="filter-tab" type="button" data-filter="online">Sesi Online / Discord (オンライン)</button>
+            </div>
+
+            <!-- Grid Kartu Jadwal -->
+            <div class="schedule-grid" id="scheduleGrid">
+                
+                <!-- Sesi 1: Jumat Malam -->
+                <article class="sched-card" data-category="offline">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="sched-day-pill">金曜の夜 · JUMAT MALAM</span>
+                        <span class="sched-time-badge">19:30 - 22:00 WIB</span>
+                    </div>
+                    <h3 class="sched-title">Malam Sabtu: Santai &amp; Review Fitur</h3>
+                    <p class="sched-desc">
+                        Sesi kumpul malam pembuka akhir pekan. Ngopi santai di markas, uji coba fitur web terbaru, diskusi bebas, dan persiapan agenda ujian mingguan.
+                    </p>
+                    <div class="sched-footer">
+                        <div class="sched-speaker">
+                            <span>☕</span> Umaedi &amp; Rifki
+                        </div>
+                        <span style="color: var(--japan-gold);">Basecamp Offline</span>
+                    </div>
+                </article>
+
+                <!-- Sesi 2: Sabtu Siang / Sore -->
+                <article class="sched-card" data-category="online">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="sched-day-pill">土曜 · SABTU SIANG</span>
+                        <span class="sched-time-badge">14:00 - 16:30 WIB</span>
+                    </div>
+                    <h3 class="sched-title">Hari Sabtu: Bedah Tata Bahasa N5</h3>
+                    <p class="sched-desc">
+                        Fokus pemantapan materi bahasa Jepang, kupas tuntas partikel (は, が, を, に, で), hafalan kanji esensial, dan latihan pola kalimat aplikatif.
+                    </p>
+                    <div class="sched-footer">
+                        <div class="sched-speaker">
+                            <span>📚</span> Sensei Iqbal
+                        </div>
+                        <span style="color: #60a5fa;">Discord Voice Room</span>
+                    </div>
+                </article>
+
+                <!-- Sesi 3: Malam Minggu (SESI UTAMA) -->
+                <article class="sched-card is-main-session" data-category="offline">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="sched-day-pill" style="color: var(--japan-red); font-weight: 900;">⭐ SESI KUMPUL AKBAR WAJIB</span>
+                        <span class="sched-time-badge" style="background: rgba(230, 57, 70, 0.2); border-color: rgba(230, 57, 70, 0.4); color: #fff;">20:00 - 23:30 WIB</span>
+                    </div>
+                    <h3 class="sched-title" style="color: #fff;">Malam Minggu: Refleks Cepat &amp; Kopdar</h3>
+                    <p class="sched-desc" style="color: #e2e8f0;">
+                        Sesi kumpul wajib seluruh anggota Trinity! Turnamen game Kana refleks cepat, sharing pencapaian belajar mingguan, makan malam bareng, dan nongkrong produktif.
+                    </p>
+                    <div class="sched-footer">
+                        <div class="sched-speaker" style="color: #fff;">
+                            <span>🔥</span> Seluruh Tim &amp; Sensei
+                        </div>
+                        <span style="color: var(--japan-gold); font-weight: 700;">Basecamp Utama</span>
+                    </div>
+                </article>
+
+                <!-- Sesi 4: Hari Minggu -->
+                <article class="sched-card" data-category="online">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="sched-day-pill">日曜 · MINGGU SORE</span>
+                        <span class="sched-time-badge">16:00 - 18:00 WIB</span>
+                    </div>
+                    <h3 class="sched-title">Hari Minggu: Konsultasi &amp; Chill</h3>
+                    <p class="sched-desc">
+                        Sesi fleksibel dan rehat pemulihan energi. Konsultasi kendala menghafal kanji, tanya jawab materi bersama Aoi Sensei, dan persiapan target minggu depan.
+                    </p>
+                    <div class="sched-footer">
+                        <div class="sched-speaker">
+                            <span>🌸</span> Fasya &amp; Aoi Sensei
+                        </div>
+                        <span style="color: #34d399;">Hybrid Chat &amp; Voice</span>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Navigasi Bawah Modern iOS Style -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
         <a class="main-bottom-item" href="../index.html"><span class="main-bottom-icon">⌂</span><span>Home</span></a>
         <a class="main-bottom-item" href="hiburan.html"><span class="main-bottom-icon">✦</span><span>Hiburan</span></a>
@@ -87,7 +251,199 @@
         <a class="main-bottom-item" href="info.html"><span class="main-bottom-icon">ⓘ</span><span>Info</span></a>
     </nav>
 
+    <!-- Global Framework Scripts -->
     <script type="module" src="../admin.js"></script>
     <script src="../script.js"></script>
+
+    <!-- Interactive Logic for Jadwal (Countdown, RSVP, Filter, Calendar) -->
+    <script>
+    (function() {
+        // =========================================================================
+        // 1. LIVE COUNTDOWN TIMER TO NEXT SATURDAY 20:00 WIB
+        // =========================================================================
+        function getNextSaturdayNight() {
+            const now = new Date();
+            const target = new Date(now.getTime());
+            
+            // Day of week: 0 = Sun, 1 = Mon, ..., 6 = Sat
+            const currentDay = now.getDay();
+            let daysUntilSaturday = (6 - currentDay + 7) % 7;
+
+            // If today is Saturday but already past 23:30, target NEXT Saturday
+            if (currentDay === 6 && (now.getHours() > 23 || (now.getHours() === 23 && now.getMinutes() >= 30))) {
+                daysUntilSaturday = 7;
+            }
+
+            target.setDate(now.getDate() + daysUntilSaturday);
+            target.setHours(20, 0, 0, 0); // 20:00 WIB
+            return target;
+        }
+
+        let nextSessionDate = getNextSaturdayNight();
+
+        function updateCountdown() {
+            const now = new Date();
+            const diff = nextSessionDate - now;
+
+            const daysEl = document.getElementById('cdDays');
+            const hoursEl = document.getElementById('cdHours');
+            const minutesEl = document.getElementById('cdMinutes');
+            const secondsEl = document.getElementById('cdSeconds');
+            const statusBadge = document.getElementById('countdownStatusBadge');
+            const sessionTitle = document.getElementById('countdownTitle');
+
+            // Check if currently live (Saturday between 20:00 - 23:30)
+            const isSaturday = now.getDay() === 6;
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            const isLive = isSaturday && currentMinutes >= 1200 && currentMinutes <= 1410;
+
+            if (isLive) {
+                if (statusBadge) statusBadge.textContent = "🔴 LIVE BERLANGSUNG";
+                if (sessionTitle) sessionTitle.textContent = "Sesi Kumpul & Evaluasi Sedang Aktif di Basecamp!";
+                if (daysEl) daysEl.textContent = "00";
+                if (hoursEl) hoursEl.textContent = "00";
+                if (minutesEl) minutesEl.textContent = "00";
+                if (secondsEl) secondsEl.textContent = "00";
+                return;
+            }
+
+            if (diff <= 0) {
+                nextSessionDate = getNextSaturdayNight();
+                return;
+            }
+
+            const totalSec = Math.floor(diff / 1000);
+            const days = Math.floor(totalSec / 86400);
+            const hours = Math.floor((totalSec % 86400) / 3600);
+            const minutes = Math.floor((totalSec % 3600) / 60);
+            const seconds = totalSec % 60;
+
+            if (daysEl) daysEl.textContent = String(days).padStart(2, '0');
+            if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+            if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Google Calendar Add Link Generator
+        const btnCal = document.getElementById('btnAddToCalendar');
+        if (btnCal) {
+            const startISO = nextSessionDate.toISOString().replace(/-|:|\.\d\d\d/g, "");
+            const endDate = new Date(nextSessionDate.getTime() + 3.5 * 3600 * 1000);
+            const endISO = endDate.toISOString().replace(/-|:|\.\d\d\d/g, "");
+            btnCal.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Sesi+Kumpul+Nihongo+Trinity&dates=${startISO}/${endISO}&details=Sesi+Kumpul+Akbar+dan+Evaluasi+Kana+Nihongo+Trinity+di+Basecamp+Umaedi.&location=Basecamp+Umaedi+Tech`;
+        }
+
+        // =========================================================================
+        // 2. INTERACTIVE RSVP PRESENCE SYSTEM
+        // =========================================================================
+        const rsvpButtons = {
+            hadir: document.getElementById('btnRsvpHadir'),
+            online: document.getElementById('btnRsvpOnline'),
+            izin: document.getElementById('btnRsvpIzin')
+        };
+        const rsvpYourStatus = document.getElementById('rsvpYourStatus');
+        const rsvpCountText = document.getElementById('rsvpCountText');
+
+        const RSVP_STORAGE_KEY = 'trinity_user_rsvp_status';
+
+        function updateRsvpUI(status) {
+            Object.keys(rsvpButtons).forEach(key => {
+                const btn = rsvpButtons[key];
+                if (!btn) return;
+                btn.classList.remove('is-selected-hadir', 'is-selected-online', 'is-selected-izin');
+            });
+
+            if (status === 'hadir') {
+                rsvpButtons.hadir?.classList.add('is-selected-hadir');
+                if (rsvpYourStatus) rsvpYourStatus.innerHTML = 'Status: <span style="color: #34d399;">✓ Hadir di Basecamp</span>';
+                if (rsvpCountText) rsvpCountText.textContent = '16 Anggota Terkonfirmasi Hadir di Basecamp';
+            } else if (status === 'online') {
+                rsvpButtons.online?.classList.add('is-selected-online');
+                if (rsvpYourStatus) rsvpYourStatus.innerHTML = 'Status: <span style="color: #60a5fa;">✓ Hadir Online (Discord)</span>';
+                if (rsvpCountText) rsvpCountText.textContent = '15 Basecamp | 7 Hadir Online Discord';
+            } else if (status === 'izin') {
+                rsvpButtons.izin?.classList.add('is-selected-izin');
+                if (rsvpYourStatus) rsvpYourStatus.innerHTML = 'Status: <span style="color: #f87171;">✓ Berhalangan / Izin</span>';
+                if (rsvpCountText) rsvpCountText.textContent = '15 Hadir di Basecamp | 3 Izin Tercatat';
+            }
+        }
+
+        function handleRsvpClick(status) {
+            localStorage.setItem(RSVP_STORAGE_KEY, status);
+            updateRsvpUI(status);
+
+            if (typeof playChime === 'function') playChime('drop');
+
+            if (typeof showToast === 'function') {
+                const label = status === 'hadir' ? 'Hadir di Basecamp' : status === 'online' ? 'Hadir Online' : 'Izin / Berhalangan';
+                showToast(`✓ Presensi dicatat: ${label}!`);
+            }
+        }
+
+        Object.keys(rsvpButtons).forEach(key => {
+            rsvpButtons[key]?.addEventListener('click', () => handleRsvpClick(key));
+        });
+
+        // Restore saved status
+        const savedStatus = localStorage.getItem(RSVP_STORAGE_KEY);
+        if (savedStatus && rsvpButtons[savedStatus]) {
+            updateRsvpUI(savedStatus);
+        }
+
+        // =========================================================================
+        // 3. COPY ADDRESS CLIPBOARD ACTION
+        // =========================================================================
+        const btnCopy = document.getElementById('btnCopyAddress');
+        const copyIcon = document.getElementById('copyIcon');
+        const copyText = document.getElementById('copyText');
+        const addressEl = document.getElementById('basecampAddressText');
+
+        btnCopy?.addEventListener('click', () => {
+            const address = addressEl ? addressEl.textContent.trim() : "Jl. Basecamp Trinity, Kediaman Umaedi";
+            navigator.clipboard.writeText(address).then(() => {
+                if (copyIcon) copyIcon.textContent = '✓';
+                if (copyText) copyText.textContent = 'Alamat Tersalin!';
+                if (typeof showToast === 'function') showToast("📋 Alamat Basecamp berhasil disalin!");
+                if (typeof playChime === 'function') playChime('success');
+
+                setTimeout(() => {
+                    if (copyIcon) copyIcon.textContent = '📋';
+                    if (copyText) copyText.textContent = 'Salin Alamat Lengkap';
+                }, 3000);
+            }).catch(() => {
+                if (typeof showToast === 'function') showToast("Gagal menyalin alamat");
+            });
+        });
+
+        // =========================================================================
+        // 4. SCHEDULE FILTER TABS
+        // =========================================================================
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const schedCards = document.querySelectorAll('.sched-card');
+
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('is-active'));
+                tab.classList.add('is-active');
+
+                const filter = tab.getAttribute('data-filter');
+                schedCards.forEach(card => {
+                    const category = card.getAttribute('data-category');
+                    if (filter === 'all' || category === filter) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (typeof playChime === 'function') playChime('neutral');
+            });
+        });
+
+    })();
+    </script>
 </body>
 </html>
