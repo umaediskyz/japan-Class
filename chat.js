@@ -1079,6 +1079,14 @@ if (coreAccessDeniedModal) {
 // SWITCH ROOM (PUBLIC / SENSEI / SHIRITORI / CORE)
 // ==========================================
 window.openRoom = function(type) {
+    if (type !== "sensei") {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Obrolan Chat Komunitas", () => window.openRoom(type))) {
+                return;
+            }
+        }
+    }
+
     if (type === "core" && !isCore) {
         showCoreAccessDeniedModal();
         return;
@@ -2394,6 +2402,14 @@ function sendMessage() {
     const text = chatInput.value.trim();
     if (text === "" || !currentUser) return;
 
+    if (currentRoom !== "sensei") {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Kirim Pesan Komunitas")) {
+                return;
+            }
+        }
+    }
+
     if (currentRoom === "sensei") {
         sendSenseiMessage(text);
         try {
@@ -2604,7 +2620,8 @@ if (switchUserBtn) {
                 `• Nama Tampilan: "${currentUser}"\n\n` +
                 `Pilihan:\n` +
                 `1. Ketik nama baru untuk mengganti nama tampilan profil Anda\n` +
-                `2. Ketik "LOGOUT" untuk keluar dari akun ini\n`
+                `2. Ketik "SANDI" untuk mengubah kata sandi akun Anda\n` +
+                `3. Ketik "LOGOUT" untuk keluar dari akun ini\n`
             );
             if (!action || !action.trim()) return;
             const val = action.trim();
@@ -2628,19 +2645,31 @@ if (switchUserBtn) {
                     alert("✨ Berhasil keluar dari akun.");
                     window.location.reload();
                 }
+            } else if (val.toUpperCase() === "SANDI") {
+                const newPass = prompt("Ketik kata sandi baru akun Fournity Anda (minimal 6 karakter):");
+                if (newPass && newPass.trim().length >= 6) {
+                    if (window.auth && window.auth.currentUser && typeof window.updatePassword === "function") {
+                        window.updatePassword(window.auth.currentUser, newPass.trim()).then(() => {
+                            alert("🔒 Kata sandi akun berhasil diperbarui!");
+                        }).catch(err => {
+                            alert("Gagal mengubah kata sandi: " + (err.message || "Pastikan sesi login masih baru"));
+                        });
+                    } else {
+                        alert("Sesi login belum aktif.");
+                    }
+                } else if (newPass) {
+                    alert("Kata sandi minimal 6 karakter!");
+                }
             } else {
                 localStorage.setItem(sessionKey, val);
                 alert(`✨ Nama tampilan berhasil diubah menjadi "${val}".`);
                 window.location.reload();
             }
         } else {
-            const confirmLogin = confirm(
-                `👤 MODE TAMU (BELUM LOGIN)\n\n` +
-                `Anda saat ini belum masuk menggunakan akun Firebase resmi.\n\n` +
-                `Apakah Anda ingin membuka halaman utama untuk Masuk / Mendaftar Akun?`
-            );
-            if (confirmLogin) {
-                window.location.href = "../index.html";
+            if (typeof window.showRequireLoginPopup === 'function') {
+                window.showRequireLoginPopup("Pengaturan Akun & Obrolan");
+            } else {
+                window.location.href = "../index.html?login=1";
             }
         }
     });

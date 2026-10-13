@@ -649,6 +649,17 @@
                 <input type="text" id="profileNameInput" placeholder="Ketik nama baru...">
             </div>
 
+            <div class="profile-password-box" style="text-align: left; margin-bottom: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.12);">
+                <label style="font-size: 11px; color: var(--japan-gold); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block;">
+                    🔒 Ganti Kata Sandi Akun
+                </label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="password" id="profileNewPasswordInput" placeholder="Sandi baru (min 6 kar)..." style="flex: 1; margin-bottom: 0;" autocomplete="new-password">
+                    <button type="button" id="btnUpdatePassword" class="btn btn-gold" style="padding: 10px 14px; font-size: 12px; white-space: nowrap; height: 44px;">Ubah</button>
+                </div>
+                <p id="profilePasswordMsg" style="font-size: 11px; margin-top: 6px; margin-bottom: 0; min-height: 16px;"></p>
+            </div>
+
             <button type="button" id="saveProfileBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 10px; padding: 12px;">SIMPAN PERUBAHAN</button>
             <button type="button" id="resetProfilePhotoBtn" class="btn btn-outline" style="width: 100%; margin-bottom: 10px; padding: 10px; font-size: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: #ddd; border-radius: 8px; cursor: pointer;">🔄 Reset Foto Profil ke Default</button>
             <button type="button" id="logoutBtn" class="btn btn-secondary" style="width: 100%; padding: 12px;">KELUAR AKUN</button>
@@ -676,6 +687,9 @@
             <div id="loginForm">
                 <input type="email" id="loginEmail" placeholder="Alamat Email (Contoh: kamu@gmail.com)" autocomplete="email">
                 <input type="password" id="loginPassword" placeholder="Kata Sandi Akun" autocomplete="current-password">
+                <div style="display: flex; justify-content: flex-end; margin-top: -6px; margin-bottom: 12px;">
+                    <button type="button" id="btnForgotPassword" style="background: none; border: none; color: var(--japan-gold); font-size: 11px; cursor: pointer; text-decoration: underline; padding: 2px 0;">Lupa kata sandi?</button>
+                </div>
                 <p id="loginError" class="login-error"></p>
                 <button type="button" id="mainLoginBtn" class="btn btn-primary" style="width:100%; margin-bottom:10px;">MASUK DENGAN EMAIL</button>
                 <p style="font-size:12px; color:var(--muted); margin-top:18px;">Belum punya akun? <span id="showRegisterBtn" style="color:var(--japan-gold); cursor:pointer; font-weight:bold;">Buat Akun Baru</span></p>
@@ -688,6 +702,28 @@
                 <p id="regError" class="login-error"></p>
                 <button type="button" id="mainRegBtn" class="btn btn-gold" style="width:100%; margin-bottom:10px;">DAFTAR AKUN BARU</button>
                 <p style="font-size:12px; color:var(--muted); margin-top:18px;">Sudah punya akun? <span id="showLoginBtn" style="color:var(--japan-red); cursor:pointer; font-weight:bold;">Login di sini</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL WAJIB MASUK AKUN (POP-UP WAJIB LOGIN UNTUK FITUR CLOUD) -->
+    <!-- ========================================== -->
+    <div id="requireLoginOverlay" class="global-login-overlay" style="display: none; z-index: 10007;">
+        <div class="login-modal require-login-dialog" style="text-align: center; max-width: 380px;">
+            <span id="closeRequireLoginModal" class="close-modal" aria-label="Tutup">×</span>
+            <div class="modal-icon" style="font-size: 40px; margin-bottom: 12px;">⛩️</div>
+            <h2 id="requireLoginTitle" style="color: #fff; margin-bottom: 8px; font-size: 1.35rem;">Wajib Masuk Akun</h2>
+            <p id="requireLoginDesc" style="color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 22px;">
+                Fitur ini terhubung langsung ke Firebase Cloud Database. Silakan masuk atau daftar akun Fournity terlebih dahulu agar koleksi kartu, progres belajar, dan skor Anda tersimpan aman.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" id="btnGoToLogin" class="btn btn-primary" style="width: 100%; padding: 13px; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(230,57,70,0.4);">
+                    MASUK / BUAT AKUN SEKARANG
+                </button>
+                <button type="button" id="btnDismissRequireLogin" class="btn btn-secondary" style="width: 100%; padding: 11px; font-size: 13px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #bbb;">
+                    Nanti Saja
+                </button>
             </div>
         </div>
     </div>

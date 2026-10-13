@@ -2071,24 +2071,7 @@ function setupKanjiRadarWidget() {
 // 15.5 DAILY CHECK-IN & PHOTO CARD COLLECTION ENGINES
 // ==========================================================================
 
-// Reset bersih awal otomatis agar semua pemain mulai dari 0 kartu (belum memiliki fotocard)
-(function enforceCleanZeroCards() {
-    if (localStorage.getItem("fournity_cards_wiped_clean_v3") !== "true") {
-        localStorage.setItem("fournity_card_instances_v3", "[]");
-        localStorage.setItem("fournity_unlocked_cards", "[]");
-        localStorage.removeItem("fournity_user_avatar");
-        localStorage.removeItem("fournity_avatar_rarity");
-        localStorage.removeItem("fournity_avatar_card_id");
-        localStorage.removeItem("fournity_avatar_serial");
-        const user = localStorage.getItem("nihongoChatUser");
-        if (user) {
-            localStorage.removeItem(`avatar_${user}`);
-            localStorage.removeItem(`avatar_rarity_${user}`);
-            localStorage.removeItem(`avatar_serial_${user}`);
-        }
-        localStorage.setItem("fournity_cards_wiped_clean_v3", "true");
-    }
-})();
+// Koleksi Fotocard Terintegrasi Firebase Realtime DB (Non-Destruktif)
 
 function getOwnedCardInstances() {
     try {
@@ -2376,6 +2359,11 @@ function setupDailyCheckin() {
     window.renderCheckinUI = renderCheckinUI;
 
     window.openCheckinModal = function() {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Check-In Harian", () => window.openCheckinModal())) {
+                return;
+            }
+        }
         modal.style.display = "flex";
         renderCheckinUI();
         if (countdownTimer) clearInterval(countdownTimer);
@@ -2402,6 +2390,11 @@ function setupDailyCheckin() {
     });
 
     claimBtn?.addEventListener("click", () => {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Check-In Harian")) {
+                return;
+            }
+        }
         if (isClaiming) return;
 
         const data = getCheckinData();
@@ -2497,6 +2490,11 @@ function setupDailyCheckin() {
 
 // 2. DROP RANDOM CARD GACHA LOGIC (MENDUKUNG KARTU KEMBAR DENGAN KODE SERI & DESKRIPSI UNIK)
 function dropRandomCard(options = {}) {
+    if (typeof window.requireFirebaseAuth === 'function') {
+        if (!window.requireFirebaseAuth("Koleksi Foto Card", () => dropRandomCard(options))) {
+            return null;
+        }
+    }
     const instances = getOwnedCardInstances();
     let candidates = CARDS_DATABASE;
 
@@ -2663,6 +2661,11 @@ function setupPhotoCardCollection() {
     });
 
     window.openCardAlbumModal = function() {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Koleksi Foto Card", () => window.openCardAlbumModal())) {
+                return;
+            }
+        }
         showPhotocardModal("cardAlbumModal", { clearHistory: true });
         renderAlbum("all");
     };
@@ -3104,6 +3107,11 @@ function initCardGiftingSystem() {
 
     // 2. Fungsi Buka Modal Kirim Kartu
     window.openSendCardModal = function(cardParam = null) {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Kirim Foto Card", () => window.openSendCardModal(cardParam))) {
+                return;
+            }
+        }
         const instances = getOwnedCardInstances();
         if (!instances || instances.length === 0) {
             showToast("⚠️ Kamu belum memiliki kartu untuk dikirim. Dapatkan kartu dari Check-In atau Misi!");
@@ -3465,6 +3473,11 @@ function initCardGiftingSystem() {
 
     // 7. Klaim Kode Hadiah (Redeem)
     window.openRedeemCodeModal = function() {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Klaim Kode Hadiah", () => window.openRedeemCodeModal())) {
+                return;
+            }
+        }
         if (inputRedeemCode) inputRedeemCode.value = "";
         showPhotocardModal("redeemCodeModal", { saveHistory: true });
     };
@@ -3610,6 +3623,11 @@ function initCardGiftingSystem() {
 
     // Modal Kotak Hadiah
     window.openGiftInboxModal = function() {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Kotak Hadiah", () => window.openGiftInboxModal())) {
+                return;
+            }
+        }
         checkIncomingGifts();
         showToast("📬 Memeriksa kiriman kartu terbaru dari teman...");
     };

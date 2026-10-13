@@ -715,6 +715,11 @@ document.querySelectorAll("#modalTimerSelectorGroup .mp-setting-option-btn").for
 // Tombol Tanding Cepat (Quick Match) di Modal
 if (modalBtnQuickMatch) {
     modalBtnQuickMatch.addEventListener("click", async () => {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Multiplayer Quick Match", () => handleQuickMatch())) {
+                return;
+            }
+        }
         closeGameSetupModal();
         await handleQuickMatch();
     });
@@ -732,6 +737,11 @@ if (modalBtnPlayBot) {
 // Tombol Buat Room Custom di Modal
 if (modalBtnCreateRoom) {
     modalBtnCreateRoom.addEventListener("click", async () => {
+        if (typeof window.requireFirebaseAuth === 'function') {
+            if (!window.requireFirebaseAuth("Multiplayer Custom Room")) {
+                return;
+            }
+        }
         closeGameSetupModal();
         AudioSFX.fanfare();
         await createRoom(selectedGameType, selectedMode, selectedRounds, selectedMaxPlayers, selectedTimerSeconds, false);

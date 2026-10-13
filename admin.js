@@ -6,7 +6,9 @@ import {
     createUserWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged, 
-    updateProfile 
+    updateProfile,
+    updatePassword,
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -38,6 +40,8 @@ window.firebaseRemove = remove;
 window.firebaseChild = child;
 window.firebaseOnValue = onValue;
 window.firebaseConfig = firebaseConfig;
+window.updatePassword = updatePassword;
+window.sendPasswordResetEmail = sendPasswordResetEmail;
 
 let currentUid = localStorage.getItem("nihongoChatUid");
 let currentEmail = localStorage.getItem("nihongoChatEmail");
@@ -73,31 +77,46 @@ function clearUserSessionData() {
 }
 
 async function initNewUserInCloud(uid, displayName, email) {
+    // Pertahankan kartu & progres yang telah diperoleh di sesi lokal (jangan di-wipe ke [])
+    let localInstances = [];
+    try {
+        const stored = localStorage.getItem("fournity_card_instances_v3");
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) localInstances = parsed;
+        }
+    } catch(e) {}
+
+    let localUnlocked = [];
+    try {
+        const storedUn = localStorage.getItem("fournity_unlocked_cards");
+        if (storedUn) {
+            const parsedUn = JSON.parse(storedUn);
+            if (Array.isArray(parsedUn)) localUnlocked = parsedUn;
+        }
+    } catch(e) {}
+
     const initialUserData = {
         profile: {
             displayName: displayName,
             email: email,
-            avatar: "",
-            avatarRarity: "",
-            avatarSerial: "",
-            photoBase64: "",
+            avatar: localStorage.getItem("fournity_user_avatar") || "",
+            avatarRarity: localStorage.getItem("fournity_avatar_rarity") || "",
+            avatarSerial: localStorage.getItem("fournity_avatar_serial") || "",
+            photoBase64: localStorage.getItem("fournity_user_avatar") || "",
             createdAt: Date.now()
         },
         inventory: {
-            card_instances: [],
-            unlocked_cards: []
+            card_instances: localInstances,
+            unlocked_cards: localUnlocked
         },
         progress: {
-            exp: 80,
-            quest_bonus_exp: 0,
-            checkin_exp: 0,
-            memorized_kanji: []
+            exp: Number(localStorage.getItem("trinity_exp") || 80),
+            quest_bonus_exp: Number(localStorage.getItem("fournity_quest_bonus_exp") || 0),
+            checkin_exp: Number(localStorage.getItem("fournity_checkin_exp") || 0),
+            memorized_kanji: JSON.parse(localStorage.getItem("trinity_memorized_kanji") || "[]")
         },
-        checkin: {
-            streak: 0,
-            lastDate: "",
-            total: 0
-        },
+        checkin: JSON.parse(localStorage.getItem("fournity_checkin_v2") || '{"streak":0,"lastDate":"","total":0}'),
         settings: {
             chat_wallpaper: null
         }
@@ -106,19 +125,11 @@ async function initNewUserInCloud(uid, displayName, email) {
     await set(ref(db, `users/${uid}`), initialUserData);
     await set(ref(db, `user_profiles/${displayName}`), {
         displayName: displayName,
-        photoBase64: "",
+        photoBase64: localStorage.getItem("fournity_user_avatar") || "",
+        avatarRarity: localStorage.getItem("fournity_avatar_rarity") || "",
+        avatarSerial: localStorage.getItem("fournity_avatar_serial") || "",
         uid: uid
     });
-
-    localStorage.setItem("fournity_card_instances_v3", "[]");
-    localStorage.setItem("fournity_unlocked_cards", "[]");
-    localStorage.setItem("trinity_exp", "80");
-    localStorage.setItem("fournity_quest_bonus_exp", "0");
-    localStorage.setItem("fournity_checkin_exp", "0");
-    localStorage.setItem("fournity_checkin_v2", JSON.stringify({ streak: 0, lastDate: "", total: 0 }));
-    localStorage.removeItem("fournity_user_avatar");
-    localStorage.removeItem("fournity_avatar_rarity");
-    localStorage.removeItem("fournity_avatar_serial");
 }
 
 async function loadUserDataFromCloud(user) {
@@ -129,38 +140,56 @@ async function loadUserDataFromCloud(user) {
     try {
         const snap = await get(child(ref(db), `users/${uid}`));
         if (snap.exists()) {
-            const data = snap.val();
+            const data = snap.val() || {};
 
-            // Reset awal bersih agar kartu awal 0 (belum memiliki fotocard)
-            const isUserResetClean = localStorage.getItem("fournity_cloud_reset_" + uid);
-            if (!isUserResetClean) {
+            // 1. Inventory Fotocard (AMAN & PERSISTEN DI SEMUA DOMAIN/DEVICE)
+            // Firebase Cloud adalah Sumber Kebenaran Tunggal (Single Source of Truth)
+            const cloudInstances = (data.inventory?.card_instances && Array.isArray(data.inventory.card_instances))
+                ? data.inventory.card_instances
+                : [];
+
+            let localInstances = [];
+            try {
+                const storedLocal = localStorage.getItem("fournity_card_instances_v3");
+                if (storedLocal) {
+                    const parsed = JSON.parse(storedLocal);
+                    if (Array.isArray(parsed)) localInstances = parsed;
+                }
+            } catch(e) {}
+
+            // Penggabungan non-destruktif dengan kunci unik (instanceId / serialNo)
+            const mergedMap = new Map();
+            cloudInstances.forEach(item => {
+                if (item) {
+                    const key = item.instanceId || item.serialNo || (item.cardId ? `${item.cardId}_${item.serialNo || ''}` : JSON.stringify(item));
+                    mergedMap.set(key, item);
+                }
+            });
+
+            let hasNewLocalCards = false;
+            localInstances.forEach(item => {
+                if (item) {
+                    const key = item.instanceId || item.serialNo || (item.cardId ? `${item.cardId}_${item.serialNo || ''}` : JSON.stringify(item));
+                    if (!mergedMap.has(key)) {
+                        mergedMap.set(key, item);
+                        hasNewLocalCards = true;
+                    }
+                }
+            });
+
+            const finalInstances = Array.from(mergedMap.values());
+            localStorage.setItem("fournity_card_instances_v3", JSON.stringify(finalInstances));
+
+            const finalUnlocked = [...new Set(finalInstances.map(c => c.cardId || c.id).filter(Boolean))];
+            localStorage.setItem("fournity_unlocked_cards", JSON.stringify(finalUnlocked));
+
+            // Jika ada kartu lokal baru yang belum masuk ke cloud, simpan ke cloud
+            if (hasNewLocalCards && finalInstances.length > 0) {
                 await update(ref(db), {
-                    [`users/${uid}/inventory/card_instances`]: [],
-                    [`users/${uid}/inventory/unlocked_cards`]: [],
-                    [`users/${uid}/profile/avatar`]: "",
-                    [`users/${uid}/profile/avatarRarity`]: "",
-                    [`users/${uid}/profile/avatarSerial`]: "",
-                    [`user_profiles/${displayName}/avatarRarity`]: ""
+                    [`users/${uid}/inventory/card_instances`]: finalInstances,
+                    [`users/${uid}/inventory/unlocked_cards`]: finalUnlocked,
+                    [`users/${uid}/inventory/updatedAt`]: Date.now()
                 });
-                localStorage.setItem("fournity_cloud_reset_" + uid, "true");
-                localStorage.setItem("fournity_card_instances_v3", "[]");
-                localStorage.setItem("fournity_unlocked_cards", "[]");
-                localStorage.removeItem("fournity_user_avatar");
-                localStorage.removeItem("fournity_avatar_rarity");
-                localStorage.removeItem("fournity_avatar_serial");
-                localStorage.removeItem(`avatar_${displayName}`);
-                localStorage.removeItem(`avatar_rarity_${displayName}`);
-                localStorage.removeItem(`avatar_serial_${displayName}`);
-                return;
-            }
-
-            // 1. Inventory Fotocard (ISOLATED PER USER)
-            if (data.inventory?.card_instances && Array.isArray(data.inventory.card_instances)) {
-                localStorage.setItem("fournity_card_instances_v3", JSON.stringify(data.inventory.card_instances));
-                localStorage.setItem("fournity_unlocked_cards", JSON.stringify(data.inventory.unlocked_cards || []));
-            } else {
-                localStorage.setItem("fournity_card_instances_v3", "[]");
-                localStorage.setItem("fournity_unlocked_cards", "[]");
             }
 
             // 2. Avatar & Efek Profil
@@ -171,10 +200,15 @@ async function loadUserDataFromCloud(user) {
                 localStorage.setItem(`avatar_${displayName}`, data.profile.avatar);
                 localStorage.setItem(`avatar_rarity_${displayName}`, data.profile.avatarRarity || "");
                 localStorage.setItem(`avatar_serial_${displayName}`, data.profile.avatarSerial || "");
-            } else {
-                localStorage.removeItem("fournity_user_avatar");
-                localStorage.removeItem("fournity_avatar_rarity");
-                localStorage.removeItem("fournity_avatar_serial");
+            } else if (localStorage.getItem("fournity_user_avatar")) {
+                const localAv = localStorage.getItem("fournity_user_avatar");
+                const localRarity = localStorage.getItem("fournity_avatar_rarity") || "";
+                const localSerial = localStorage.getItem("fournity_avatar_serial") || "";
+                await update(ref(db), {
+                    [`users/${uid}/profile/avatar`]: localAv,
+                    [`users/${uid}/profile/avatarRarity`]: localRarity,
+                    [`users/${uid}/profile/avatarSerial`]: localSerial
+                });
             }
 
             // 3. Progres EXP & Misi
@@ -800,6 +834,237 @@ if (logoutBtn) {
         clearUserSessionData();
         window.location.reload();
     });
+}
+
+// ==========================================
+// 2.5 FITUR UBAH SANDI & LUPA KATA SANDI (FIREBASE AUTH)
+// ==========================================
+
+function setupPasswordManagement() {
+    // 1. Ubah Kata Sandi dari Modal Profil (Logged-in User)
+    const btnUpdatePassword = document.getElementById("btnUpdatePassword");
+    const profileNewPasswordInput = document.getElementById("profileNewPasswordInput");
+    const profilePasswordMsg = document.getElementById("profilePasswordMsg");
+
+    if (btnUpdatePassword && profileNewPasswordInput) {
+        btnUpdatePassword.addEventListener("click", async () => {
+            const newPass = profileNewPasswordInput.value.trim();
+            if (!newPass) {
+                if (profilePasswordMsg) {
+                    profilePasswordMsg.style.color = "#FF453A";
+                    profilePasswordMsg.textContent = "Ketik kata sandi baru terlebih dahulu.";
+                }
+                return;
+            }
+            if (newPass.length < 6) {
+                if (profilePasswordMsg) {
+                    profilePasswordMsg.style.color = "#FF453A";
+                    profilePasswordMsg.textContent = "Kata sandi minimal 6 karakter (ketentuan Firebase Auth)!";
+                }
+                return;
+            }
+
+            if (!auth.currentUser) {
+                if (profilePasswordMsg) {
+                    profilePasswordMsg.style.color = "#FF453A";
+                    profilePasswordMsg.textContent = "Sesi autentikasi tidak aktif. Silakan masuk kembali.";
+                }
+                return;
+            }
+
+            btnUpdatePassword.disabled = true;
+            btnUpdatePassword.textContent = "PROSES...";
+            if (profilePasswordMsg) {
+                profilePasswordMsg.style.color = "#FFB703";
+                profilePasswordMsg.textContent = "Memperbarui kata sandi di cloud Firebase...";
+            }
+
+            try {
+                await updatePassword(auth.currentUser, newPass);
+                profileNewPasswordInput.value = "";
+                if (profilePasswordMsg) {
+                    profilePasswordMsg.style.color = "#34C759";
+                    profilePasswordMsg.textContent = "✓ Kata sandi akun berhasil diperbarui!";
+                }
+                if (typeof window.showToast === 'function') {
+                    window.showToast("🔒 Kata sandi akun berhasil diubah!");
+                }
+            } catch(err) {
+                let msg = "Gagal mengubah kata sandi: " + err.message;
+                if (err.code === "auth/requires-recent-login") {
+                    msg = "Sesi login kedaluwarsa demi keamanan. Silakan keluar akun lalu masuk lagi sebelum mengubah sandi.";
+                } else if (err.code === "auth/weak-password") {
+                    msg = "Kata sandi terlalu lemah (minimal 6 karakter)!";
+                }
+                if (profilePasswordMsg) {
+                    profilePasswordMsg.style.color = "#FF453A";
+                    profilePasswordMsg.textContent = msg;
+                }
+            } finally {
+                btnUpdatePassword.disabled = false;
+                btnUpdatePassword.textContent = "Ubah";
+            }
+        });
+    }
+
+    // 2. Lupa Kata Sandi (Kirim Email Pemulihan dari Modal Login)
+    const btnForgotPassword = document.getElementById("btnForgotPassword");
+    if (btnForgotPassword) {
+        btnForgotPassword.addEventListener("click", async () => {
+            const emailInput = document.getElementById("loginEmail") || document.getElementById("loginUsername");
+            let targetEmail = emailInput ? emailInput.value.trim() : "";
+            if (!targetEmail || !targetEmail.includes("@")) {
+                targetEmail = prompt("Ketik alamat email terdaftar akun Fournity Anda untuk menerima email reset kata sandi:");
+            }
+            if (!targetEmail || !targetEmail.trim()) return;
+            targetEmail = targetEmail.trim();
+
+            try {
+                await sendPasswordResetEmail(auth, targetEmail);
+                alert(`📧 Tautan pemulihan kata sandi telah dikirim ke: ${targetEmail}\nSilakan periksa kotak masuk atau spam email Anda.`);
+            } catch(err) {
+                let msg = "Gagal mengirim email reset: " + err.message;
+                if (err.code === "auth/user-not-found") msg = "Alamat email tidak terdaftar di Fournity!";
+                else if (err.code === "auth/invalid-email") msg = "Format email tidak valid!";
+                alert(msg);
+            }
+        });
+    }
+}
+
+// Inisialisasi handler password saat DOM siap
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupPasswordManagement);
+} else {
+    setupPasswordManagement();
+}
+
+// ==========================================
+// 2.6 POP-UP WAJIB LOGIN UNTUK FITUR TERKAIT FIREBASE
+// ==========================================
+
+function ensureRequireLoginOverlay() {
+    let overlay = document.getElementById("requireLoginOverlay");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "requireLoginOverlay";
+        overlay.className = "global-login-overlay";
+        overlay.style.display = "none";
+        overlay.style.zIndex = "10007";
+        overlay.innerHTML = `
+            <div class="login-modal require-login-dialog" style="text-align: center; max-width: 380px; position: relative;">
+                <span id="closeRequireLoginModal" class="close-modal" aria-label="Tutup" style="cursor: pointer;">×</span>
+                <div style="font-size: 2.8rem; margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(230,57,70,0.5));">⛩️</div>
+                <h2 id="requireLoginTitle" style="margin-bottom: 8px; font-size: 1.35rem; color: #fff; font-weight: 800;">Wajib Masuk Akun</h2>
+                <p id="requireLoginDesc" style="font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; margin-bottom: 22px;">
+                    Fitur ini terhubung ke cloud database Firebase. Masuk atau buat akun Fournity secara gratis untuk membuka seluruh fitur, menyimpan koleksi fotocard, dan obrolan komunitas.
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button type="button" id="btnGoToLogin" class="btn btn-primary" style="width: 100%; padding: 13px; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(230,57,70,0.4); cursor: pointer;">
+                        MASUK / BUAT AKUN SEKARANG
+                    </button>
+                    <button type="button" id="btnDismissRequireLogin" class="btn btn-secondary" style="width: 100%; padding: 11px; font-size: 13px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #bbb; cursor: pointer;">
+                        Nanti Saja
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    const closeBtn = document.getElementById("closeRequireLoginModal");
+    const dismissBtn = document.getElementById("btnDismissRequireLogin");
+    const goLoginBtn = document.getElementById("btnGoToLogin");
+
+    if (closeBtn && !closeBtn._hasListener) {
+        closeBtn._hasListener = true;
+        closeBtn.addEventListener("click", () => {
+            overlay.style.display = "none";
+        });
+    }
+
+    if (dismissBtn && !dismissBtn._hasListener) {
+        dismissBtn._hasListener = true;
+        dismissBtn.addEventListener("click", () => {
+            overlay.style.display = "none";
+        });
+    }
+
+    if (goLoginBtn && !goLoginBtn._hasListener) {
+        goLoginBtn._hasListener = true;
+        goLoginBtn.addEventListener("click", () => {
+            overlay.style.display = "none";
+            window.openLoginModal();
+        });
+    }
+
+    if (!overlay._hasListener) {
+        overlay._hasListener = true;
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) overlay.style.display = "none";
+        });
+    }
+}
+
+window.requireFirebaseAuth = function(featureName = "Fitur Cloud Fournity", callback = null) {
+    const isAuthed = !!(auth.currentUser || localStorage.getItem("nihongoChatUid"));
+    if (isAuthed) {
+        if (typeof callback === 'function') callback();
+        return true;
+    }
+    window.showRequireLoginPopup(featureName, callback);
+    return false;
+};
+
+window.showRequireLoginPopup = function(featureName = "Fitur Cloud Fournity", callback = null) {
+    window._pendingAuthCallback = callback;
+    ensureRequireLoginOverlay();
+    const overlay = document.getElementById("requireLoginOverlay");
+    const desc = document.getElementById("requireLoginDesc");
+    const title = document.getElementById("requireLoginTitle");
+    if (title) title.textContent = `Akses Terkunci: ${featureName}`;
+    if (desc) {
+        desc.innerHTML = `Fitur <strong>${featureName}</strong> terhubung langsung ke Firebase Cloud. Silakan masuk atau buat akun Fournity terlebih dahulu agar data, koleksi fotocard, dan progres belajarmu tersimpan otomatis di cloud.`;
+    }
+    if (overlay) overlay.style.display = "flex";
+};
+
+window.closeRequireLoginPopup = function() {
+    const overlay = document.getElementById("requireLoginOverlay");
+    if (overlay) overlay.style.display = "none";
+};
+
+window.openLoginModal = function() {
+    window.closeRequireLoginPopup();
+    const loginOverlay = document.getElementById("globalLoginOverlay");
+    if (loginOverlay) {
+        loginOverlay.style.display = "flex";
+        const guestPrompt = document.getElementById("guestPromptPopup");
+        if (guestPrompt) guestPrompt.style.display = "none";
+    } else {
+        const isPages = window.location.pathname.includes('/pages/');
+        const targetUrl = isPages ? "../index.html?login=1" : "index.html?login=1";
+        window.location.href = targetUrl;
+    }
+};
+
+// Auto-buka modal login jika parameter URL ?login=1 ada
+if (typeof window !== "undefined") {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("login") === "1" && !currentUid) {
+            setTimeout(() => {
+                const loginOverlay = document.getElementById("globalLoginOverlay");
+                if (loginOverlay) loginOverlay.style.display = "flex";
+            }, 300);
+        }
+    } catch(e) {}
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ensureRequireLoginOverlay);
+} else {
+    ensureRequireLoginOverlay();
 }
 
 // ==========================================
