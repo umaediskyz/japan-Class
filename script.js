@@ -1422,26 +1422,17 @@ function syncMainTopHeaderProfile() {
 
     const hasAuthUid = !!localStorage.getItem("nihongoChatUid");
     let user = localStorage.getItem("nihongoChatUser");
-    const legacyMockUsers = ["umaedi", "iqbal", "rifki", "fasya"];
-    if (!hasAuthUid && user && (legacyMockUsers.includes(user.toLowerCase()) || user.startsWith("Gakusei_"))) {
-        localStorage.removeItem("nihongoChatUser");
-        localStorage.removeItem("fournity_user_avatar");
-        localStorage.removeItem("fournity_custom_avatar");
-        localStorage.removeItem("fournity_avatar_rarity");
-        localStorage.removeItem("fournity_avatar_serial");
-        user = null;
-    }
 
-    const customPhoto = hasAuthUid ? localStorage.getItem("fournity_custom_avatar") : null;
-    const cardAvatar = hasAuthUid ? localStorage.getItem("fournity_user_avatar") : null;
-    const userStoredAvatar = (hasAuthUid && user) ? localStorage.getItem(`avatar_${user}`) : null;
-    const profileFromDb = (hasAuthUid && window.userProfiles && user && window.userProfiles[user]) ? window.userProfiles[user].photoBase64 : null;
+    const customPhoto = localStorage.getItem("fournity_custom_avatar");
+    const cardAvatar = localStorage.getItem("fournity_user_avatar");
+    const userStoredAvatar = user ? localStorage.getItem(`avatar_${user}`) : null;
+    const profileFromDb = (window.userProfiles && user && window.userProfiles[user]) ? window.userProfiles[user].photoBase64 : null;
     const equippedAvatar = cardAvatar || customPhoto || userStoredAvatar || profileFromDb || window.newPhotoBase64;
-    const equippedRarity = hasAuthUid ? (localStorage.getItem("fournity_avatar_rarity") || (user ? localStorage.getItem(`avatar_rarity_${user}`) : null)) : null;
+    const equippedRarity = localStorage.getItem("fournity_avatar_rarity") || (user ? localStorage.getItem(`avatar_rarity_${user}`) : null);
 
     // Update Text Username di Header
     if (topText) {
-        if (hasAuthUid && user) {
+        if (user) {
             topText.textContent = user;
         } else {
             topText.textContent = "Login";
@@ -2073,6 +2064,94 @@ function setupKanjiRadarWidget() {
 
 // Koleksi Fotocard Terintegrasi Firebase Realtime DB (Non-Destruktif)
 
+const DEFAULT_STARTER_CARDS = [
+    {
+        id: "card_lagend_01",
+        cardId: "card_lagend_01",
+        instanceId: "inst_starter_lg01",
+        name: "Lagend Card · Vol. 01",
+        kanjiName: "神話の章 · 第一号",
+        rarity: "legendary",
+        image: "gambar/fotocard/lagend/card1.png",
+        kanjiSeal: "神話",
+        serialNo: "#FN-LG-0001",
+        versionCode: "Ver. 1.0 · Founder Print",
+        kanjiQuote: "「継続は力なり」",
+        romajiQuote: "Keizoku wa chikara nari.",
+        idQuote: "Ketekunan dan konsistensi adalah kunci kekuatan sejati.",
+        desc: "Kartu koleksi resmi edisi ketekunan Founder Fournity. Melambangkan dedikasi tanpa henti dalam menguasai bahasa dan budaya Jepang.",
+        mintDate: "13 Okt 2026"
+    },
+    {
+        id: "card_lagend_02",
+        cardId: "card_lagend_02",
+        instanceId: "inst_starter_lg02",
+        name: "Lagend Card · Vol. 02",
+        kanjiName: "極光の章 · 第二号",
+        rarity: "legendary",
+        image: "gambar/fotocard/lagend/card2.png",
+        kanjiSeal: "極光",
+        serialNo: "#FN-LG-0002",
+        versionCode: "Ver. 1.0 · Founder Print",
+        kanjiQuote: "「一期一会」",
+        romajiQuote: "Ichigo ichie.",
+        idQuote: "Setiap momen dan pertemuan adalah anugerah berharga tak tergantikan.",
+        desc: "Kartu koleksi edisi kenangan berharga. Mengabadikan setiap jengkal proses belajar dan kehangatan kelas bersama Sensei.",
+        mintDate: "13 Okt 2026"
+    },
+    {
+        id: "card_ur_01",
+        cardId: "card_ur_01",
+        instanceId: "inst_starter_ur01",
+        name: "Ultra Rare Card · Vol. 01",
+        kanjiName: "幽玄の章 · 第一号",
+        rarity: "ultra_rare",
+        image: "gambar/fotocard/ultra_rare/card1.png",
+        kanjiSeal: "幽玄",
+        serialNo: "#FN-UR-1001",
+        versionCode: "Ver. 1.0 · First Print",
+        kanjiQuote: "「日日是好日」",
+        romajiQuote: "Nichinichi kore koujitsu.",
+        idQuote: "Setiap hari yang dijalani adalah hari yang baik dan berharga.",
+        desc: "Kartu koleksi edisi kedamaian batin. Merayakan indahnya proses menikmati pembelajaran budaya Jepang dengan hati tenang.",
+        mintDate: "13 Okt 2026"
+    },
+    {
+        id: "card_ur_02",
+        cardId: "card_ur_02",
+        instanceId: "inst_starter_ur02",
+        name: "Ultra Rare Card · Vol. 02",
+        kanjiName: "金閣の章 · 第二号",
+        rarity: "ultra_rare",
+        image: "gambar/fotocard/ultra_rare/card2.png",
+        kanjiSeal: "金閣",
+        serialNo: "#FN-UR-1002",
+        versionCode: "Ver. 1.1 · Special Print",
+        kanjiQuote: "「千里の道も一歩から」",
+        romajiQuote: "Senri no michi mo ippo kara.",
+        idQuote: "Perjalanan seribu mil selalu dimulai dari satu langkah kecil.",
+        desc: "Kartu koleksi edisi langkah awal. Mengapresiasi keberanian melangkah dari pengenalan huruf kana hingga fasih berkomunikasi.",
+        mintDate: "13 Okt 2026"
+    },
+    {
+        id: "card_rare_01",
+        cardId: "card_rare_01",
+        instanceId: "inst_starter_r01",
+        name: "Rare Card · Vol. 01",
+        kanjiName: "風雅の章 · 第一号",
+        rarity: "rare",
+        image: "gambar/fotocard/rare/card1.png",
+        kanjiSeal: "風雅",
+        serialNo: "#FN-R-2001",
+        versionCode: "Ver. 1.0 · Standard Print",
+        kanjiQuote: "「七転び八起き」",
+        romajiQuote: "Nanakorobi yaoki.",
+        idQuote: "Jatuh tujuh kali, bangkit delapan kali.",
+        desc: "Filosofi ketangguhan jiwa. Setiap kegagalan adalah guru terbaik untuk melompat lebih tinggi.",
+        mintDate: "13 Okt 2026"
+    }
+];
+
 function getOwnedCardInstances() {
     try {
         const stored = localStorage.getItem("fournity_card_instances_v3");
@@ -2083,9 +2162,19 @@ function getOwnedCardInstances() {
                 return parsed.map(resolveCardData);
             }
         }
-        return [];
+        // Auto-restitusi paket kartu awal agar pengguna tidak pernah kehilangan koleksi
+        const starter = DEFAULT_STARTER_CARDS.map(resolveCardData);
+        localStorage.setItem("fournity_card_instances_v3", JSON.stringify(starter));
+        const uniqueIds = [...new Set(starter.map(inst => inst.cardId || inst.id))];
+        localStorage.setItem("fournity_unlocked_cards", JSON.stringify(uniqueIds));
+        if (!localStorage.getItem("fournity_user_avatar")) {
+            localStorage.setItem("fournity_user_avatar", "gambar/fotocard/lagend/card1.png");
+            localStorage.setItem("fournity_avatar_rarity", "legendary");
+            localStorage.setItem("fournity_avatar_serial", "#FN-LG-0001");
+        }
+        return starter;
     } catch(e) {
-        return [];
+        return DEFAULT_STARTER_CARDS.map(resolveCardData);
     }
 }
 
@@ -2359,11 +2448,6 @@ function setupDailyCheckin() {
     window.renderCheckinUI = renderCheckinUI;
 
     window.openCheckinModal = function() {
-        if (typeof window.requireFirebaseAuth === 'function') {
-            if (!window.requireFirebaseAuth("Check-In Harian", () => window.openCheckinModal())) {
-                return;
-            }
-        }
         modal.style.display = "flex";
         renderCheckinUI();
         if (countdownTimer) clearInterval(countdownTimer);
@@ -2390,11 +2474,6 @@ function setupDailyCheckin() {
     });
 
     claimBtn?.addEventListener("click", () => {
-        if (typeof window.requireFirebaseAuth === 'function') {
-            if (!window.requireFirebaseAuth("Check-In Harian")) {
-                return;
-            }
-        }
         if (isClaiming) return;
 
         const data = getCheckinData();
@@ -2490,11 +2569,6 @@ function setupDailyCheckin() {
 
 // 2. DROP RANDOM CARD GACHA LOGIC (MENDUKUNG KARTU KEMBAR DENGAN KODE SERI & DESKRIPSI UNIK)
 function dropRandomCard(options = {}) {
-    if (typeof window.requireFirebaseAuth === 'function') {
-        if (!window.requireFirebaseAuth("Koleksi Foto Card", () => dropRandomCard(options))) {
-            return null;
-        }
-    }
     const instances = getOwnedCardInstances();
     let candidates = CARDS_DATABASE;
 
@@ -2661,11 +2735,6 @@ function setupPhotoCardCollection() {
     });
 
     window.openCardAlbumModal = function() {
-        if (typeof window.requireFirebaseAuth === 'function') {
-            if (!window.requireFirebaseAuth("Koleksi Foto Card", () => window.openCardAlbumModal())) {
-                return;
-            }
-        }
         showPhotocardModal("cardAlbumModal", { clearHistory: true });
         renderAlbum("all");
     };
@@ -3107,11 +3176,6 @@ function initCardGiftingSystem() {
 
     // 2. Fungsi Buka Modal Kirim Kartu
     window.openSendCardModal = function(cardParam = null) {
-        if (typeof window.requireFirebaseAuth === 'function') {
-            if (!window.requireFirebaseAuth("Kirim Foto Card", () => window.openSendCardModal(cardParam))) {
-                return;
-            }
-        }
         const instances = getOwnedCardInstances();
         if (!instances || instances.length === 0) {
             showToast("⚠️ Kamu belum memiliki kartu untuk dikirim. Dapatkan kartu dari Check-In atau Misi!");
@@ -3473,11 +3537,6 @@ function initCardGiftingSystem() {
 
     // 7. Klaim Kode Hadiah (Redeem)
     window.openRedeemCodeModal = function() {
-        if (typeof window.requireFirebaseAuth === 'function') {
-            if (!window.requireFirebaseAuth("Klaim Kode Hadiah", () => window.openRedeemCodeModal())) {
-                return;
-            }
-        }
         if (inputRedeemCode) inputRedeemCode.value = "";
         showPhotocardModal("redeemCodeModal", { saveHistory: true });
     };
@@ -3623,11 +3682,6 @@ function initCardGiftingSystem() {
 
     // Modal Kotak Hadiah
     window.openGiftInboxModal = function() {
-        if (typeof window.requireFirebaseAuth === 'function') {
-            if (!window.requireFirebaseAuth("Kotak Hadiah", () => window.openGiftInboxModal())) {
-                return;
-            }
-        }
         checkIncomingGifts();
         showToast("📬 Memeriksa kiriman kartu terbaru dari teman...");
     };

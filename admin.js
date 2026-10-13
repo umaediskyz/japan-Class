@@ -47,33 +47,11 @@ let currentUid = localStorage.getItem("nihongoChatUid");
 let currentEmail = localStorage.getItem("nihongoChatEmail");
 let currentUser = localStorage.getItem("nihongoChatUser");
 
-// Auto-reset akun sistem lama (Iqbal, Fasya, Rifki, Umaedi) jika tidak memiliki sesi Firebase Auth yang sah
-const legacyMockUsers = ["umaedi", "iqbal", "rifki", "fasya"];
-if (!currentUid && currentUser && (legacyMockUsers.includes(currentUser.toLowerCase()) || currentUser.startsWith("Gakusei_"))) {
-    clearUserSessionData();
-    currentUser = null;
-    currentUid = null;
-    currentEmail = null;
-}
-
-// ==========================================
-// 1. HELPER SINKRONISASI DATA PER-AKUN (ISOLASI USER)
-// ==========================================
-
+// Jaga persistensi sesi lokal & kartu pengguna
 function clearUserSessionData() {
     localStorage.removeItem("nihongoChatUid");
     localStorage.removeItem("nihongoChatEmail");
-    localStorage.removeItem("nihongoChatUser");
-    localStorage.removeItem("fournity_card_instances_v3");
-    localStorage.removeItem("fournity_unlocked_cards");
-    localStorage.removeItem("fournity_user_avatar");
-    localStorage.removeItem("fournity_avatar_rarity");
-    localStorage.removeItem("fournity_avatar_serial");
-    localStorage.removeItem("fournity_checkin_v2");
-    localStorage.removeItem("trinity_exp");
-    localStorage.removeItem("fournity_quest_bonus_exp");
-    localStorage.removeItem("fournity_checkin_exp");
-    localStorage.removeItem("fournity_chat_wallpaper");
+    // Catatan: Kartu (fournity_card_instances_v3), avatar, dan progres lokal tetap dijaga aman agar tidak hilang saat logout
 }
 
 async function initNewUserInCloud(uid, displayName, email) {
@@ -606,25 +584,28 @@ onAuthStateChanged(auth, async (user) => {
         if (typeof window.checkAndUpdateDailyQuests === 'function') window.checkAndUpdateDailyQuests();
         if (typeof window.renderShowcaseSlider === 'function') window.renderShowcaseSlider();
     } else {
-        // Mode Guest (Belum Login)
-        currentUser = null;
+        // Mode Tamu / Belum Login Aktif
         currentUid = null;
         currentEmail = null;
+        currentUser = localStorage.getItem("nihongoChatUser") || null;
         localStorage.removeItem("nihongoChatUid");
         localStorage.removeItem("nihongoChatEmail");
-        const storedUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase();
-        if (["umaedi", "iqbal", "rifki", "fasya"].includes(storedUser) || storedUser.startsWith("gakusei_")) {
-            localStorage.removeItem("nihongoChatUser");
-            localStorage.removeItem("fournity_user_avatar");
-            localStorage.removeItem("fournity_custom_avatar");
-        }
 
-        if (topText) topText.textContent = "Login";
+        if (topText) topText.textContent = currentUser || "Login";
         if (topAvatar) {
-            topAvatar.style.display = "none";
-            topAvatar.src = "gambar/icon.png";
+            const cardAvatar = localStorage.getItem("fournity_user_avatar");
+            const customAvatar = localStorage.getItem("fournity_custom_avatar");
+            const finalAvatar = cardAvatar || customAvatar;
+            if (finalAvatar) {
+                topAvatar.src = finalAvatar;
+                topAvatar.style.display = "block";
+                if (topIcon) topIcon.style.display = "none";
+            } else {
+                topAvatar.style.display = "none";
+                topAvatar.src = "gambar/icon.png";
+                if (topIcon) topIcon.style.display = "block";
+            }
         }
-        if (topIcon) topIcon.style.display = "block";
         if (adminToggleBtn) adminToggleBtn.style.display = "none";
         if (profileEmailDisplay) profileEmailDisplay.textContent = "";
 
@@ -976,18 +957,23 @@ function ensureRequireLoginOverlay() {
     const dismissBtn = document.getElementById("btnDismissRequireLogin");
     const goLoginBtn = document.getElementById("btnGoToLogin");
 
+    const handleDismiss = () => {
+        overlay.style.display = "none";
+        if (typeof window._pendingAuthCallback === 'function') {
+            const cb = window._pendingAuthCallback;
+            window._pendingAuthCallback = null;
+            try { cb(); } catch(err) { console.warn("Pending callback err:", err); }
+        }
+    };
+
     if (closeBtn && !closeBtn._hasListener) {
         closeBtn._hasListener = true;
-        closeBtn.addEventListener("click", () => {
-            overlay.style.display = "none";
-        });
+        closeBtn.addEventListener("click", handleDismiss);
     }
 
     if (dismissBtn && !dismissBtn._hasListener) {
         dismissBtn._hasListener = true;
-        dismissBtn.addEventListener("click", () => {
-            overlay.style.display = "none";
-        });
+        dismissBtn.addEventListener("click", handleDismiss);
     }
 
     if (goLoginBtn && !goLoginBtn._hasListener) {
@@ -1001,14 +987,19 @@ function ensureRequireLoginOverlay() {
     if (!overlay._hasListener) {
         overlay._hasListener = true;
         overlay.addEventListener("click", (e) => {
-            if (e.target === overlay) overlay.style.display = "none";
+            if (e.target === overlay) handleDismiss();
         });
     }
 }
 
-window.requireFirebaseAuth = function(featureName = "Fitur Cloud Fournity", callback = null) {
+window.requireFirebaseAuth = function(featureName = "Fitur Cloud Fournity", callback = null, strict = false) {
     const isAuthed = !!(auth.currentUser || localStorage.getItem("nihongoChatUid"));
     if (isAuthed) {
+        if (typeof callback === 'function') callback();
+        return true;
+    }
+    if (!strict) {
+        // Akses fitur lokal tetap diizinkan agar halaman tidak terkunci
         if (typeof callback === 'function') callback();
         return true;
     }

@@ -10,19 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        // Bersihkan deteksi sesi akun sistem lama (Iqbal, Fasya, Rifki, Umaedi tanpa Firebase Auth)
-        (function() {
-            const authUid = localStorage.getItem("nihongoChatUid");
-            const legacyUsers = ["umaedi", "iqbal", "rifki", "fasya"];
-            const rawUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase();
-            if (!authUid && (legacyUsers.includes(rawUser) || rawUser.startsWith("gakusei_"))) {
-                localStorage.removeItem("nihongoChatUser");
-                localStorage.removeItem("fournity_user_avatar");
-                localStorage.removeItem("fournity_custom_avatar");
-            }
-        })();
-    </script>
+
 </head>
 <body class="message-page ios-theme">
     <main class="message-layout ios-layout">

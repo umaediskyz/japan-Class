@@ -18,24 +18,13 @@ const chatBox = document.getElementById("chatBox");
 const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
 const sessionKey = "nihongoChatUser";
-const legacyMockUsers = ["umaedi", "iqbal", "rifki", "fasya"];
 const authedUid = localStorage.getItem("nihongoChatUid");
 const authedEmail = (localStorage.getItem("nihongoChatEmail") || "").toLowerCase();
 
 let currentUser = localStorage.getItem(sessionKey);
 
-// Bersihkan akun mock sistem lama jika tidak memiliki sesi login Firebase Auth yang sah
-if (!authedUid && currentUser && (legacyMockUsers.includes(currentUser.toLowerCase()) || currentUser.startsWith("Gakusei_"))) {
-    localStorage.removeItem(sessionKey);
-    localStorage.removeItem("fournity_user_avatar");
-    localStorage.removeItem("fournity_custom_avatar");
-    localStorage.removeItem("fournity_avatar_rarity");
-    localStorage.removeItem("fournity_avatar_serial");
-    currentUser = null;
-}
-
 if (!currentUser) {
-    currentUser = authedUid ? (localStorage.getItem("nihongoChatUser") || "Member Fournity") : "Tamu";
+    currentUser = authedUid ? (localStorage.getItem("nihongoChatUser") || "Member Fournity") : "Gakusei Fournity";
     localStorage.setItem(sessionKey, currentUser);
 }
 
@@ -1079,13 +1068,6 @@ if (coreAccessDeniedModal) {
 // SWITCH ROOM (PUBLIC / SENSEI / SHIRITORI / CORE)
 // ==========================================
 window.openRoom = function(type) {
-    if (type !== "sensei") {
-        if (typeof window.requireFirebaseAuth === 'function') {
-            if (!window.requireFirebaseAuth("Obrolan Chat Komunitas", () => window.openRoom(type))) {
-                return;
-            }
-        }
-    }
 
     if (type === "core" && !isCore) {
         showCoreAccessDeniedModal();
