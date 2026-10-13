@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Trinity | Hiburan & Zen Lounge (娯楽)</title>
-    <meta name="description" content="Ruang santai budaya Jepang Nihongo Trinity: Kyoto Ambient Soundscape, ramalan Kuil Omikuji harian, game interaktif, anime pilihan, dan musik lofi.">
+    <title>Nihongo Fournity | Hiburan & Zen Lounge (娯楽)</title>
+    <meta name="description" content="Ruang santai budaya Jepang Nihongo Fournity: Kyoto Ambient Soundscape, ramalan Kuil Omikuji harian, game interaktif, anime pilihan, dan musik lofi.">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/hiburan.css">
+    <link rel="stylesheet" href="../css/multiplayer.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -34,264 +35,354 @@
         </header>
 
         <!-- ==========================================================================
-             FEATURE 1: KYOTO AMBIENT ZEN SOUNDSCAPE GENERATOR (Web Audio Procedural)
+             APP GRID LAUNCHER (BERBARIS RAPIH SEPERTI APLIKASI DENGAN LOGO & NAMA)
              ========================================================================== -->
-        <section class="soundscape-dock" id="soundscapeDock" aria-label="Generator Suara Alam Zen Kyoto">
-            <div class="soundscape-head">
-                <div class="soundscape-title-box">
-                    <div class="soundscape-icon" aria-hidden="true">🍵</div>
-                    <div>
-                        <h2 class="soundscape-title">Kyoto Zen Soundscape (自然環境音)</h2>
-                        <p class="soundscape-sub">Generator audio relaksasi sintetis murni browser — fokus dan tenangkan pikiran.</p>
-                    </div>
+        <section class="hiburan-launcher-section" aria-label="Menu Aplikasi Hiburan">
+            <div class="hiburan-section-header">
+                <div class="hiburan-section-title-box">
+                    <span>📱</span>
+                    <span>Pusat Menu Hiburan (娯楽アプリ)</span>
                 </div>
-
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="eq-bars" id="eqBars" title="Indikator Gelombang Suara">
-                        <span class="eq-bar"></span>
-                        <span class="eq-bar"></span>
-                        <span class="eq-bar"></span>
-                        <span class="eq-bar"></span>
-                        <span class="eq-bar"></span>
-                    </div>
-                    <button class="master-play-btn" id="masterPlayBtn" type="button">
-                        <span id="masterPlayIcon">▶</span>
-                        <span id="masterPlayText">Putar Suara Zen</span>
-                    </button>
-                </div>
+                <span class="hiburan-section-count">8 Menu Tersedia</span>
             </div>
 
-            <!-- 4 Sound Channels -->
-            <div class="sound-channels-grid">
-                <!-- Channel 1: Rain -->
-                <button class="channel-btn is-active" id="chanRain" data-channel="rain" type="button">
-                    <span class="channel-icon">🌧️</span>
-                    <div class="channel-info">
-                        <span class="channel-name">Hujan Kyoto (雨)</span>
-                        <span class="channel-sub">Rintik tenang pelataran kuil</span>
-                    </div>
-                    <span class="channel-status"></span>
-                </button>
+            <div class="hiburan-apps-grid">
+                <!-- App 0: Kaiwa Live Video Call -->
+                <a href="pesan.html?tab=calls" class="hiburan-app-item" id="appKaiwaLive">
+                    <span class="hiburan-app-badge badge-live">● Video Call</span>
+                    <div class="hiburan-app-icon-wrap" style="background: rgba(52, 199, 89, 0.2); color: #34C759; border: 1.5px solid rgba(52, 199, 89, 0.45);">📞</div>
+                    <span class="hiburan-app-kanji">生会話・直話</span>
+                    <h2 class="hiburan-app-name">Kaiwa Live Call</h2>
+                    <span class="hiburan-app-sub">Simulasi video call telpon langsung iOS</span>
+                </a>
 
-                <!-- Channel 2: Bamboo Wind -->
-                <button class="channel-btn is-active" id="chanWind" data-channel="wind" type="button">
-                    <span class="channel-icon">🎋</span>
-                    <div class="channel-info">
-                        <span class="channel-name">Angin Arashiyama (風)</span>
-                        <span class="channel-sub">Desau semilir rumpun bambu</span>
-                    </div>
-                    <span class="channel-status"></span>
-                </button>
+                <!-- App 1: Multiplayer Game Arena Hub -->
+                <a href="multiplayer.html" class="hiburan-app-item" id="appMultiplayer">
+                    <span class="hiburan-app-badge badge-live">● Live Arena</span>
+                    <div class="hiburan-app-icon-wrap icon-theme-battle">⚔️</div>
+                    <span class="hiburan-app-kanji">マルチプレイヤー</span>
+                    <h2 class="hiburan-app-name">Game Multiplayer</h2>
+                    <span class="hiburan-app-sub">Duel online, tebak kana, kanji &amp; janken</span>
+                </a>
 
-                <!-- Channel 3: Temple Bell -->
-                <button class="channel-btn" id="chanBell" data-channel="bell" type="button">
-                    <span class="channel-icon">🔔</span>
-                    <div class="channel-info">
-                        <span class="channel-name">Genta Kuil Suzu (鐘)</span>
-                        <span class="channel-sub">Denting damai perenungan</span>
-                    </div>
-                    <span class="channel-status"></span>
-                </button>
+                <!-- App 2: Game Corner -->
+                <a href="game/game.html" class="hiburan-app-item" id="appGameCorner">
+                    <span class="hiburan-app-badge badge-gold">5 Game</span>
+                    <div class="hiburan-app-icon-wrap icon-theme-game">🎮</div>
+                    <span class="hiburan-app-kanji">ゲームコーナー</span>
+                    <h2 class="hiburan-app-name">Game Corner</h2>
+                    <span class="hiburan-app-sub">Jankenpon, Kazuate &amp; tes refleks</span>
+                </a>
 
-                <!-- Channel 4: Takibi Fire -->
-                <button class="channel-btn" id="chanFire" data-channel="fire" type="button">
-                    <span class="channel-icon">🔥</span>
-                    <div class="channel-info">
-                        <span class="channel-name">Api Unggun Takibi (焚火)</span>
-                        <span class="channel-sub">Gemertak hangat kayu malam</span>
-                    </div>
-                    <span class="channel-status"></span>
-                </button>
-            </div>
+                <!-- App 3: Movie & Anime -->
+                <a href="movie/movie.html" class="hiburan-app-item" id="appMovieAnime">
+                    <span class="hiburan-app-badge">Sinema</span>
+                    <div class="hiburan-app-icon-wrap icon-theme-movie">🎬</div>
+                    <span class="hiburan-app-kanji">映画とアニメ</span>
+                    <h2 class="hiburan-app-name">Movie &amp; Anime</h2>
+                    <span class="hiburan-app-sub">Kurasi film &amp; serial mahakarya</span>
+                </a>
 
-            <!-- Soundscape Controls Footer -->
-            <div class="soundscape-controls">
-                <div class="soundscape-presets">
-                    <span style="font-size: 11px; color: var(--japan-gold); font-weight: 700; text-transform: uppercase;">Preset:</span>
-                    <button class="preset-btn" type="button" data-preset="rain-night">🌧️ Hujan Malam</button>
-                    <button class="preset-btn" type="button" data-preset="zen-temple">⛩️ Kuil Damai</button>
-                    <button class="preset-btn" type="button" data-preset="camp-focus">🔥 Fokus Takibi</button>
-                </div>
+                <!-- App 4: J-Pop & Lofi Music -->
+                <a href="musik/musik.html" class="hiburan-app-item" id="appJpopLofi">
+                    <span class="hiburan-app-badge">Playlist</span>
+                    <div class="hiburan-app-icon-wrap icon-theme-music">🎧</div>
+                    <span class="hiburan-app-kanji">音楽とCityPop</span>
+                    <h2 class="hiburan-app-name">J-Pop &amp; Lofi</h2>
+                    <span class="hiburan-app-sub">Alunan santai &amp; City Pop 80s</span>
+                </a>
 
-                <div class="soundscape-actions">
-                    <div class="vol-slider-wrap">
-                        <span>🔉</span>
-                        <input type="range" class="vol-slider" id="masterVolSlider" min="0" max="100" value="65" aria-label="Volume Master Suara">
-                        <span id="volValText">65%</span>
-                    </div>
-                </div>
+                <!-- App 5: Kyoto Zen Soundscape (Interactive Studio) -->
+                <a href="#paneSoundscape" class="hiburan-app-item" data-tab-target="paneSoundscape" id="appZenAudio">
+                    <span class="hiburan-app-badge badge-interactive">Audio</span>
+                    <div class="hiburan-app-icon-wrap icon-theme-zen">🍵</div>
+                    <span class="hiburan-app-kanji">京都自然環境音</span>
+                    <h2 class="hiburan-app-name">Zen Audio</h2>
+                    <span class="hiburan-app-sub">Suara hujan &amp; bambu sintetis</span>
+                </a>
+
+                <!-- App 6: Omikuji Kuil Shinto (Interactive Studio) -->
+                <a href="#paneOmikuji" class="hiburan-app-item" data-tab-target="paneOmikuji" id="appOmikuji">
+                    <span class="hiburan-app-badge badge-gold">Ramalan</span>
+                    <div class="hiburan-app-icon-wrap icon-theme-omikuji">🥠</div>
+                    <span class="hiburan-app-kanji">神社おみくじ</span>
+                    <h2 class="hiburan-app-name">Omikuji Kuil</h2>
+                    <span class="hiburan-app-sub">Kocok nasib &amp; kanji harian</span>
+                </a>
+
+                <!-- App 7: Teka-Teki & Filosofi Budaya (Interactive Studio) -->
+                <a href="#paneCulture" class="hiburan-app-item" data-tab-target="paneCulture" id="appCulture">
+                    <span class="hiburan-app-badge badge-interactive">Budaya</span>
+                    <div class="hiburan-app-icon-wrap icon-theme-culture">🎋</div>
+                    <span class="hiburan-app-kanji">なぞなぞ・木漏れ日</span>
+                    <h2 class="hiburan-app-name">Teka-Teki &amp; Haiku</h2>
+                    <span class="hiburan-app-sub">Nazonazo &amp; filosofi Komorebi</span>
+                </a>
             </div>
         </section>
 
         <!-- ==========================================================================
-             FEATURE 2: KUIL SHINTO OMIKUJI DIGITAL (FORTUNE SHAKER)
+             STUDIO INTERAKTIF (TABBED STAGE - RAPIH, TIDAK MENUMPUK KE BAWAH)
              ========================================================================== -->
-        <section class="omikuji-section" aria-label="Ramalan Kuil Omikuji Harian">
-            <div class="omikuji-layout">
-                <!-- Shaker Box -->
-                <div class="omikuji-shaker-wrap">
-                    <div class="omikuji-cylinder" id="omikujiCylinder" role="button" tabindex="0" title="Klik untuk mengocok tabung Omikuji">
-                        <div class="cylinder-cap"></div>
-                        <div class="omikuji-stick" id="omikujiStick"></div>
-                        <div class="cylinder-kanji">御御籤</div>
-                    </div>
-                    <button class="shake-btn" id="shakeOmikujiBtn" type="button">
-                        <span>🎋</span> Kocok Omikuji Hari Ini
-                    </button>
-                    <span style="font-size: 11px; color: var(--text-secondary); opacity: 0.8;">Klik tabung atau tombol untuk meramal</span>
+        <section class="hiburan-interactive-stage" id="interactiveStage" aria-label="Studio Interaktif">
+            <div class="hiburan-section-header">
+                <div class="hiburan-section-title-box">
+                    <span>⛩️</span>
+                    <span>Studio Interaktif (体験コーナー)</span>
                 </div>
+                <span class="hiburan-section-count">Pilih Tab Fitur</span>
+            </div>
 
-                <!-- Fortune Display Slip -->
-                <div class="omikuji-result-box" id="omikujiResultBox">
-                    <div class="omikuji-placeholder" id="omikujiPlaceholder">
-                        <span style="font-size: 32px; display: block; margin-bottom: 8px;">⛩️</span>
-                        <strong style="color: #fff; font-size: 1rem; display: block; margin-bottom: 4px;">Tarik Nasib &amp; Motivasi Belajarmu</strong>
-                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
-                            Tradisi kuno kuil Shinto Jepang untuk memohon petunjuk. Kocok bambu Omikuji untuk mengetahui keberuntungan, kanji pelindung, dan nasihat belajarmu hari ini.
-                        </p>
-                    </div>
+            <!-- Tab Switcher Navigation -->
+            <div class="hiburan-tabs-nav" role="tablist">
+                <button class="hiburan-tab-btn is-active" type="button" data-tab-target="paneSoundscape" role="tab" aria-selected="true">
+                    <span>🍵</span> <span>Kyoto Zen Audio</span>
+                </button>
+                <button class="hiburan-tab-btn" type="button" data-tab-target="paneOmikuji" role="tab" aria-selected="false">
+                    <span>🥠</span> <span>Omikuji Kuil Shinto</span>
+                </button>
+                <button class="hiburan-tab-btn" type="button" data-tab-target="paneCulture" role="tab" aria-selected="false">
+                    <span>🎋</span> <span>Teka-Teki &amp; Filosofi</span>
+                </button>
+            </div>
 
-                    <div class="fortune-card" id="fortuneCard" aria-live="polite">
-                        <div class="fortune-header">
+            <!-- TAB PANE 1: KYOTO AMBIENT ZEN SOUNDSCAPE GENERATOR -->
+            <div class="hiburan-tab-pane is-active" id="paneSoundscape" role="tabpanel">
+                <div class="soundscape-dock" id="soundscapeDock" aria-label="Generator Suara Alam Zen Kyoto">
+                    <div class="soundscape-head">
+                        <div class="soundscape-title-box">
+                            <div class="soundscape-icon" aria-hidden="true">🍵</div>
                             <div>
-                                <span class="fortune-rank" id="fortuneRankText">大吉</span>
-                                <span class="fortune-rank-label" id="fortuneRankSub">Keberuntungan Sangat Besar</span>
-                            </div>
-                            <div class="fortune-badges">
-                                <span class="fortune-badge" id="fortuneKanjiBadge">Kanji: 「道」 Jalan</span>
-                                <span class="fortune-badge" id="fortuneLuckyNum">Angka Hoki: 7</span>
+                                <h3 class="soundscape-title">Kyoto Zen Soundscape (自然環境音)</h3>
+                                <p class="soundscape-sub">Generator audio relaksasi sintetis murni browser — fokus dan tenangkan pikiran.</p>
                             </div>
                         </div>
 
-                        <p class="fortune-advice" id="fortuneAdviceText">
-                            “Pikiranmu sedang sangat tajam. Waktu yang tepat untuk menghafal 10 kosakata baru dan mengulang kembali Hiragana. Konsistensi kecilmu akan berbuah kemajuan nyata!”
-                        </p>
-
-                        <div class="fortune-footer">
-                            <span id="fortuneDateText">📅 Berlaku untuk hari ini</span>
-                            <button class="culture-btn-action" id="fortuneVoiceBtn" type="button">
-                                🔊 Dengarkan Bahasa Jepang
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="eq-bars" id="eqBars" title="Indikator Gelombang Suara">
+                                <span class="eq-bar"></span>
+                                <span class="eq-bar"></span>
+                                <span class="eq-bar"></span>
+                                <span class="eq-bar"></span>
+                                <span class="eq-bar"></span>
+                            </div>
+                            <button class="master-play-btn" id="masterPlayBtn" type="button">
+                                <span id="masterPlayIcon">▶</span>
+                                <span id="masterPlayText">Putar Suara Zen</span>
                             </button>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- ==========================================================================
-             FEATURE 3: BUDAYA & TRIVIA JEPANG INTERAKTIF
-             ========================================================================== -->
-        <section class="culture-row" aria-label="Trivia dan Kosakata Budaya">
-            <!-- Card 1: Japanese Concept -->
-            <div class="culture-card">
-                <div class="culture-icon">🍃</div>
-                <div class="culture-body">
-                    <span class="culture-tag">Filosofi Estetika Jepang</span>
-                    <h3 class="culture-title">Komorebi (木漏れ日)</h3>
-                    <p class="culture-desc">
-                        Sinar matahari lembut yang menyelinap menembus sela-sela dedaunan pohon yang menari tertiup angin. Mengajarkan kita untuk menikmati keindahan momen kecil nan fana.
-                    </p>
-                    <button class="culture-btn-action" type="button" onclick="speakJapanese('木漏れ日。木の間から漏れる日の光。')">
-                        🔊 Dengarkan Pelafalan
-                    </button>
-                </div>
-            </div>
-
-            <!-- Card 2: Interactive Nazonazo (Japanese Riddle) -->
-            <div class="culture-card" id="nazonazoCard">
-                <div class="culture-icon">🦊</div>
-                <div class="culture-body">
-                    <span class="culture-tag">Teka-Teki Tradisi (なぞなぞ)</span>
-                    <h3 class="culture-title" id="nazonazoQuestion">“Punya leher tapi tidak punya kepala, apakah itu?”</h3>
-                    <p class="culture-desc" id="nazonazoAnswer" style="display: none; color: var(--japan-gold); font-weight: 600;">
-                        💡 Jawaban: <strong>Botol (瓶 / Tokkuri)</strong>! Dalam bahasa Jepang, bagian atas botol disebut "Kubi" (leher)!
-                    </p>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="culture-btn-action" id="revealNazoBtn" type="button">
-                            👁️ Lihat Jawaban
+                    <!-- 4 Sound Channels -->
+                    <div class="sound-channels-grid">
+                        <!-- Channel 1: Rain -->
+                        <button class="channel-btn is-active" id="chanRain" data-channel="rain" type="button">
+                            <span class="channel-icon">🌧️</span>
+                            <div class="channel-info">
+                                <span class="channel-name">Hujan Kyoto (雨)</span>
+                                <span class="channel-sub">Rintik tenang pelataran kuil</span>
+                            </div>
+                            <span class="channel-status"></span>
                         </button>
-                        <button class="culture-btn-action" id="nextNazoBtn" type="button">
-                            🔄 Teka-Teki Lain
+
+                        <!-- Channel 2: Bamboo Wind -->
+                        <button class="channel-btn is-active" id="chanWind" data-channel="wind" type="button">
+                            <span class="channel-icon">🎋</span>
+                            <div class="channel-info">
+                                <span class="channel-name">Angin Arashiyama (風)</span>
+                                <span class="channel-sub">Desau semilir rumpun bambu</span>
+                            </div>
+                            <span class="channel-status"></span>
                         </button>
+
+                        <!-- Channel 3: Temple Bell -->
+                        <button class="channel-btn" id="chanBell" data-channel="bell" type="button">
+                            <span class="channel-icon">🔔</span>
+                            <div class="channel-info">
+                                <span class="channel-name">Genta Kuil Suzu (鐘)</span>
+                                <span class="channel-sub">Denting damai perenungan</span>
+                            </div>
+                            <span class="channel-status"></span>
+                        </button>
+
+                        <!-- Channel 4: Takibi Fire -->
+                        <button class="channel-btn" id="chanFire" data-channel="fire" type="button">
+                            <span class="channel-icon">🔥</span>
+                            <div class="channel-info">
+                                <span class="channel-name">Api Unggun Takibi (焚火)</span>
+                                <span class="channel-sub">Gemertak hangat kayu malam</span>
+                            </div>
+                            <span class="channel-status"></span>
+                        </button>
+                    </div>
+
+                    <!-- Soundscape Controls Footer -->
+                    <div class="soundscape-controls">
+                        <div class="soundscape-presets">
+                            <span style="font-size: 11px; color: var(--japan-gold); font-weight: 700; text-transform: uppercase;">Preset:</span>
+                            <button class="preset-btn" type="button" data-preset="rain-night">🌧️ Hujan Malam</button>
+                            <button class="preset-btn" type="button" data-preset="zen-temple">⛩️ Kuil Damai</button>
+                            <button class="preset-btn" type="button" data-preset="camp-focus">🔥 Fokus Takibi</button>
+                        </div>
+
+                        <div class="soundscape-actions">
+                            <div class="vol-slider-wrap">
+                                <span>🔉</span>
+                                <input type="range" class="vol-slider" id="masterVolSlider" min="0" max="100" value="65" aria-label="Volume Master Suara">
+                                <span id="volValText">65%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- ==========================================================================
-             FEATURE 4: CURATED ENTERTAINMENT HUB GRID
-             ========================================================================== -->
-        <section aria-label="Portal Akses Hiburan Lengkap">
-            <div class="entertainment-grid">
-                
-                <!-- Kartu 1: Mini Games -->
-                <article class="ent-card card-games">
-                    <span class="ent-card-badge">5 Kasual Game</span>
-                    <div class="ent-icon-wrapper">🎮</div>
-                    <h3>Game Corner (ゲーム)</h3>
-                    <p>Uji ketangkasan dan refleks bahasa Jepangmu lewat game santai interaktif: Jankenpon, ramalan kuil Omikuji, tebak angka Kazuate, dan tes refleks Kana.</p>
-                    <div class="ent-tags">
-                        <span class="ent-tag">Jankenpon</span>
-                        <span class="ent-tag">Kazuate</span>
-                        <span class="ent-tag">Kana Match</span>
-                        <span class="ent-tag">Refleks</span>
+            <!-- TAB PANE 2: KUIL SHINTO OMIKUJI DIGITAL -->
+            <div class="hiburan-tab-pane" id="paneOmikuji" role="tabpanel">
+                <div class="omikuji-section" aria-label="Ramalan Kuil Omikuji Harian">
+                    <div class="omikuji-layout">
+                        <!-- Shaker Box -->
+                        <div class="omikuji-shaker-wrap">
+                            <div class="omikuji-cylinder" id="omikujiCylinder" role="button" tabindex="0" title="Klik untuk mengocok tabung Omikuji">
+                                <div class="cylinder-cap"></div>
+                                <div class="omikuji-stick" id="omikujiStick"></div>
+                                <div class="cylinder-kanji">御御籤</div>
+                            </div>
+                            <button class="shake-btn" id="shakeOmikujiBtn" type="button">
+                                <span>🎋</span> Kocok Omikuji Hari Ini
+                            </button>
+                            <span style="font-size: 11px; color: var(--text-secondary); opacity: 0.8;">Klik tabung atau tombol untuk meramal</span>
+                        </div>
+
+                        <!-- Fortune Display Slip -->
+                        <div class="omikuji-result-box" id="omikujiResultBox">
+                            <div class="omikuji-placeholder" id="omikujiPlaceholder">
+                                <span style="font-size: 32px; display: block; margin-bottom: 8px;">⛩️</span>
+                                <strong style="color: #fff; font-size: 1rem; display: block; margin-bottom: 4px;">Tarik Nasib &amp; Motivasi Belajarmu</strong>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+                                    Tradisi kuno kuil Shinto Jepang untuk memohon petunjuk. Kocok bambu Omikuji untuk mengetahui keberuntungan, kanji pelindung, dan nasihat belajarmu hari ini.
+                                </p>
+                            </div>
+
+                            <div class="fortune-card" id="fortuneCard" aria-live="polite">
+                                <div class="fortune-header">
+                                    <div>
+                                        <span class="fortune-rank" id="fortuneRankText">大吉</span>
+                                        <span class="fortune-rank-label" id="fortuneRankSub">Keberuntungan Sangat Besar</span>
+                                    </div>
+                                    <div class="fortune-badges">
+                                        <span class="fortune-badge" id="fortuneKanjiBadge">Kanji: 「道」 Jalan</span>
+                                        <span class="fortune-badge" id="fortuneLuckyNum">Angka Hoki: 7</span>
+                                    </div>
+                                </div>
+
+                                <p class="fortune-advice" id="fortuneAdviceText">
+                                    “Pikiranmu sedang sangat tajam. Waktu yang tepat untuk menghafal 10 kosakata baru dan mengulang kembali Hiragana. Konsistensi kecilmu akan berbuah kemajuan nyata!”
+                                </p>
+
+                                <div class="fortune-footer">
+                                    <span id="fortuneDateText">📅 Berlaku untuk hari ini</span>
+                                    <button class="culture-btn-action" id="fortuneVoiceBtn" type="button">
+                                        🔊 Dengarkan Bahasa Jepang
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <a href="game/game.html" class="ent-btn">
-                        <span>Mainkan Sekarang</span> <span>→</span>
-                    </a>
-                </article>
+                </div>
+            </div>
 
-                <!-- Kartu 2: Film & Anime -->
-                <article class="ent-card card-movies">
-                    <span class="ent-card-badge">Sinema Terbaik</span>
-                    <div class="ent-icon-wrapper">🎬</div>
-                    <h3>Movie &amp; Anime (映画)</h3>
-                    <p>Kurasi mahakarya film Jepang dan anime bersejarah. Dari atmosfer cyberpunk Neo-Tokyo Akira, drama emosional Your Name, hingga mahakarya Studio Ghibli.</p>
-                    <div class="ent-tags">
-                        <span class="ent-tag">Akira 1988</span>
-                        <span class="ent-tag">Ghibli</span>
-                        <span class="ent-tag">Suzume</span>
-                        <span class="ent-tag">Makoto Shinkai</span>
+            <!-- TAB PANE 3: TRIVIA BUDAYA & TEKA-TEKI NAZONAZO -->
+            <div class="hiburan-tab-pane" id="paneCulture" role="tabpanel">
+                <div class="culture-row" aria-label="Trivia dan Kosakata Budaya">
+                    <!-- Card 1: Japanese Concept -->
+                    <div class="culture-card">
+                        <div class="culture-icon">🍃</div>
+                        <div class="culture-body">
+                            <span class="culture-tag">Filosofi Estetika Jepang</span>
+                            <h3 class="culture-title">Komorebi (木漏れ日)</h3>
+                            <p class="culture-desc">
+                                Sinar matahari lembut yang menyelinap menembus sela-sela dedaunan pohon yang menari tertiup angin. Mengajarkan kita untuk menikmati keindahan momen kecil nan fana.
+                            </p>
+                            <button class="culture-btn-action" type="button" onclick="speakJapanese('木漏れ日。木の間から漏れる日の光。')">
+                                🔊 Dengarkan Pelafalan
+                            </button>
+                        </div>
                     </div>
-                    <a href="movie/movie.html" class="ent-btn">
-                        <span>Eksplorasi Film</span> <span>→</span>
-                    </a>
-                </article>
 
-                <!-- Kartu 3: Japanese Music & Lofi -->
-                <article class="ent-card card-music">
-                    <span class="ent-card-badge">Koleksi Playlist</span>
-                    <div class="ent-icon-wrapper">🎧</div>
-                    <h3>J-Pop &amp; Lofi (音楽)</h3>
-                    <p>Nikmati alunan nostalgia City Pop era 80-an, melodi santai lofi hip-hop Negeri Sakura, dan soundtrack anime ikonik untuk menemanimu belajar tanpa stres.</p>
-                    <div class="ent-tags">
-                        <span class="ent-tag">City Pop 80s</span>
-                        <span class="ent-tag">Lofi Beats</span>
-                        <span class="ent-tag">Anime OST</span>
-                        <span class="ent-tag">Shibuya Sound</span>
+                    <!-- Card 2: Interactive Nazonazo (Japanese Riddle) -->
+                    <div class="culture-card" id="nazonazoCard">
+                        <div class="culture-icon">🦊</div>
+                        <div class="culture-body">
+                            <span class="culture-tag">Teka-Teki Tradisi (なぞなぞ)</span>
+                            <h3 class="culture-title" id="nazonazoQuestion">“Punya leher tapi tidak punya kepala, apakah itu?”</h3>
+                            <p class="culture-desc" id="nazonazoAnswer" style="display: none; color: var(--japan-gold); font-weight: 600;">
+                                💡 Jawaban: <strong>Botol (瓶 / Tokkuri)</strong>! Dalam bahasa Jepang, bagian atas botol disebut "Kubi" (leher)!
+                            </p>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button class="culture-btn-action" id="revealNazoBtn" type="button">
+                                    👁️ Lihat Jawaban
+                                </button>
+                                <button class="culture-btn-action" id="nextNazoBtn" type="button">
+                                    🔄 Teka-Teki Lain
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <a href="musik/musik.html" class="ent-btn">
-                        <span>Buka Playlist Musik</span> <span>→</span>
-                    </a>
-                </article>
-
+                </div>
             </div>
         </section>
     </main>
 
     <!-- Navigasi Bawah Modern iOS Style -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
-        <a class="main-bottom-item" href="../index.html"><span class="main-bottom-icon">⌂</span><span>Home</span></a>
-        <a class="main-bottom-item is-active" href="hiburan.html"><span class="main-bottom-icon">✦</span><span>Hiburan</span></a>
-        <a class="main-bottom-item main-bottom-message" href="pesan.html" aria-label="Buka pesan grup">
-            <span class="main-bottom-icon" style="position: relative;">
-                ✉
+        <a class="main-bottom-item" href="../index.html" aria-label="Beranda">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 10.5 12 3l9 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </span>
+            <span>Home</span>
+        </a>
+        <a class="main-bottom-item is-active" href="hiburan.html" aria-label="Hiburan">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/>
+                </svg>
+            </span>
+            <span>Hiburan</span>
+        </a>
+        <a class="main-bottom-item main-bottom-message" href="pesan.html" aria-label="Buka obrolan pesan grup">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                    <circle cx="8.5" cy="12" r="1.2" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="1.2" fill="currentColor"/>
+                    <circle cx="15.5" cy="12" r="1.2" fill="currentColor"/>
+                </svg>
                 <span id="msgBadge" class="msg-badge" style="display: none;">0</span>
             </span>
-            <span>Pesan</span>
+            <span class="main-bottom-label">Pesan</span>
         </a>
-        <a class="main-bottom-item" href="jadwal.html"><span class="main-bottom-icon">◷</span><span>Jadwal</span></a>
-        <a class="main-bottom-item" href="info.html"><span class="main-bottom-icon">ⓘ</span><span>Info</span></a>
+        <a class="main-bottom-item" href="jadwal.html" aria-label="Jadwal">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="4" rx="3"/>
+                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                    <circle cx="12" cy="15" r="2"/>
+                </svg>
+            </span>
+            <span>Jadwal</span>
+        </a>
+        <a class="main-bottom-item" href="info.html" aria-label="Info">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+            </span>
+            <span>Info</span>
+        </a>
     </nav>
 
     <!-- Global Framework Scripts -->
@@ -757,6 +848,46 @@
             nazoAnswer.style.display = 'none';
             revealNazoBtn.textContent = '👁️ Lihat Jawaban';
             if (typeof playChime === 'function') playChime('drop');
+        });
+
+        // =========================================================================
+        // 4. INTERACTIVE STUDIO TAB SWITCHER & APP LAUNCHER CLICK HANDLER
+        // =========================================================================
+        const tabBtns = document.querySelectorAll('.hiburan-tab-btn');
+        const tabPanes = document.querySelectorAll('.hiburan-tab-pane');
+        const interactiveStage = document.getElementById('interactiveStage');
+
+        function switchInteractiveTab(targetId) {
+            if (!targetId) return;
+            tabBtns.forEach(btn => {
+                const isActive = btn.getAttribute('data-tab-target') === targetId;
+                btn.classList.toggle('is-active', isActive);
+                btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+            tabPanes.forEach(pane => {
+                pane.classList.toggle('is-active', pane.id === targetId);
+            });
+        }
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-tab-target');
+                switchInteractiveTab(targetId);
+                if (typeof playChime === 'function') playChime('click');
+            });
+        });
+
+        // Click on in-page App Launcher items to switch tab and scroll smoothly into view
+        document.querySelectorAll('.hiburan-app-item[data-tab-target]').forEach(appItem => {
+            appItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = appItem.getAttribute('data-tab-target');
+                switchInteractiveTab(targetId);
+                if (interactiveStage) {
+                    interactiveStage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                if (typeof playChime === 'function') playChime('ding');
+            });
         });
 
     })();

@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#070A10">
+    <title>Command Center & Kontrol Sistem | Fournity Admin</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Admin Dedicated Styling -->
+    <link rel="stylesheet" href="../css/admin.css">
+
+    <script>
+        // Pre-check otorisasi admin sebelum render visual
+        (function() {
+            const rawUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase();
+            const rawEmail = (localStorage.getItem("nihongoChatEmail") || "").toLowerCase();
+            const isLeadDev = rawUser === "umaedi" || rawEmail.includes("umaedi");
+            window.__IS_FOURNITY_ADMIN = isLeadDev;
+        })();
+    </script>
+</head>
+<body class="admin-body">
+
+    <!-- ====================================================================== -->
+    <!-- 0. ADMIN AUTH LOCK SCREEN (TAMPIL JIKA BUKAN DEVELOPER / ADMIN)       -->
+    <!-- ====================================================================== -->
+    <section id="adminAuthLockScreen" class="admin-lock-screen" style="display: none;">
+        <div class="lock-card-box">
+            <span class="lock-card-icon">🛡️</span>
+            <h2>AKSES DITOLAK: AREA ADMIN</h2>
+            <p>Halaman Command Center ini memiliki kendali mutlak atas database dan hanya dapat diakses oleh Developer Utama / Administrator Fournity (Umaedi).</p>
+            
+            <div id="adminLoginForm" style="margin-bottom: 18px; text-align: left;">
+                <label style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Login Email Admin</label>
+                <input type="email" id="adminEmailInput" class="admin-input" placeholder="admin@nihongo.com" style="margin: 6px 0 10px;">
+                <label style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Kata Sandi</label>
+                <input type="password" id="adminPassInput" class="admin-input" placeholder="••••••••" style="margin: 6px 0 14px;">
+                <button type="button" id="btnAdminLogin" class="admin-btn admin-btn-danger" style="width: 100%; justify-content: center; padding: 11px;">
+                    🔓 AUTORISASI & MASUK DASHBOARD
+                </button>
+            </div>
+
+            <div class="lock-actions-row">
+                <a href="../index.html" class="admin-btn admin-btn-outline" style="justify-content: center;">
+                    ← Kembali ke Beranda Utama
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================== -->
+    <!-- 1. TOP COMMAND NAVBAR                                                  -->
+    <!-- ====================================================================== -->
+    <header class="admin-navbar" id="adminNavbar">
+        <div class="admin-nav-brand">
+            <div class="admin-brand-icon">⚡</div>
+            <div class="admin-brand-info">
+                <h1>
+                    FOURNITY COMMAND
+                    <span class="admin-badge-pulse">SYSTEM LIVE</span>
+                </h1>
+                <span>Pusat Kendali Sistem & Audit Realtime</span>
+            </div>
+        </div>
+
+        <!-- Telemetry strip -->
+        <div class="admin-nav-telemetry">
+            <div class="telemetry-item">
+                <span class="telemetry-label">WAKTU (WIB / JST)</span>
+                <span class="telemetry-value" id="navClockVal">--:--:-- WIB</span>
+            </div>
+            <div class="telemetry-item">
+                <span class="telemetry-label">KECEPATAN SINYAL</span>
+                <span class="telemetry-value" id="navPingVal">-- ms</span>
+            </div>
+            <div class="telemetry-item">
+                <span class="telemetry-label">DATABASE RTDB</span>
+                <span class="telemetry-value" id="navDbStatus" style="color: var(--admin-green);">ONLINE</span>
+            </div>
+            <div class="telemetry-item">
+                <span class="telemetry-label">ONLINE</span>
+                <span class="telemetry-value" id="navOnlineVal">-- User</span>
+            </div>
+        </div>
+
+        <!-- Action Links -->
+        <div class="admin-nav-actions">
+            <a href="../index.html" class="admin-btn admin-btn-outline" title="Kembali ke Beranda">
+                🏠 Beranda
+            </a>
+            <a href="pesan.html" class="admin-btn admin-btn-outline" title="Buka Ruang Obrolan">
+                💬 Ruang Chat
+            </a>
+            <button type="button" id="btnHeaderLogout" class="admin-btn admin-btn-danger" title="Keluar dari Sesi Admin">
+                🚪 Logout
+            </button>
+        </div>
+    </header>
+
+    <!-- ====================================================================== -->
+    <!-- 2. MAIN DASHBOARD WRAPPER                                              -->
+    <!-- ====================================================================== -->
+    <main class="admin-container" id="adminDashboardMain">
+
+        <!-- ========================================== -->
+        <!-- TOP TELEMETRY METRIC CARDS                -->
+        <!-- ========================================== -->
+        <section class="admin-metrics-grid">
+            
+            <!-- CARD 1: KECEPATAN SINYAL / LATENSI RTDB -->
+            <div class="metric-card" style="--card-accent: var(--admin-cyan);">
+                <div class="metric-header">
+                    <span class="metric-title">Kecepatan Sinyal (Ping)</span>
+                    <div class="metric-icon-wrap" style="color: var(--admin-cyan);">📶</div>
+                </div>
+                <div class="metric-value-row">
+                    <span class="metric-big-value" id="metricPingVal">--</span>
+                    <span class="metric-unit">ms</span>
+                </div>
+                <div class="metric-sub-detail">
+                    <span id="metricPingStatus" class="status-pill status-optimal">● Sinyal Optimal</span>
+                    <button type="button" id="btnTestPing" class="btn-action-small btn-action-accent" style="margin-left: auto;">
+                        ⚡ Uji Sinyal
+                    </button>
+                </div>
+            </div>
+
+            <!-- CARD 2: PENGGUNA ONLINE -->
+            <div class="metric-card" style="--card-accent: var(--admin-green);">
+                <div class="metric-header">
+                    <span class="metric-title">Pengguna Online</span>
+                    <div class="metric-icon-wrap" style="color: var(--admin-green);">🟢</div>
+                </div>
+                <div class="metric-value-row">
+                    <span class="metric-big-value" id="metricOnlineVal">--</span>
+                    <span class="metric-unit">Member</span>
+                </div>
+                <div class="metric-sub-detail">
+                    <span id="metricOnlineStatus" class="status-pill status-optimal">● Live Presence</span>
+                    <span style="margin-left: auto;" id="metricOnlineNames">Memuat...</span>
+                </div>
+            </div>
+
+            <!-- CARD 3: JUMLAH PESAN SELURUH GROUP & TOTAL -->
+            <div class="metric-card" style="--card-accent: var(--admin-gold);">
+                <div class="metric-header">
+                    <span class="metric-title">Total Pesan Server</span>
+                    <div class="metric-icon-wrap" style="color: var(--admin-gold);">💬</div>
+                </div>
+                <div class="metric-value-row">
+                    <span class="metric-big-value" id="metricTotalMsgVal">--</span>
+                    <span class="metric-unit">Pesan</span>
+                </div>
+                <div class="metric-sub-detail" style="font-size: 10px; gap: 8px;">
+                    <span>🌐 Lounge: <b id="statPublicCount" style="color: #fff;">0</b></span>
+                    <span>⛩️ Core: <b id="statCoreCount" style="color: #fff;">0</b></span>
+                    <span>🎮 Dojo: <b id="statShiritoriCount" style="color: #fff;">0</b></span>
+                </div>
+            </div>
+
+            <!-- CARD 4: BEBAN PENYIMPANAN DATABASE -->
+            <div class="metric-card" style="--card-accent: var(--admin-purple);">
+                <div class="metric-header">
+                    <span class="metric-title">Penyimpanan Digunakan</span>
+                    <div class="metric-icon-wrap" style="color: var(--admin-purple);">💾</div>
+                </div>
+                <div class="metric-value-row">
+                    <span class="metric-big-value" id="metricStorageVal">--</span>
+                    <span class="metric-unit">KB</span>
+                </div>
+                <div class="metric-sub-detail">
+                    <span id="metricStorageStatus" class="status-pill status-optimal">● Kapasitas Aman</span>
+                    <button type="button" id="btnRecalcStorage" class="btn-action-small" style="margin-left: auto;">
+                        🔄 Hitung Beban
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MAIN DUAL-COLUMN CONTENT GRID              -->
+        <!-- ========================================== -->
+        <div class="admin-main-grid">
+
+            <!-- ========================================================== -->
+            <!-- KOLOM KIRI: FITUR KENDALI UTAMA & DATA USER                -->
+            <!-- ========================================================== -->
+            <div class="admin-col-primary">
+
+                <!-- ------------------------------------------------------ -->
+                <!-- FITUR KENDALI UTAMA: PEMBERSIH & PENGHAPUS CHAT        -->
+                <!-- ------------------------------------------------------ -->
+                <section class="admin-card wiper-control-panel">
+                    <div class="admin-card-header">
+                        <div class="admin-card-title">
+                            <span style="font-size: 20px;">🧹</span>
+                            <h2>KENDALI UTAMA: PENGHAPUSAN PESAN CHAT PER-GROUP</h2>
+                            <span class="card-badge" style="background: rgba(255, 46, 77, 0.15); color: var(--admin-red); border-color: rgba(255, 46, 77, 0.3);">
+                                ZERO STORAGE
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Warning Alert Banner -->
+                    <div class="wiper-warning-banner">
+                        <span class="warn-icon">⚠️</span>
+                        <div>
+                            <p>
+                                <strong>Fitur Pembersih Database Realtime:</strong> Menghapus riwayat pesan chat secara menyeluruh dari server database Firebase agar penyimpanan tidak membengkak dan server tetap cepat.
+                            </p>
+                            <p style="margin-top: 4px;">
+                                Ketika dieksekusi, <strong>semua pesan obrolan di group yang Anda pilih akan lenyap seketika</strong> di seluruh layar pengguna, dan secara otomatis memunculkan pesan resmi: <em>"Semua pesan telah dihapus oleh Admin."</em> lengkap dengan foto profil robot sistem (🤖).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Room Selector Cards -->
+                    <div style="margin-bottom: 8px;">
+                        <span style="font-size: 11px; font-weight: 700; color: var(--admin-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                            Pilih Target Group yang Ingin Dihapus:
+                        </span>
+                    </div>
+
+                    <div class="wiper-room-selection">
+                        <!-- Group 1: Public Lounge -->
+                        <label class="room-radio-card is-selected" id="cardRoomPublic">
+                            <input type="radio" name="wiperTargetRoom" value="messages_public" checked style="display: none;">
+                            <div class="room-card-head">
+                                <strong>🌐 Public Lounge</strong>
+                                <span class="room-msg-count" id="badgeRoomPublicCount">0 Pesan</span>
+                            </div>
+                            <small>Ruang santai semua member umum.</small>
+                        </label>
+
+                        <!-- Group 2: Fournity Core -->
+                        <label class="room-radio-card" id="cardRoomCore">
+                            <input type="radio" name="wiperTargetRoom" value="messages" style="display: none;">
+                            <div class="room-card-head">
+                                <strong>⛩️ Fournity Core</strong>
+                                <span class="room-msg-count" id="badgeRoomCoreCount">0 Pesan</span>
+                            </div>
+                            <small>Ruang inti tim dan anggota terdaftar.</small>
+                        </label>
+
+                        <!-- Group 3: Shiritori Dojo -->
+                        <label class="room-radio-card" id="cardRoomShiritori">
+                            <input type="radio" name="wiperTargetRoom" value="messages_shiritori" style="display: none;">
+                            <div class="room-card-head">
+                                <strong>🎮 Shiritori Dojo</strong>
+                                <span class="room-msg-count" id="badgeRoomShiritoriCount">0 Pesan</span>
+                            </div>
+                            <small>Ruang estafet kata Jepang multiplayer.</small>
+                        </label>
+
+                        <!-- Group 4: Semua Group Sekaligus -->
+                        <label class="room-radio-card" id="cardRoomAll" style="border-color: rgba(255, 46, 77, 0.4);">
+                            <input type="radio" name="wiperTargetRoom" value="all" style="display: none;">
+                            <div class="room-card-head">
+                                <strong style="color: #FF6B81;">💥 SEMUA GROUP</strong>
+                                <span class="room-msg-count" id="badgeRoomAllCount" style="color: var(--admin-red);">0 Pesan</span>
+                            </div>
+                            <small>Wipe seluruh percakapan tanpa sisa.</small>
+                        </label>
+                    </div>
+
+                    <!-- Wiper Execution Options Row -->
+                    <div class="wiper-options-row">
+                        <div>
+                            <span style="font-size: 11px; font-weight: 700; color: #FFFFFF; display: block; margin-bottom: 4px;">
+                                METODE EKSEKUSI PEMBERSIHAN:
+                            </span>
+                            <div class="wiper-mode-select">
+                                <label class="custom-radio-option">
+                                    <input type="radio" name="wiperExecMode" value="countdown" checked>
+                                    <span>⏱️ Hitung Mundur 10 Detik (Sistem memberi peringatan siaga)</span>
+                                </label>
+                                <label class="custom-radio-option">
+                                    <input type="radio" name="wiperExecMode" value="instant">
+                                    <span>⚡ Pemusnahan Instan (Langsung hapus seketika)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Message Input Group -->
+                    <div class="wiper-custom-msg-group">
+                        <label for="wiperCustomMsgInput">Pesan Peringatan Robot Sistem (Muncul di layar setelah dihapus):</label>
+                        <input type="text" id="wiperCustomMsgInput" class="admin-input" 
+                               value="Semua pesan telah dihapus oleh Admin." 
+                               placeholder="Contoh: Semua pesan telah dihapus oleh Admin.">
+                        <span style="font-size: 10px; color: var(--admin-text-dim); margin-top: 4px; display: block;">
+                            🤖 Pesan ini akan dikirim oleh profil resmi SYSTEM dengan badge <strong>[✅ BERSIH]</strong> dan hangus otomatis dalam 60 detik.
+                        </span>
+                    </div>
+
+                    <!-- Wiper Footer Execute Button -->
+                    <div class="wiper-action-footer">
+                        <span style="font-size: 11.5px; color: var(--admin-text-muted);">
+                            Target terpilih: <strong id="wiperSelectedRoomLabel" style="color: var(--admin-cyan);">Public Lounge (messages_public)</strong>
+                        </span>
+                        <button type="button" id="btnOpenWipeModal" class="btn-wipe-execute">
+                            🔥 EKSEKUSI PENGHAPUSAN CHAT
+                        </button>
+                    </div>
+                </section>
+
+                <!-- ------------------------------------------------------ -->
+                <!-- DATA USER & DIREKTORI PENGGUNA                         -->
+                <!-- ------------------------------------------------------ -->
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <div class="admin-card-title">
+                            <span style="font-size: 20px;">👥</span>
+                            <h2>DATA USER & INVENTARIS PENGGUNA TERDAFTAR</h2>
+                            <span class="card-badge" id="userTotalBadge">0 Akun</span>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar: Search & Rarity Filter -->
+                    <div class="user-table-toolbar">
+                        <div class="user-search-wrap">
+                            <span class="user-search-icon">🔍</span>
+                            <input type="text" id="userSearchInput" class="admin-input" placeholder="Cari nama, email, atau UID...">
+                        </div>
+                        <div class="user-filter-pills">
+                            <button type="button" class="filter-pill-btn is-active" data-filter="all">Semua</button>
+                            <button type="button" class="filter-pill-btn" data-filter="legendary">👑 Founder / VIP</button>
+                            <button type="button" class="filter-pill-btn" data-filter="ur">💜 Ultra Rare (UR)</button>
+                            <button type="button" class="filter-pill-btn" data-filter="rare">💎 Rare</button>
+                            <button type="button" class="filter-pill-btn" data-filter="default">🎋 Gakusei</button>
+                        </div>
+                    </div>
+
+                    <!-- Table Responsive Wrapper -->
+                    <div class="admin-table-responsive">
+                        <table class="admin-table" id="adminUserTable">
+                            <thead>
+                                <tr>
+                                    <th>Pengguna / Profil</th>
+                                    <th>UID Firebase</th>
+                                    <th>Level & EXP</th>
+                                    <th>Streak Presensi</th>
+                                    <th>Koleksi Kartu</th>
+                                    <th style="text-align: right;">Aksi Kendali</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--admin-text-dim); padding: 24px;">
+                                        Mengambil data user dari Firebase RTDB...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ========================================================== -->
+            <!-- KOLOM KANAN: AKTIVITAS PENGGUNA & BROADCAST SYSTEM         -->
+            <!-- ========================================================== -->
+            <div class="admin-col-secondary">
+
+                <!-- ------------------------------------------------------ -->
+                <!-- AKTIVITAS PENGGUNA & AUDIT STREAM                      -->
+                <!-- ------------------------------------------------------ -->
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <div class="admin-card-title">
+                            <span style="font-size: 18px;">📡</span>
+                            <h2>AKTIVITAS PENGGUNA REALTIME</h2>
+                            <span class="card-badge">LIVE FEED</span>
+                        </div>
+                        <button type="button" id="btnClearActivityFeed" class="btn-action-small">
+                            Bersihkan
+                        </button>
+                    </div>
+
+                    <div class="activity-feed-list" id="activityFeedList">
+                        <!-- Items rendered via JS -->
+                        <div class="activity-feed-item">
+                            <span class="activity-icon">⚡</span>
+                            <div class="activity-content">
+                                <strong>Sistem Diinisialisasi</strong>
+                                <p>Menghubungkan ke node Firebase RTDB...</p>
+                            </div>
+                            <span class="activity-time">Baru saja</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ------------------------------------------------------ -->
+                <!-- TRANSMITTER BROADCAST PUSH BANNER GLOBAL               -->
+                <!-- ------------------------------------------------------ -->
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <div class="admin-card-title">
+                            <span style="font-size: 18px;">📢</span>
+                            <h2>BROADCAST PUSH BANNER GLOBAL</h2>
+                            <span class="card-badge" style="background: rgba(10, 132, 255, 0.15); color: #0A84FF; border-color: rgba(10, 132, 255, 0.3);">
+                                NOTIFIKASI iOS
+                            </span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 11.5px; color: var(--admin-text-muted); margin-bottom: 14px; line-height: 1.5;">
+                        Kirim notifikasi banner mengambang ke <strong>seluruh pengguna yang sedang membuka web Fournity</strong> secara instan.
+                    </p>
+
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 10px; font-weight: 700; color: var(--admin-text-muted); text-transform: uppercase;">Judul Pengumuman:</label>
+                        <input type="text" id="broadcastTitleInput" class="admin-input" placeholder="Contoh: UPDATE SERVER & FITUR BARU" style="margin-top: 4px;">
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-size: 10px; font-weight: 700; color: var(--admin-text-muted); text-transform: uppercase;">Isi Pesan Pengumuman:</label>
+                        <textarea id="broadcastBodyInput" class="admin-input" rows="3" placeholder="Ketik isi pengumuman sistem di sini..." style="margin-top: 4px; resize: vertical;"></textarea>
+                    </div>
+
+                    <button type="button" id="btnSendBroadcast" class="admin-btn admin-btn-primary" style="width: 100%; justify-content: center; padding: 11px;">
+                        🚀 TRANSMIT PUSH BANNER SEKARANG
+                    </button>
+                </section>
+
+                <!-- ------------------------------------------------------ -->
+                <!-- PINTASAN PEMELIHARAAN SISTEM                           -->
+                <!-- ------------------------------------------------------ -->
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <div class="admin-card-title">
+                            <span style="font-size: 18px;">⚙️</span>
+                            <h2>PEMELIHARAAN SISTEM</h2>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button type="button" id="btnCleanTyping" class="admin-btn admin-btn-outline" style="justify-content: flex-start;">
+                            🧹 Bersihkan Indikator Ketik Nyangkut (Typing State)
+                        </button>
+                        <button type="button" id="btnSyncAnnounce" class="admin-btn admin-btn-outline" style="justify-content: flex-start;">
+                            🗑️ Kosongkan Riwayat Broadcast Lama
+                        </button>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ====================================================================== -->
+    <!-- 3. MODAL KONFIRMASI PENGHAPUSAN CHAT (DANGER MODAL)                    -->
+    <!-- ====================================================================== -->
+    <div class="admin-modal-overlay" id="wipeConfirmModal">
+        <div class="admin-modal-box">
+            <div class="modal-danger-header">
+                <div class="modal-danger-icon">⚠️</div>
+                <h3>KONFIRMASI PEMUSNAHAN CHAT</h3>
+            </div>
+            <div class="modal-danger-body">
+                <p>
+                    Anda akan menghapus seluruh percakapan pada target:
+                    <br>
+                    <strong id="modalTargetLabel" style="color: var(--admin-cyan); font-size: 15px;">🌐 Public Lounge (messages_public)</strong>
+                </p>
+                <p>
+                    Jumlah total pesan yang akan dilenyapkan: 
+                    <strong id="modalTargetMsgCount" style="color: var(--admin-red); font-size: 14px;">0 pesan</strong>.
+                    <br>
+                    Tindakan ini <strong>TIDAK DAPAT DIBATALKAN</strong> dan data pesan akan hilang permanen dari database Firebase untuk mengosongkan beban memori.
+                </p>
+
+                <div class="danger-confirm-input">
+                    <label style="font-size: 11px; font-weight: 700; color: #94A3B8; display: block; margin-bottom: 6px;">
+                        Ketik kata <span style="color: var(--admin-red); font-weight: 800;">HAPUS</span> untuk konfirmasi:
+                    </label>
+                    <input type="text" id="wipeConfirmKeyword" class="admin-input" placeholder="Ketik HAPUS di sini..." autocomplete="off">
+                </div>
+            </div>
+            <div class="modal-danger-actions">
+                <button type="button" id="btnCancelWipeModal" class="admin-btn admin-btn-outline">
+                    Batal
+                </button>
+                <button type="button" id="btnExecutePurgeConfirmed" class="admin-btn admin-btn-danger">
+                    🔥 YA, HAPUS SEKARANG
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- 4. FULLSCREEN CYBER COUNTDOWN HUD OVERLAY (10 DETIK)                   -->
+    <!-- ====================================================================== -->
+    <div class="cyber-countdown-overlay" id="cyberCountdownOverlay" style="display: none;">
+        <div class="countdown-alarm-ring">
+            <div class="countdown-number" id="countdownValText">10</div>
+        </div>
+        <h2 class="countdown-hud-title">SYSTEM OVERRIDE IN PROGRESS</h2>
+        <p class="countdown-hud-sub" id="countdownSubText">
+            Mengunci database dan melenyapkan seluruh riwayat obrolan pada group terpilih...
+            <br>
+            Peringatan siaga darurat sedang dipancarkan ke semua layar anggota!
+        </p>
+        <button type="button" id="btnAbortCountdown" class="countdown-hud-cancel-btn">
+            🛑 BATALKAN PEMUSNAHAN (ABORT OVERRIDE)
+        </button>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- 5. TOAST NOTIFIKASI KHUSUS ADMIN                                      -->
+    <!-- ====================================================================== -->
+    <div class="admin-toast-banner" id="adminToast">
+        <span id="toastIcon">✅</span>
+        <span id="toastMessage">Operasi berhasil dijalankan!</span>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- 6. ADMIN DASHBOARD LOGIC (FIREBASE RTDB ENGINE)                        -->
+    <!-- ====================================================================== -->
+    <script type="module">
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getDatabase, 
+            ref, 
+            push, 
+            set, 
+            get, 
+            remove, 
+            update, 
+            onValue, 
+            onChildAdded, 
+            query, 
+            limitToLast 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBedu3Z7AMdD5dmaudzeCwxzkegpX5Qfvs",
+            authDomain: "nihongo-trinity.firebaseapp.com",
+            projectId: "nihongo-trinity",
+            databaseURL: "https://nihongo-trinity-default-rtdb.firebaseio.com",
+            storageBucket: "nihongo-trinity.firebasestorage.app",
+            messagingSenderId: "369587231010",
+            appId: "1:369587231010:web:6f69eb2516d660b9dfad7b"
+        };
+
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // State Dashboard
+        let currentMessagesPublic = {};
+        let currentMessagesCore = {};
+        let currentMessagesShiritori = {};
+        let currentUsersData = {};
+        let currentUserProfiles = {};
+        let currentOnlineUserList = [];
+        let wiperCountdownTimer = null;
+        let wiperCountdownSeconds = 10;
+        let isWiperAborted = false;
+
+        // Target Room Map
+        const roomMeta = {
+            "messages_public": { name: "Public Lounge", path: "messages_public", icon: "🌐" },
+            "messages": { name: "Fournity Core", path: "messages", icon: "⛩️" },
+            "messages_shiritori": { name: "Shiritori Dojo", path: "messages_shiritori", icon: "🎮" },
+            "all": { name: "Semua Group Sekaligus", path: "all", icon: "💥" }
+        };
+
+        // DOM Elements
+        const adminAuthLockScreen = document.getElementById("adminAuthLockScreen");
+        const adminDashboardMain = document.getElementById("adminDashboardMain");
+        const adminNavbar = document.getElementById("adminNavbar");
+        const btnAdminLogin = document.getElementById("btnAdminLogin");
+        const adminEmailInput = document.getElementById("adminEmailInput");
+        const adminPassInput = document.getElementById("adminPassInput");
+        const btnHeaderLogout = document.getElementById("btnHeaderLogout");
+
+        // Telemetry DOM
+        const navClockVal = document.getElementById("navClockVal");
+        const navPingVal = document.getElementById("navPingVal");
+        const navDbStatus = document.getElementById("navDbStatus");
+        const navOnlineVal = document.getElementById("navOnlineVal");
+        const metricPingVal = document.getElementById("metricPingVal");
+        const metricPingStatus = document.getElementById("metricPingStatus");
+        const btnTestPing = document.getElementById("btnTestPing");
+        const metricOnlineVal = document.getElementById("metricOnlineVal");
+        const metricOnlineStatus = document.getElementById("metricOnlineStatus");
+        const metricOnlineNames = document.getElementById("metricOnlineNames");
+        const metricTotalMsgVal = document.getElementById("metricTotalMsgVal");
+        const statPublicCount = document.getElementById("statPublicCount");
+        const statCoreCount = document.getElementById("statCoreCount");
+        const statShiritoriCount = document.getElementById("statShiritoriCount");
+        const metricStorageVal = document.getElementById("metricStorageVal");
+        const metricStorageStatus = document.getElementById("metricStorageStatus");
+        const btnRecalcStorage = document.getElementById("btnRecalcStorage");
+
+        // Wiper Panel DOM
+        const cardRoomPublic = document.getElementById("cardRoomPublic");
+        const cardRoomCore = document.getElementById("cardRoomCore");
+        const cardRoomShiritori = document.getElementById("cardRoomShiritori");
+        const cardRoomAll = document.getElementById("cardRoomAll");
+        const badgeRoomPublicCount = document.getElementById("badgeRoomPublicCount");
+        const badgeRoomCoreCount = document.getElementById("badgeRoomCoreCount");
+        const badgeRoomShiritoriCount = document.getElementById("badgeRoomShiritoriCount");
+        const badgeRoomAllCount = document.getElementById("badgeRoomAllCount");
+        const wiperSelectedRoomLabel = document.getElementById("wiperSelectedRoomLabel");
+        const wiperCustomMsgInput = document.getElementById("wiperCustomMsgInput");
+        const btnOpenWipeModal = document.getElementById("btnOpenWipeModal");
+
+        // Danger Modal DOM
+        const wipeConfirmModal = document.getElementById("wipeConfirmModal");
+        const modalTargetLabel = document.getElementById("modalTargetLabel");
+        const modalTargetMsgCount = document.getElementById("modalTargetMsgCount");
+        const wipeConfirmKeyword = document.getElementById("wipeConfirmKeyword");
+        const btnCancelWipeModal = document.getElementById("btnCancelWipeModal");
+        const btnExecutePurgeConfirmed = document.getElementById("btnExecutePurgeConfirmed");
+
+        // Countdown HUD DOM
+        const cyberCountdownOverlay = document.getElementById("cyberCountdownOverlay");
+        const countdownValText = document.getElementById("countdownValText");
+        const countdownSubText = document.getElementById("countdownSubText");
+        const btnAbortCountdown = document.getElementById("btnAbortCountdown");
+
+        // User Directory DOM
+        const userTotalBadge = document.getElementById("userTotalBadge");
+        const userSearchInput = document.getElementById("userSearchInput");
+        const userTableBody = document.getElementById("userTableBody");
+        const filterPills = document.querySelectorAll(".filter-pill-btn");
+        let activeUserFilter = "all";
+
+        // Activity Stream DOM
+        const activityFeedList = document.getElementById("activityFeedList");
+        const btnClearActivityFeed = document.getElementById("btnClearActivityFeed");
+
+        // Broadcast DOM
+        const broadcastTitleInput = document.getElementById("broadcastTitleInput");
+        const broadcastBodyInput = document.getElementById("broadcastBodyInput");
+        const btnSendBroadcast = document.getElementById("btnSendBroadcast");
+
+        // Maintenance DOM
+        const btnCleanTyping = document.getElementById("btnCleanTyping");
+        const btnSyncAnnounce = document.getElementById("btnSyncAnnounce");
+
+        // Toast Helper
+        function showAdminToast(msg, icon = "✅", duration = 3500) {
+            const toast = document.getElementById("adminToast");
+            const tMsg = document.getElementById("toastMessage");
+            const tIcon = document.getElementById("toastIcon");
+            if (!toast) return;
+            tMsg.textContent = msg;
+            tIcon.textContent = icon;
+            toast.style.display = "flex";
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, duration);
+        }
+
+        // Audit Activity Logger
+        function addActivityLog(title, desc, icon = "⚡") {
+            if (!activityFeedList) return;
+            const item = document.createElement("div");
+            item.className = "activity-feed-item";
+            const timeStr = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            item.innerHTML = `
+                <span class="activity-icon">${icon}</span>
+                <div class="activity-content">
+                    <strong>${title}</strong>
+                    <p>${desc}</p>
+                </div>
+                <span class="activity-time">${timeStr}</span>
+            `;
+            activityFeedList.prepend(item);
+            if (activityFeedList.children.length > 25) {
+                activityFeedList.lastElementChild.remove();
+            }
+        }
+
+        // ==========================================
+        // 1. OTENTIKASI & ACCESS GUARD
+        // ==========================================
+        function checkAdminAccess(user) {
+            const storedUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase();
+            const storedEmail = (localStorage.getItem("nihongoChatEmail") || "").toLowerCase();
+            const authEmail = (user && user.email ? user.email : "").toLowerCase();
+            const authName = (user && user.displayName ? user.displayName : "").toLowerCase();
+
+            const isUmaedi = storedUser === "umaedi" || 
+                            storedEmail.includes("umaedi") || 
+                            authEmail.includes("umaedi") || 
+                            authName === "umaedi";
+
+            if (isUmaedi) {
+                adminAuthLockScreen.style.display = "none";
+                adminDashboardMain.style.display = "block";
+                adminNavbar.style.display = "flex";
+            } else {
+                adminAuthLockScreen.style.display = "flex";
+                adminDashboardMain.style.display = "none";
+                adminNavbar.style.display = "none";
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            checkAdminAccess(user);
+        });
+
+        // Login Handler
+        if (btnAdminLogin) {
+            btnAdminLogin.addEventListener("click", async () => {
+                const email = adminEmailInput.value.trim();
+                const pass = adminPassInput.value.trim();
+                if (!email || !pass) {
+                    alert("Harap masukkan email dan kata sandi admin!");
+                    return;
+                }
+                try {
+                    btnAdminLogin.disabled = true;
+                    btnAdminLogin.textContent = "MEMERIKSA KREDENSIAL...";
+                    const cred = await signInWithEmailAndPassword(auth, email, pass);
+                    const user = cred.user;
+                    localStorage.setItem("nihongoChatUid", user.uid);
+                    localStorage.setItem("nihongoChatEmail", user.email);
+                    localStorage.setItem("nihongoChatUser", "Umaedi");
+                    checkAdminAccess(user);
+                    showAdminToast("Selamat datang, Admin Umaedi! Akses penuh diberikan.", "👑");
+                    addActivityLog("Login Admin Sukses", `Sesi dibuka untuk ${user.email}`, "🔓");
+                } catch (err) {
+                    alert("Login gagal: " + err.message);
+                } finally {
+                    btnAdminLogin.disabled = false;
+                    btnAdminLogin.innerHTML = "🔓 AUTORISASI & MASUK DASHBOARD";
+                }
+            });
+        }
+
+        // Logout Handler
+        if (btnHeaderLogout) {
+            btnHeaderLogout.addEventListener("click", async () => {
+                if (confirm("Keluar dari konsol Command Center?")) {
+                    await signOut(auth);
+                    localStorage.removeItem("nihongoChatUid");
+                    localStorage.removeItem("nihongoChatEmail");
+                    localStorage.removeItem("nihongoChatUser");
+                    window.location.href = "../index.html";
+                }
+            });
+        }
+
+        // ==========================================
+        // 2. REALTIME CLOCK & KECEPATAN SINYAL (PING)
+        // ==========================================
+        function updateClock() {
+            const now = new Date();
+            const wib = now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Asia/Jakarta" }) + " WIB";
+            const jst = now.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Asia/Tokyo" }) + " JST";
+            if (navClockVal) navClockVal.textContent = `${wib} / ${jst}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Pengukur Ping Realtime (RTDB Roundtrip)
+        async function measurePing() {
+            const t0 = performance.now();
+            try {
+                // Ping endpoint internal info server
+                await get(ref(db, ".info/serverTimeOffset"));
+                const latency = Math.round(performance.now() - t0);
+                
+                if (navPingVal) navPingVal.textContent = `${latency} ms`;
+                if (metricPingVal) metricPingVal.textContent = latency;
+                
+                if (metricPingStatus) {
+                    if (latency < 120) {
+                        metricPingStatus.className = "status-pill status-optimal";
+                        metricPingStatus.textContent = "● Sinyal Optimal (< 120ms)";
+                    } else if (latency < 280) {
+                        metricPingStatus.className = "status-pill status-warning";
+                        metricPingStatus.textContent = "● Sinyal Stabil (< 280ms)";
+                    } else {
+                        metricPingStatus.className = "status-pill status-danger";
+                        metricPingStatus.textContent = "● Latensi Tinggi";
+                    }
+                }
+                return latency;
+            } catch (e) {
+                if (navPingVal) navPingVal.textContent = "Error";
+                if (metricPingVal) metricPingVal.textContent = "--";
+                return 0;
+            }
+        }
+
+        if (btnTestPing) {
+            btnTestPing.addEventListener("click", async () => {
+                btnTestPing.disabled = true;
+                btnTestPing.textContent = "Menguji...";
+                const res = await measurePing();
+                showAdminToast(`Uji latensi selesai: ${res} ms`, "📶");
+                btnTestPing.disabled = false;
+                btnTestPing.textContent = "⚡ Uji Sinyal";
+            });
+        }
+        measurePing();
+        setInterval(measurePing, 15000);
+
+        // Database Online Connection State
+        onValue(ref(db, ".info/connected"), (snap) => {
+            const connected = snap.val() === true;
+            if (navDbStatus) {
+                navDbStatus.textContent = connected ? "ONLINE" : "TERPUTUS";
+                navDbStatus.style.color = connected ? "var(--admin-green)" : "var(--admin-red)";
+            }
+        });
+
+        // ==========================================
+        // 3. JUMLAH ONLINE & PRESENCE TRACKING
+        // ==========================================
+        onValue(ref(db, "online_users"), (snapshot) => {
+            if (snapshot.exists()) {
+                currentOnlineUserList = Object.keys(snapshot.val());
+            } else {
+                currentOnlineUserList = [];
+            }
+            const count = currentOnlineUserList.length;
+            if (navOnlineVal) navOnlineVal.textContent = `${count} User`;
+            if (metricOnlineVal) metricOnlineVal.textContent = count;
+            if (metricOnlineNames) {
+                metricOnlineNames.textContent = count > 0 ? currentOnlineUserList.slice(0, 3).join(", ") + (count > 3 ? "..." : "") : "Nir-pengguna";
+            }
+        });
+
+        // ==========================================
+        // 4. JUMLAH PESAN TIAP GROUP & TOTAL & STORAGE
+        // ==========================================
+        function updateAllMessageStats() {
+            const pubCount = Object.keys(currentMessagesPublic).length;
+            const coreCount = Object.keys(currentMessagesCore).length;
+            const shiriCount = Object.keys(currentMessagesShiritori).length;
+            const total = pubCount + coreCount + shiriCount;
+
+            if (statPublicCount) statPublicCount.textContent = pubCount;
+            if (statCoreCount) statCoreCount.textContent = coreCount;
+            if (statShiritoriCount) statShiritoriCount.textContent = shiriCount;
+            if (metricTotalMsgVal) metricTotalMsgVal.textContent = total;
+
+            if (badgeRoomPublicCount) badgeRoomPublicCount.textContent = `${pubCount} Pesan`;
+            if (badgeRoomCoreCount) badgeRoomCoreCount.textContent = `${coreCount} Pesan`;
+            if (badgeRoomShiritoriCount) badgeRoomShiritoriCount.textContent = `${shiriCount} Pesan`;
+            if (badgeRoomAllCount) badgeRoomAllCount.textContent = `${total} Pesan`;
+
+            calculateStorageEstimate();
+        }
+
+        // Listener Room 1: Public Lounge
+        onValue(ref(db, "messages_public"), (snap) => {
+            currentMessagesPublic = snap.exists() ? snap.val() : {};
+            updateAllMessageStats();
+        });
+
+        // Listener Room 2: Fournity Core
+        onValue(ref(db, "messages"), (snap) => {
+            currentMessagesCore = snap.exists() ? snap.val() : {};
+            updateAllMessageStats();
+        });
+
+        // Listener Room 3: Shiritori Dojo
+        onValue(ref(db, "messages_shiritori"), (snap) => {
+            currentMessagesShiritori = snap.exists() ? snap.val() : {};
+            updateAllMessageStats();
+        });
+
+        // Perhitungan Estimasi Penyimpanan yang Digunakan
+        function calculateStorageEstimate() {
+            const rawPub = JSON.stringify(currentMessagesPublic).length;
+            const rawCore = JSON.stringify(currentMessagesCore).length;
+            const rawShiri = JSON.stringify(currentMessagesShiritori).length;
+            const rawUsers = JSON.stringify(currentUsersData).length;
+            const rawProfiles = JSON.stringify(currentUserProfiles).length;
+            const totalBytes = rawPub + rawCore + rawShiri + rawUsers + rawProfiles;
+            
+            const totalKB = (totalBytes / 1024).toFixed(1);
+            if (metricStorageVal) metricStorageVal.textContent = totalKB;
+            
+            if (metricStorageStatus) {
+                if (totalBytes < 500000) {
+                    metricStorageStatus.className = "status-pill status-optimal";
+                    metricStorageStatus.textContent = "● Kapasitas Ringan (< 500 KB)";
+                } else if (totalBytes < 2000000) {
+                    metricStorageStatus.className = "status-pill status-warning";
+                    metricStorageStatus.textContent = "● Kapasitas Menengah (< 2 MB)";
+                } else {
+                    metricStorageStatus.className = "status-pill status-danger";
+                    metricStorageStatus.textContent = "● Perlu Pembersihan (> 2 MB)";
+                }
+            }
+        }
+
+        if (btnRecalcStorage) {
+            btnRecalcStorage.addEventListener("click", () => {
+                calculateStorageEstimate();
+                showAdminToast(`Estimasi beban database: ${metricStorageVal.textContent} KB`, "💾");
+            });
+        }
+
+        // ==========================================
+        // 5. FITUR KENDALI UTAMA: PEMBERSIH CHAT ENGINE
+        // ==========================================
+        const roomCards = [cardRoomPublic, cardRoomCore, cardRoomShiritori, cardRoomAll];
+        let currentSelectedRoom = "messages_public";
+
+        roomCards.forEach(card => {
+            if (!card) return;
+            card.addEventListener("click", () => {
+                roomCards.forEach(c => c && c.classList.remove("is-selected"));
+                card.classList.add("is-selected");
+                const radio = card.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+                currentSelectedRoom = radio.value;
+                
+                const meta = roomMeta[currentSelectedRoom];
+                if (wiperSelectedRoomLabel && meta) {
+                    wiperSelectedRoomLabel.textContent = `${meta.name} (${meta.path})`;
+                }
+            });
+        });
+
+        // Trigger Buka Modal Konfirmasi
+        if (btnOpenWipeModal) {
+            btnOpenWipeModal.addEventListener("click", () => {
+                const meta = roomMeta[currentSelectedRoom];
+                if (!meta) return;
+
+                let msgCount = 0;
+                if (currentSelectedRoom === "messages_public") msgCount = Object.keys(currentMessagesPublic).length;
+                else if (currentSelectedRoom === "messages") msgCount = Object.keys(currentMessagesCore).length;
+                else if (currentSelectedRoom === "messages_shiritori") msgCount = Object.keys(currentMessagesShiritori).length;
+                else if (currentSelectedRoom === "all") {
+                    msgCount = Object.keys(currentMessagesPublic).length + 
+                               Object.keys(currentMessagesCore).length + 
+                               Object.keys(currentMessagesShiritori).length;
+                }
+
+                modalTargetLabel.textContent = `${meta.icon} ${meta.name} (${meta.path})`;
+                modalTargetMsgCount.textContent = `${msgCount} pesan`;
+                wipeConfirmKeyword.value = "";
+                wipeConfirmModal.style.display = "flex";
+                wipeConfirmKeyword.focus();
+            });
+        }
+
+        if (btnCancelWipeModal) {
+            btnCancelWipeModal.addEventListener("click", () => {
+                wipeConfirmModal.style.display = "none";
+            });
+        }
+
+        // Eksekusi Pembersihan Terkonfirmasi
+        if (btnExecutePurgeConfirmed) {
+            btnExecutePurgeConfirmed.addEventListener("click", async () => {
+                const typed = wipeConfirmKeyword.value.trim().toUpperCase();
+                if (typed !== "HAPUS") {
+                    alert('Harap ketik kata "HAPUS" dengan tepat untuk mengonfirmasi pemusnahan chat!');
+                    wipeConfirmKeyword.focus();
+                    return;
+                }
+
+                wipeConfirmModal.style.display = "none";
+
+                // Ambil mode eksekusi: countdown vs instant
+                const execModeRadio = document.querySelector('input[name="wiperExecMode"]:checked');
+                const execMode = execModeRadio ? execModeRadio.value : "countdown";
+                const customMsg = wiperCustomMsgInput.value.trim() || "Semua pesan telah dihapus oleh Admin.";
+
+                if (execMode === "countdown") {
+                    executeWipeWithCountdown(currentSelectedRoom, customMsg);
+                } else {
+                    await executeInstantWipe(currentSelectedRoom, customMsg);
+                }
+            });
+        }
+
+        // EKSEKUSI MODE 1: HITUNG MUNDUR 10 DETIK
+        function executeWipeWithCountdown(targetRoom, customMessage) {
+            isWiperAborted = false;
+            wiperCountdownSeconds = 10;
+            cyberCountdownOverlay.style.display = "flex";
+            countdownValText.textContent = wiperCountdownSeconds;
+
+            const meta = roomMeta[targetRoom];
+            countdownSubText.innerHTML = `
+                Mengunci database dan melenyapkan seluruh riwayat pada <strong>${meta.name}</strong>...<br>
+                Peringatan darurat robot sistem sedang dipancarkan ke seluruh layar pengguna!
+            `;
+
+            // Kirim pesan countdown awal ke database agar layar user berdering
+            const broadcastCountdownMsg = {
+                name: "SYSTEM",
+                message: "Seluruh pesan akan dihapus oleh admin dalam hitung mundur",
+                isCountdown: true,
+                timestamp: Date.now()
+            };
+
+            if (targetRoom === "all") {
+                push(ref(db, "messages_public"), broadcastCountdownMsg);
+                push(ref(db, "messages"), broadcastCountdownMsg);
+                push(ref(db, "messages_shiritori"), broadcastCountdownMsg);
+            } else {
+                push(ref(db, targetRoom), broadcastCountdownMsg);
+            }
+
+            addActivityLog("Peringatan Countdown Dimulai", `Hitung mundur 10 detik dipancarkan ke ${meta.name}`, "⚠️");
+
+            clearInterval(wiperCountdownTimer);
+            wiperCountdownTimer = setInterval(async () => {
+                wiperCountdownSeconds--;
+                countdownValText.textContent = wiperCountdownSeconds;
+
+                if (wiperCountdownSeconds <= 0) {
+                    clearInterval(wiperCountdownTimer);
+                    if (!isWiperAborted) {
+                        cyberCountdownOverlay.style.display = "none";
+                        await executeInstantWipe(targetRoom, customMessage);
+                    }
+                }
+            }, 1000);
+        }
+
+        // Tombol Batalkan Countdown
+        if (btnAbortCountdown) {
+            btnAbortCountdown.addEventListener("click", () => {
+                isWiperAborted = true;
+                clearInterval(wiperCountdownTimer);
+                cyberCountdownOverlay.style.display = "none";
+                showAdminToast("Pemusnahan chat dibatalkan oleh Admin!", "🛑");
+                addActivityLog("Operasi Dibatalkan", "Pemusnahan chat dihentikan sebelum tenggat waktu", "🛑");
+            });
+        }
+
+        // EKSEKUSI MODE 2: INSTANT PURGE & POST-CLEAR ROBOT SYSTEM MESSAGE
+        async function executeInstantWipe(targetRoom, customMessage) {
+            try {
+                const targetRooms = targetRoom === "all" 
+                    ? ["messages_public", "messages", "messages_shiritori"] 
+                    : [targetRoom];
+
+                for (const rPath of targetRooms) {
+                    const roomDbRef = ref(db, rPath);
+                    
+                    // 1. Lenyapkan semua chat dari node tersebut
+                    await remove(roomDbRef);
+
+                    // 2. Publikasikan pesan resmi robot sistem
+                    await push(roomDbRef, {
+                        name: "SYSTEM",
+                        message: customMessage,
+                        isPostClear: true,
+                        timestamp: Date.now()
+                    });
+                }
+
+                showAdminToast(`Pembersihan sukses! Seluruh pesan di ${roomMeta[targetRoom].name} telah dilenyapkan.`, "🧹", 4500);
+                addActivityLog("Pembersihan Chat Sukses", `Seluruh pesan pada ${roomMeta[targetRoom].name} dihapus permanen. Pesan sistem robot telah dipasang.`, "✅");
+                
+                // Hitung ulang beban penyimpanan
+                calculateStorageEstimate();
+
+            } catch (err) {
+                alert("Gagal menghapus pesan: " + err.message);
+                addActivityLog("Gagal Pembersihan Chat", err.message, "❌");
+            }
+        }
+
+        // ==========================================
+        // 6. DATA USER & DIREKTORI ANGGOTA
+        // ==========================================
+        function renderUserTable() {
+            if (!userTableBody) return;
+            const searchVal = (userSearchInput ? userSearchInput.value : "").trim().toLowerCase();
+            
+            // Satukan data users dan user_profiles
+            const uids = Object.keys(currentUsersData);
+            if (uids.length === 0) {
+                userTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--admin-text-dim); padding: 24px;">
+                            Tidak ada data pengguna terdaftar di node "users".
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let filteredList = [];
+
+            uids.forEach(uid => {
+                const u = currentUsersData[uid] || {};
+                const profile = u.profile || {};
+                const inventory = u.inventory || {};
+                const progress = u.progress || {};
+                const checkin = u.checkin || {};
+
+                const displayName = profile.displayName || "Tanpa Nama";
+                const email = profile.email || "-";
+                const avatar = profile.avatar || profile.photoBase64 || "";
+                const rarity = (profile.avatarRarity || "").toLowerCase();
+                const exp = progress.exp || 0;
+                const streak = checkin.streak || 0;
+                const cardCount = (inventory.card_instances || []).length || (inventory.unlocked_cards || []).length || 0;
+                const createdAt = profile.createdAt ? new Date(profile.createdAt).toLocaleDateString("id-ID") : "-";
+
+                // Filter Search
+                const matchSearch = displayName.toLowerCase().includes(searchVal) || 
+                                    email.toLowerCase().includes(searchVal) || 
+                                    uid.toLowerCase().includes(searchVal);
+                if (!matchSearch) return;
+
+                // Filter Rarity Pills
+                if (activeUserFilter === "legendary" && !rarity.includes("legend") && !rarity.includes("vip")) return;
+                if (activeUserFilter === "ur" && !rarity.includes("ur") && !rarity.includes("ultra")) return;
+                if (activeUserFilter === "rare" && !rarity.includes("rare") && rarity.includes("ultra")) return;
+                if (activeUserFilter === "default" && (rarity.includes("legend") || rarity.includes("ur") || rarity.includes("rare"))) return;
+
+                filteredList.push({ uid, displayName, email, avatar, rarity, exp, streak, cardCount, createdAt });
+            });
+
+            if (userTotalBadge) userTotalBadge.textContent = `${filteredList.length} Akun`;
+
+            if (filteredList.length === 0) {
+                userTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--admin-text-dim); padding: 24px;">
+                            Tidak ada pengguna yang cocok dengan kriteria pencarian / filter.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            userTableBody.innerHTML = filteredList.map(u => {
+                let rarityClass = "";
+                let rarityTag = "";
+                if (u.rarity.includes("legend") || u.rarity.includes("vip")) {
+                    rarityClass = "is-vip";
+                    rarityTag = '<span style="font-size:9.5px; color:#FFB703; font-weight:800;">👑 VIP</span>';
+                } else if (u.rarity.includes("ur") || u.rarity.includes("ultra")) {
+                    rarityClass = "is-ur";
+                    rarityTag = '<span style="font-size:9.5px; color:#8B5CF6; font-weight:800;">💜 UR</span>';
+                } else if (u.rarity.includes("rare")) {
+                    rarityTag = '<span style="font-size:9.5px; color:#00F0FF; font-weight:800;">💎 RARE</span>';
+                } else {
+                    rarityTag = '<span style="font-size:9.5px; color:#94A3B8;">🎋 GAKUSEI</span>';
+                }
+
+                const avatarSrc = u.avatar || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231E293B"/><text x="50%" y="55%" font-size="14" text-anchor="middle" dominant-baseline="middle" fill="%23FFF">👤</text></svg>';
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="user-table-cell-profile">
+                                <img src="${avatarSrc}" class="user-table-avatar ${rarityClass}" alt="${u.displayName}">
+                                <div>
+                                    <span class="user-table-name">${u.displayName} ${rarityTag}</span>
+                                    <span class="user-table-email">${u.email}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="font-family:'JetBrains Mono', monospace; font-size:10.5px; color:#94A3B8;" title="${u.uid}">
+                                ${u.uid.substring(0, 10)}...
+                            </span>
+                        </td>
+                        <td>
+                            <strong style="color:var(--admin-gold); font-family:'JetBrains Mono', monospace;">${u.exp} EXP</strong>
+                        </td>
+                        <td>
+                            <span style="font-weight:700; color:#10B981;">🔥 ${u.streak} Hari</span>
+                        </td>
+                        <td>
+                            <span style="font-weight:700; color:#CBD5E1;">🃏 ${u.cardCount} Kartu</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <button type="button" class="btn-action-small" onclick="window.adminCopyUid('${u.uid}')" title="Salin UID">
+                                📋 UID
+                            </button>
+                            <button type="button" class="btn-action-small btn-action-accent" onclick="window.adminGrantExp('${u.uid}', '${u.displayName}')" title="Beri +100 EXP">
+                                ⚡ +100 EXP
+                            </button>
+                            <button type="button" class="btn-action-small" onclick="window.adminResetAvatar('${u.uid}', '${u.displayName}')" style="color:#FF6B81;" title="Reset Foto Profil">
+                                🔄 Reset
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        // Listener Users & User Profiles
+        onValue(ref(db, "users"), (snap) => {
+            currentUsersData = snap.exists() ? snap.val() : {};
+            renderUserTable();
+            calculateStorageEstimate();
+        });
+
+        onValue(ref(db, "user_profiles"), (snap) => {
+            currentUserProfiles = snap.exists() ? snap.val() : {};
+            calculateStorageEstimate();
+        });
+
+        if (userSearchInput) {
+            userSearchInput.addEventListener("input", renderUserTable);
+        }
+
+        filterPills.forEach(pill => {
+            pill.addEventListener("click", () => {
+                filterPills.forEach(p => p.classList.remove("is-active"));
+                pill.classList.add("is-active");
+                activeUserFilter = pill.getAttribute("data-filter");
+                renderUserTable();
+            });
+        });
+
+        // Global User Table Actions
+        window.adminCopyUid = (uid) => {
+            navigator.clipboard.writeText(uid);
+            showAdminToast("UID berhasil disalin ke clipboard!", "📋");
+        };
+
+        window.adminGrantExp = async (uid, name) => {
+            try {
+                const u = currentUsersData[uid];
+                const curExp = (u && u.progress && u.progress.exp) ? u.progress.exp : 0;
+                const newExp = curExp + 100;
+                await update(ref(db, `users/${uid}/progress`), { exp: newExp });
+                showAdminToast(`Berhasil menambah +100 EXP untuk ${name}!`, "⚡");
+                addActivityLog("Bonus EXP Diberikan", `Admin menambah +100 EXP ke akun ${name} (Total: ${newExp})`, "⚡");
+            } catch (e) {
+                alert("Gagal memperbarui EXP: " + e.message);
+            }
+        };
+
+        window.adminResetAvatar = async (uid, name) => {
+            if (confirm(`Yakin ingin mereset avatar akun ${name} ke default?`)) {
+                try {
+                    await update(ref(db, `users/${uid}/profile`), {
+                        avatar: "",
+                        avatarRarity: "",
+                        avatarSerial: "",
+                        photoBase64: ""
+                    });
+                    if (currentUserProfiles[name]) {
+                        await update(ref(db, `user_profiles/${name}`), { photoBase64: "" });
+                    }
+                    showAdminToast(`Avatar ${name} berhasil di-reset ke default!`, "🔄");
+                    addActivityLog("Reset Avatar", `Avatar akun ${name} dikembalikan ke default oleh Admin`, "🔄");
+                } catch (e) {
+                    alert("Gagal mereset avatar: " + e.message);
+                }
+            }
+        };
+
+        // ==========================================
+        // 7. AKTIVITAS REALTIME FEED & AUDIT
+        // ==========================================
+        if (btnClearActivityFeed) {
+            btnClearActivityFeed.addEventListener("click", () => {
+                activityFeedList.innerHTML = `
+                    <div class="activity-feed-item">
+                        <span class="activity-icon">🧹</span>
+                        <div class="activity-content">
+                            <strong>Log Aktivitas Dibersihkan</strong>
+                            <p>Tampilan riwayat lokal telah di-reset.</p>
+                        </div>
+                        <span class="activity-time">Baru saja</span>
+                    </div>
+                `;
+            });
+        }
+
+        // Tangkap pesan baru dari Public Lounge untuk dicatat ke audit
+        onChildAdded(query(ref(db, "messages_public"), limitToLast(1)), (snap) => {
+            const data = snap.val();
+            if (data && data.name && data.name !== "SYSTEM" && Date.now() - (data.timestamp || 0) < 60000) {
+                addActivityLog(`Pesan di Public Lounge: ${data.name}`, data.message ? (data.message.substring(0, 35) + "...") : "Media", "💬");
+            }
+        });
+
+        // ==========================================
+        // 8. GLOBAL BROADCAST TRANSMITTER
+        // ==========================================
+        if (btnSendBroadcast) {
+            btnSendBroadcast.addEventListener("click", async () => {
+                const title = broadcastTitleInput.value.trim() || "PENGUMUMAN RESMI SISTEM";
+                const message = broadcastBodyInput.value.trim();
+                if (!message) {
+                    alert("Isi pesan pengumuman tidak boleh kosong!");
+                    broadcastBodyInput.focus();
+                    return;
+                }
+
+                try {
+                    btnSendBroadcast.disabled = true;
+                    btnSendBroadcast.textContent = "MEMANCARKAN BROADCAST...";
+                    await push(ref(db, "announcements"), {
+                        title: title,
+                        message: message,
+                        timestamp: Date.now(),
+                        sender: "Umaedi (Founder)"
+                    });
+
+                    showAdminToast("Broadcast global berhasil dipancarkan ke seluruh pengunjung!", "📢");
+                    addActivityLog("Broadcast Terkirim", `Judul: ${title} — Pesan: ${message}`, "📢");
+                    broadcastTitleInput.value = "";
+                    broadcastBodyInput.value = "";
+                } catch (e) {
+                    alert("Gagal mengirim broadcast: " + e.message);
+                } finally {
+                    btnSendBroadcast.disabled = false;
+                    btnSendBroadcast.textContent = "🚀 TRANSMIT PUSH BANNER SEKARANG";
+                }
+            });
+        }
+
+        // ==========================================
+        // 9. PINTASAN PEMELIHARAAN SISTEM
+        // ==========================================
+        if (btnCleanTyping) {
+            btnCleanTyping.addEventListener("click", async () => {
+                try {
+                    await remove(ref(db, "typing_public"));
+                    await remove(ref(db, "typing_core"));
+                    await remove(ref(db, "typing_shiritori"));
+                    showAdminToast("Seluruh indikator ketik berhasil dibersihkan!", "🧹");
+                    addActivityLog("Maintenance", "Typing indicators di-reset", "🧹");
+                } catch (e) {
+                    alert("Gagal: " + e.message);
+                }
+            });
+        }
+
+        if (btnSyncAnnounce) {
+            btnSyncAnnounce.addEventListener("click", async () => {
+                if (confirm("Kosongkan semua riwayat broadcast lama dari database?")) {
+                    try {
+                        await remove(ref(db, "announcements"));
+                        showAdminToast("Riwayat broadcast telah dikosongkan!", "🗑️");
+                        addActivityLog("Maintenance", "Node announcements dikosongkan", "🗑️");
+                    } catch (e) {
+                        alert("Gagal: " + e.message);
+                    }
+                }
+            });
+        }
+
+        // Notifikasi Inisialisasi Selesai
+        addActivityLog("Command Center Siap", "Telemetri dan kendali RTDB aktif sepenuhnya", "✅");
+
+    </script>
+</body>
+</html>

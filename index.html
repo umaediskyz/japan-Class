@@ -11,23 +11,23 @@
     <link rel="icon" type="image/png" href="gambar/icon.png">
 
     <!-- Primary Meta Tags -->
-    <meta name="title" content="Nihongo Trinity | Japanese Mastery Hub">
+    <meta name="title" content="Nihongo Fournity | Japanese Mastery Hub">
     <meta name="description"
-        content="Pusat belajar bahasa Jepang modern & interaktif. Kuasai Hiragana, Katakana, Kanji, Audio Native, dan Refleks Percakapan.">
+        content="Pusat belajar bahasa Jepang modern & interaktif. Kuasai Hiragana, Katakana, Kanji, Audio Native, Shiritori Dojo, dan Refleks Percakapan.">
     <meta name="theme-color" content="#080b11">
 
     <!-- Open Graph / WhatsApp -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nihongo-trinity.vercel.app/">
-    <meta property="og:title" content="Nihongo Trinity | System Hub">
+    <meta property="og:title" content="Nihongo Fournity | 4 Pillars Japanese Hub">
     <meta property="og:description"
-        content="Aplikasi belajar bahasa Jepang terstruktur, modern, dan interaktif. Latihan refleks, kanji harian, dan AI Sensei.">
+        content="Aplikasi belajar bahasa Jepang 4 Pilar terstruktur, modern, dan interaktif. Latihan refleks, kanji harian, Shiritori kata, dan AI Sensei.">
     <meta property="og:image" itemprop="image" content="https://nihongo-trinity.vercel.app/gambar/icon.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="300">
     <meta property="og:image:height" content="300">
 
-    <title>Nihongo Trinity | Japanese Mastery Hub</title>
+    <title>Nihongo Fournity | Japanese Mastery Hub</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -45,11 +45,11 @@
         <header class="mobile-app-header">
             <a href="index.html" class="mobile-brand-group">
                 <div class="mobile-brand-logo">
-                    <img src="gambar/icon.png" alt="Trinity Logo" onerror="this.style.display='none'">
+                    <img src="gambar/icon.png" alt="Fournity Logo" onerror="this.style.display='none'">
                 </div>
                 <div class="mobile-brand-text">
-                    <span class="mobile-brand-title">TRINITY <span style="font-size: 11px; color: var(--japan-red);">日本語</span></span>
-                    <span class="mobile-brand-sub">System Mastery Hub</span>
+                    <span class="mobile-brand-title">FOURNITY <span style="font-size: 11px; color: var(--japan-red);">日本語</span></span>
+                    <span class="mobile-brand-sub">4 Pillars Community Hub</span>
                 </div>
             </a>
 
@@ -61,8 +61,10 @@
 
                 <!-- Tombol Login / Profil Member -->
                 <button id="topLoginToggle" class="mobile-profile-pill" aria-label="Profil Member">
-                    <img id="topAvatar" src="gambar/icon.png" alt="Avatar" class="mobile-profile-avatar" style="display: none;">
-                    <span class="icon" id="topIcon">👤</span>
+                    <div class="top-avatar-wrap" id="topAvatarWrap">
+                        <img id="topAvatar" src="gambar/icon.png" alt="Avatar" class="mobile-profile-avatar" style="display: none;">
+                        <span class="icon" id="topIcon">👤</span>
+                    </div>
                     <span id="topLoginText">Login</span>
                 </button>
             </div>
@@ -72,7 +74,7 @@
         <section class="student-pass-card">
             <div class="pass-top-row">
                 <div class="pass-user-meta">
-                    <div class="pass-avatar-wrapper">
+                    <div class="pass-avatar-wrapper" id="passAvatarWrapper">
                         <img id="heroPassAvatar" src="gambar/icon.png" alt="Student Avatar" class="pass-avatar-img">
                     </div>
                     <div class="pass-user-details">
@@ -85,15 +87,33 @@
                 </div>
             </div>
 
-            <!-- EXP Progress Bar -->
+            <!-- EXP Progress Bar (Realtime Multi-Module) -->
             <div class="pass-exp-container">
                 <div class="pass-exp-header">
-                    <span class="pass-exp-label">Penguasaan Materi (EXP)</span>
-                    <span class="pass-exp-val" id="heroExpVal">120 / 300 XP</span>
+                    <span class="pass-exp-label">Penguasaan Materi Realtime (EXP)</span>
+                    <span class="pass-exp-val" id="heroExpVal">0 / 150 XP</span>
                 </div>
                 <div class="pass-exp-track">
-                    <div class="pass-exp-fill" id="heroExpFill" style="width: 40%;"></div>
+                    <div class="pass-exp-fill" id="heroExpFill" style="width: 0%;"></div>
                 </div>
+            </div>
+
+            <!-- Quick Action Hub (Check-In & Album Kartu) -->
+            <div class="pass-actions-hub">
+                <button type="button" class="pass-action-btn pass-action-checkin" id="heroCheckinBtn">
+                    <span class="hub-btn-icon">📅</span>
+                    <div class="hub-btn-texts">
+                        <strong>Check-In Harian</strong>
+                        <span id="heroCheckinStatus">Klaim XP & Kartu</span>
+                    </div>
+                </button>
+                <button type="button" class="pass-action-btn pass-action-album" id="heroAlbumBtn">
+                    <span class="hub-btn-icon">🎴</span>
+                    <div class="hub-btn-texts">
+                        <strong>Koleksi Card</strong>
+                        <span id="heroAlbumCount">0 Kartu Dimiliki</span>
+                    </div>
+                </button>
             </div>
 
             <!-- Daily Motto Banner (Audio Speaker) -->
@@ -111,11 +131,35 @@
 
         <!-- 2. QUICK ACTION CHIPS (HORIZONTAL SCROLL MENU) -->
         <div class="quick-chips-wrapper" aria-label="Menu Pintas Kilat">
+            <button type="button" class="quick-chip-item" id="quickCheckinBtn" style="border-color: rgba(255, 183, 3, 0.6); background: rgba(255, 183, 3, 0.15); color: #FFB703;">
+                <span class="chip-icon">📅</span>
+                <span>Check-In</span>
+            </button>
+            <button type="button" class="quick-chip-item" id="quickCardAlbumBtn" style="border-color: rgba(247, 37, 133, 0.6); background: rgba(247, 37, 133, 0.15); color: #F72585;">
+                <span class="chip-icon">🎴</span>
+                <span>Koleksi Card</span>
+            </button>
+            <a href="pages/pesan.html?tab=calls" class="quick-chip-item" style="border-color: rgba(52, 199, 89, 0.6); background: rgba(52, 199, 89, 0.15); color: #34C759;">
+                <span class="chip-icon">📞</span>
+                <span>Kaiwa Call</span>
+            </a>
+            <a href="pages/multiplayer.html" class="quick-chip-item" style="border-color: rgba(0, 245, 212, 0.5); background: rgba(0, 245, 212, 0.12); color: #00F5D4;">
+                <span class="chip-icon">⚔️</span>
+                <span>Duel Online</span>
+            </a>
+            <a href="pages/pesan.html" class="quick-chip-item" style="border-color: rgba(255, 117, 143, 0.45); background: rgba(255, 101, 132, 0.1);">
+                <span class="chip-icon">🎮</span>
+                <span>Shiritori Dojo</span>
+            </a>
+            <a href="pages/pesan.html" class="quick-chip-item" style="border-color: rgba(212, 175, 55, 0.45); background: rgba(212, 175, 55, 0.08);">
+                <span class="chip-icon">🎙️</span>
+                <span>Speech Coach</span>
+            </a>
             <a href="#fastRadarSection" class="quick-chip-item">
                 <span class="chip-icon">⚡</span>
                 <span>Kuis Kilat</span>
             </a>
-            <a href="pages/pesan.html" class="quick-chip-item" style="border-color: rgba(255, 117, 143, 0.4);">
+            <a href="pages/pesan.html" class="quick-chip-item">
                 <span class="chip-icon">🌸</span>
                 <span>AI Sensei</span>
             </a>
@@ -141,41 +185,138 @@
             </a>
         </div>
 
-        <!-- 3. NEW FEATURE: 🎯 MISI HARIAN DISIPLIN (DAILY MASTERY QUESTS) -->
+        <!-- 3. OTOMATIS: 🎯 MISI HARIAN DISIPLIN (AUTO-COMPLETING MASTERY QUESTS) -->
         <section class="daily-quests-card" id="dailyQuestsSection">
             <div class="card-section-title-row">
                 <div class="card-title-group">
-                    <span style="font-size: 16px;">🎯</span>
-                    <h4>Misi Disiplin Hari Ini</h4>
+                    <span style="font-size: 17px;">🎯</span>
+                    <div>
+                        <h4>Misi Disiplin Hari Ini</h4>
+                        <span class="quest-auto-subtitle">⚡ Otomatis selesai saat kamu belajar modul (anti-cheat)</span>
+                    </div>
                 </div>
-                <span class="card-title-badge" id="questProgressText">0 / 3 Selesai</span>
+                <span class="card-title-badge" id="questProgressText">0 / 4 Selesai</span>
             </div>
 
-            <!-- Quest Item 1 -->
-            <div class="quest-item" id="questItem1">
+            <!-- Quest Item 1 (Kana / Kotoba) -->
+            <div class="quest-item quest-auto-item" id="questItem1" data-action="kana">
                 <div class="quest-left">
-                    <div class="quest-checkbox" id="questCheck1">✓</div>
-                    <span class="quest-title">Buka modul Hiragana atau Katakana</span>
+                    <div class="quest-status-icon" id="questCheck1">⏳</div>
+                    <div class="quest-text-box">
+                        <span class="quest-title">Pelajari 3 Huruf Kana atau Kotoba</span>
+                        <div class="quest-sub-info">
+                            <span class="quest-step-pill" id="questStep1">0 / 3 Materi</span>
+                            <span class="quest-guide-hint">Buka modul Hiragana / Katakana / Kotoba</span>
+                        </div>
+                    </div>
                 </div>
-                <span class="quest-reward">+25 XP</span>
+                <div class="quest-right-meta">
+                    <span class="quest-reward">+35 XP</span>
+                    <span class="quest-status-tag" id="questTag1">Belum</span>
+                </div>
             </div>
 
-            <!-- Quest Item 2 -->
-            <div class="quest-item" id="questItem2">
+            <!-- Quest Item 2 (Refleks Radar) -->
+            <div class="quest-item quest-auto-item" id="questItem2" data-action="radar">
                 <div class="quest-left">
-                    <div class="quest-checkbox" id="questCheck2">✓</div>
-                    <span class="quest-title">Jawab kuis kilat refleks benar di bawah</span>
+                    <div class="quest-status-icon" id="questCheck2">⏳</div>
+                    <div class="quest-text-box">
+                        <span class="quest-title">Refleks Kilat: Jawab 3 Soal Radar Benar</span>
+                        <div class="quest-sub-info">
+                            <span class="quest-step-pill" id="questStep2">0 / 3 Benar</span>
+                            <span class="quest-guide-hint">Mainkan radar cepat di bawah ini</span>
+                        </div>
+                    </div>
                 </div>
-                <span class="quest-reward">+35 XP</span>
+                <div class="quest-right-meta">
+                    <span class="quest-reward">+40 XP</span>
+                    <span class="quest-status-tag" id="questTag2">Belum</span>
+                </div>
             </div>
 
-            <!-- Quest Item 3 -->
-            <div class="quest-item" id="questItem3">
+            <!-- Quest Item 3 (Kanji / Sensei) -->
+            <div class="quest-item quest-auto-item" id="questItem3" data-action="kanji">
                 <div class="quest-left">
-                    <div class="quest-checkbox" id="questCheck3">✓</div>
-                    <span class="quest-title">Konsultasi atau sapa Aoi Sensei di chat</span>
+                    <div class="quest-status-icon" id="questCheck3">⏳</div>
+                    <div class="quest-text-box">
+                        <span class="quest-title">Hafal 1 Kanji Radar atau Sapa Sensei</span>
+                        <div class="quest-sub-info">
+                            <span class="quest-step-pill" id="questStep3">0 / 1 Target</span>
+                            <span class="quest-guide-hint">Tandai hafal kanji di radar / kirim chat</span>
+                        </div>
+                    </div>
                 </div>
-                <span class="quest-reward">+50 XP</span>
+                <div class="quest-right-meta">
+                    <span class="quest-reward">+45 XP</span>
+                    <span class="quest-status-tag" id="questTag3">Belum</span>
+                </div>
+            </div>
+
+            <!-- Quest Item 4 (Check-In) -->
+            <div class="quest-item quest-auto-item" id="questItem4" data-action="checkin">
+                <div class="quest-left">
+                    <div class="quest-status-icon" id="questCheck4">⏳</div>
+                    <div class="quest-text-box">
+                        <span class="quest-title">Disiplin Check-In Hari Ini</span>
+                        <div class="quest-sub-info">
+                            <span class="quest-step-pill" id="questStep4">0 / 1 Hari</span>
+                            <span class="quest-guide-hint">Klaim streak harian untuk peluang kartu gacha</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quest-right-meta">
+                    <span class="quest-reward">+30 XP</span>
+                    <span class="quest-status-tag" id="questTag4">Belum</span>
+                </div>
+            </div>
+
+            <!-- All Cleared Celebration Banner -->
+            <div class="quests-cleared-banner" id="allQuestsBanner" style="display: none;">
+                <div class="cleared-banner-content">
+                    <span class="cleared-sparkle-icon">👑</span>
+                    <div>
+                        <strong>DISIPLIN HARIAN SEMPURNA!</strong>
+                        <p>Semua misi hari ini selesai! +80 Bonus EXP & Peluang Photo Card Gacha Aktif!</p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-gold btn-sm" id="bannerGachaBtn">🎴 Cek Koleksi</button>
+            </div>
+        </section>
+
+        <!-- 3.5 SHOWCASE: 🎴 KOLEKSI FOTO CARD JEPANG (PHOTO CARD COLLECTION SHOWCASE) -->
+        <section class="card-showcase-section" id="cardShowcaseSection">
+            <div class="card-section-title-row">
+                <div class="card-title-group">
+                    <span style="font-size: 18px;">🎴</span>
+                    <div>
+                        <h4>Koleksi Foto Card Jepang</h4>
+                        <span class="quest-auto-subtitle">Kumpulkan Kartu Rare, Ultra Rare & Legendary!</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-album-open" id="showcaseOpenAlbumBtn">
+                    Lihat Semua (<span>0 Kartu</span>) ›
+                </button>
+            </div>
+
+            <!-- Showcase Preview Cards Grid -->
+            <div class="showcase-cards-slider" id="showcaseCardsSlider">
+                <!-- Diisi secara dinamis oleh script.js -->
+            </div>
+
+            <!-- Showcase Footer Banner Info -->
+            <div class="showcase-info-strip">
+                <div class="info-strip-pill">
+                    <span class="dot-legendary"></span>
+                    <span>Legendary (Efek Hologram Pelangi)</span>
+                </div>
+                <div class="info-strip-pill">
+                    <span class="dot-ur"></span>
+                    <span>Ultra Rare (Foil Emas Ungu)</span>
+                </div>
+                <div class="info-strip-pill">
+                    <span class="dot-rare"></span>
+                    <span>Rare (Kristal Perak)</span>
+                </div>
             </div>
         </section>
 
@@ -263,7 +404,7 @@
             <div style="font-size: 12.5px; font-weight: 800; color: #fff; letter-spacing: 0.5px;">
                 ⛩️ MODUL PEMBELAJARAN (道場入口)
             </div>
-            <span style="font-size: 10px; color: var(--japan-gold); font-weight: 700;">7 Lab Tersedia</span>
+            <span style="font-size: 10px; color: var(--japan-gold); font-weight: 700;">8 Lab Tersedia</span>
         </div>
 
         <div class="mobile-dojo-grid">
@@ -327,26 +468,48 @@
                 </div>
             </a>
 
-            <!-- MODUL 7: AOI SENSEI & RUANG OBROLAN (FEATURED FULL-WIDTH) -->
+            <!-- MODUL 7: SHIRITORI DOJO & AOI SENSEI (FEATURED FULL-WIDTH) -->
             <a href="pages/pesan.html" class="mobile-gate-card featured-card">
                 <div class="mobile-gate-icon" style="background: linear-gradient(135deg, rgba(255, 101, 132, 0.25), rgba(142, 68, 173, 0.25)); border: 1.5px solid rgba(255, 101, 132, 0.5); color: #FF758C;">🌸</div>
                 <div style="flex: 1;">
-                    <span class="mobile-gate-label" style="color: #FF758C;">AI Tutor 24 Jam & Komunitas</span>
-                    <h4 class="mobile-gate-title" style="font-size: 14.5px;">Aoi Sensei & Obrolan <span>(葵先生)</span></h4>
-                    <p class="mobile-gate-desc">Tanya partikel, kanji, atau ngobrol santai tanpa perlu ribet API key!</p>
+                    <span class="mobile-gate-label" style="color: #FF758C;">Game Kata, Latihan Lafal & Komunitas Fournity</span>
+                    <h4 class="mobile-gate-title" style="font-size: 14.5px;">Shiritori Dojo & Aoi Sensei <span>(しりとり・葵先生)</span></h4>
+                    <p class="mobile-gate-desc">Main Shiritori kata Jepang, uji lafal bicara (Speech Coach), Furigana Ruby, dan cap digital Hanko!</p>
                 </div>
                 <span style="color: #FF758C; font-size: 16px; font-weight: 800;">→</span>
             </a>
+
+            <!-- MODUL 8: GAME MULTIPLAYER ARENA (FEATURED FULL-WIDTH) -->
+            <a href="pages/multiplayer.html" class="mobile-gate-card featured-card" style="border-color: rgba(0, 245, 212, 0.45); background: linear-gradient(135deg, rgba(0, 245, 212, 0.12) 0%, rgba(14, 20, 32, 0.8) 100%); margin-top: 6px;">
+                <div class="mobile-gate-icon" style="background: linear-gradient(135deg, rgba(0, 245, 212, 0.25), rgba(255, 42, 84, 0.25)); border: 1.5px solid #00F5D4; color: #00F5D4;">⚔️</div>
+                <div style="flex: 1;">
+                    <span class="mobile-gate-label" style="color: #00F5D4;">Real-Time 1v1 Battle Arena · BARU</span>
+                    <h4 class="mobile-gate-title" style="font-size: 14.5px;">Game Multiplayer Arena <span>(マルチプレイヤー)</span></h4>
+                    <p class="mobile-gate-desc">Tanding cepat tebak Kana, duel Kanji, Jankenpon Royale &amp; Shiritori live bersama teman atau AI!</p>
+                </div>
+                <span style="color: #00F5D4; font-size: 16px; font-weight: 800;">→</span>
+            </a>
+
+            <!-- MODUL 9: KAIWA LIVE SIMULATOR (FEATURED FULL-WIDTH) -->
+            <a href="pages/pesan.html?tab=calls" class="mobile-gate-card featured-card" style="border-color: rgba(52, 199, 89, 0.45); background: linear-gradient(135deg, rgba(52, 199, 89, 0.15) 0%, rgba(10, 132, 255, 0.12) 100%); margin-top: 6px;">
+                <div class="mobile-gate-icon" style="background: linear-gradient(135deg, rgba(52, 199, 89, 0.25), rgba(10, 132, 255, 0.25)); border: 1.5px solid #34C759; color: #34C759;">📞</div>
+                <div style="flex: 1;">
+                    <span class="mobile-gate-label" style="color: #34C759;">Simulasi Video Call Interaktif Bergaya iOS · BARU</span>
+                    <h4 class="mobile-gate-title" style="font-size: 14.5px;">Kaiwa Live Simulator <span>(生会話・直話)</span></h4>
+                    <p class="mobile-gate-desc">Telpon tutor &amp; cewek Jepang secara acak atau pilih kontak, simulasi berdering 6 detik, video horizontal pembantu, dan subtitle percakapan.</p>
+                </div>
+                <span style="color: #34C759; font-size: 16px; font-weight: 800;">→</span>
+            </a>
         </div>
 
-        <!-- 7. SEGMENTED TABS: LEADERBOARD & TEAM ROSTER -->
+        <!-- 7. SEGMENTED TABS: LEADERBOARD & 4 PILAR FOURNITY ROSTER -->
         <section id="leaderboardSection" style="margin-bottom: 24px;">
             <div class="hub-segmented-tabs">
                 <button type="button" class="hub-segment-btn is-active" id="tabBtnRank" data-target="paneRank">
                     <span>🏆</span> Peringkat Global
                 </button>
                 <button type="button" class="hub-segment-btn" id="tabBtnTeam" data-target="paneTeam">
-                    <span>👥</span> Tim Pengembang
+                    <span>👥</span> 4 Pilar Fournity
                 </button>
             </div>
 
@@ -361,46 +524,46 @@
                 <a href="pages/donasi.html" class="donation-widget" style="margin-top: 10px;">
                     <div class="donation-icon">🍵</div>
                     <div class="donation-info">
-                        <strong>Dukung Server Trinity</strong>
+                        <strong>Dukung Server Fournity</strong>
                         <span>Bantu operasional sistem & server (Donasi)</span>
                     </div>
                     <div class="donation-arrow">→</div>
                 </a>
             </div>
 
-            <!-- Tab Pane 2: Team Roster -->
+            <!-- Tab Pane 2: Team Roster (4 Pilar Nihongo Fournity) -->
             <div class="tab-pane-content" id="paneTeam">
                 <div class="mobile-team-grid">
                     <div class="mobile-team-card founder-border">
                         <div class="team-header-row">
                             <h4 class="team-name">Umaedi</h4>
-                            <span class="team-role-tag" style="background: rgba(212, 175, 55, 0.2); color: var(--japan-gold);">Owner / Dev</span>
+                            <span class="team-role-tag" style="background: rgba(212, 175, 55, 0.2); color: var(--japan-gold);">Pilar 1 · Founder & Dev</span>
                         </div>
-                        <p class="team-desc-text">Arsitektur perangkat lunak, otomatisasi kecerdasan buatan, dan infrastruktur cloud.</p>
+                        <p class="team-desc-text">Arsitektur perangkat lunak, sistem AI speech coach, sintesis audio zen, dan infrastruktur cloud Fournity.</p>
                     </div>
 
                     <div class="mobile-team-card">
                         <div class="team-header-row">
                             <h4 class="team-name">Iqbal</h4>
-                            <span class="team-role-tag" style="background: rgba(230, 57, 70, 0.2); color: var(--japan-red);">Sensei</span>
+                            <span class="team-role-tag" style="background: rgba(230, 57, 70, 0.2); color: var(--japan-red);">Pilar 2 · Sensei</span>
                         </div>
-                        <p class="team-desc-text">Pakar tata bahasa (bunpou) dan panduan kurikulum hafalan bahasa Jepang.</p>
+                        <p class="team-desc-text">Pakar tata bahasa (bunpou), kurator kamus Shiritori, dan panduan silabus hafalan bahasa Jepang.</p>
                     </div>
 
                     <div class="mobile-team-card">
                         <div class="team-header-row">
                             <h4 class="team-name">Rifki / Swing</h4>
-                            <span class="team-role-tag" style="background: rgba(30, 136, 229, 0.2); color: #42A5F5;">Specialist</span>
+                            <span class="team-role-tag" style="background: rgba(30, 136, 229, 0.2); color: #42A5F5;">Pilar 3 · Specialist</span>
                         </div>
-                        <p class="team-desc-text">Wawasan sejarah kebudayaan Jepang kuno, dinamika peradaban, dan geopolitik.</p>
+                        <p class="team-desc-text">Wawasan budaya Shinto-Zen Jepang kuno, estetika visual, dinamika peradaban, dan geopolitik.</p>
                     </div>
 
                     <div class="mobile-team-card">
                         <div class="team-header-row">
                             <h4 class="team-name">Fasya</h4>
-                            <span class="team-role-tag" style="background: rgba(142, 68, 173, 0.2); color: #BA68C8;">Learner</span>
+                            <span class="team-role-tag" style="background: rgba(142, 68, 173, 0.2); color: #BA68C8;">Pilar 4 · Community Lead</span>
                         </div>
-                        <p class="team-desc-text">Eksplorasi grafis kreatif kana dan penjaga semangat belajar komunitas tetap ceria.</p>
+                        <p class="team-desc-text">Koordinator komunitas, eksplorasi grafis kreatif kana, dan penjaga semangat belajar Fournity.</p>
                     </div>
                 </div>
             </div>
@@ -412,27 +575,52 @@
     <!-- FLOATING DOCK NAVIGASI BAWAH MODERN -->
     <!-- ========================================== -->
     <nav class="main-bottom-nav" aria-label="Navigasi utama">
-        <a class="main-bottom-item is-active" href="index.html">
-            <span class="main-bottom-icon">⌂</span>
+        <a class="main-bottom-item is-active" href="index.html" aria-label="Beranda">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 10.5 12 3l9 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </span>
             <span>Home</span>
         </a>
-        <a class="main-bottom-item" href="pages/hiburan.html">
-            <span class="main-bottom-icon">✦</span>
+        <a class="main-bottom-item" href="pages/hiburan.html" aria-label="Hiburan">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/>
+                </svg>
+            </span>
             <span>Hiburan</span>
         </a>
-        <a class="main-bottom-item main-bottom-message" href="pages/pesan.html" aria-label="Buka pesan grup">
-            <span class="main-bottom-icon" style="position: relative;">
-                ✉
+        <a class="main-bottom-item main-bottom-message" href="pages/pesan.html" aria-label="Buka obrolan pesan grup">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                    <circle cx="8.5" cy="12" r="1.2" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="1.2" fill="currentColor"/>
+                    <circle cx="15.5" cy="12" r="1.2" fill="currentColor"/>
+                </svg>
                 <span id="msgBadge" class="msg-badge" style="display: none;">0</span>
             </span>
-            <span>Pesan</span>
+            <span class="main-bottom-label">Pesan</span>
         </a>
-        <a class="main-bottom-item" href="pages/jadwal.html">
-            <span class="main-bottom-icon">◷</span>
+        <a class="main-bottom-item" href="pages/jadwal.html" aria-label="Jadwal">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="4" rx="3"/>
+                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                    <circle cx="12" cy="15" r="2"/>
+                </svg>
+            </span>
             <span>Jadwal</span>
         </a>
-        <a class="main-bottom-item" href="pages/info.html">
-            <span class="main-bottom-icon">ⓘ</span>
+        <a class="main-bottom-item" href="pages/info.html" aria-label="Info">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+            </span>
             <span>Info</span>
         </a>
     </nav>
@@ -443,7 +631,8 @@
     <div id="profileModalOverlay" class="global-login-overlay" style="display: none; z-index: 10002;">
         <div class="login-modal" style="text-align: center; max-width: 360px;">
             <span id="closeProfileModal" class="close-modal" aria-label="Tutup">×</span>
-            <h2 style="margin-bottom: 20px; font-size: 1.4rem; color: #fff;">Pengaturan Profil</h2>
+            <h2 style="margin-bottom: 6px; font-size: 1.4rem; color: #fff;">Pengaturan Profil</h2>
+            <p id="profileEmailDisplay" style="font-size: 12px; color: var(--japan-gold); margin-bottom: 18px; word-break: break-all;"></p>
 
             <div style="position: relative; width: 110px; height: 110px; margin: 0 auto 20px; border-radius: 50%; border: 3px solid var(--japan-gold); overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
                 <img id="profilePreviewImg" src="gambar/icon.png" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
@@ -461,6 +650,7 @@
             </div>
 
             <button type="button" id="saveProfileBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 10px; padding: 12px;">SIMPAN PERUBAHAN</button>
+            <button type="button" id="resetProfilePhotoBtn" class="btn btn-outline" style="width: 100%; margin-bottom: 10px; padding: 10px; font-size: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: #ddd; border-radius: 8px; cursor: pointer;">🔄 Reset Foto Profil ke Default</button>
             <button type="button" id="logoutBtn" class="btn btn-secondary" style="width: 100%; padding: 12px;">KELUAR AKUN</button>
         </div>
     </div>
@@ -468,7 +658,7 @@
     <!-- POPUP KECIL (Guest Prompt) -->
     <div id="guestPromptPopup" class="guest-prompt-popup" style="display: none;">
         <span class="prompt-icon">⛩️</span>
-        <p>Selamat datang di <strong>Nihongo Trinity</strong>! Masuk akun untuk menyimpan skor kuis dan mengakses seluruh ruang obrolan komunitas.</p>
+        <p>Selamat datang di <strong>Nihongo Fournity</strong>! Masuk akun untuk menyimpan skor kuis dan mengakses seluruh ruang obrolan komunitas.</p>
         <div class="prompt-buttons">
             <button id="btnPromptNanti" class="btn-nanti">Nanti</button>
             <button id="btnPromptLogin" class="btn-login">Login / Daftar</button>
@@ -481,56 +671,36 @@
             <span id="closeLoginModal" class="close-modal" aria-label="Tutup">×</span>
             <div class="modal-icon">⛩️</div>
             <h2 id="modalTitle">Identifikasi Member</h2>
-            <p id="modalDesc">Silakan masuk untuk mengakses sistem latihan dan ruang obrolan Trinity.</p>
+            <p id="modalDesc">Silakan masuk menggunakan email untuk mengakses koleksi fotocard, misi, dan ruang kontrol.</p>
 
             <div id="loginForm">
-                <input type="text" id="loginUsername" placeholder="Nama Akun / Username">
-                <input type="password" id="loginPassword" placeholder="Kata Sandi">
+                <input type="email" id="loginEmail" placeholder="Alamat Email (Contoh: kamu@gmail.com)" autocomplete="email">
+                <input type="password" id="loginPassword" placeholder="Kata Sandi Akun" autocomplete="current-password">
                 <p id="loginError" class="login-error"></p>
-                <button type="button" id="mainLoginBtn" class="btn btn-primary" style="width:100%; margin-bottom:10px;">MASUK KE SISTEM</button>
+                <button type="button" id="mainLoginBtn" class="btn btn-primary" style="width:100%; margin-bottom:10px;">MASUK DENGAN EMAIL</button>
                 <p style="font-size:12px; color:var(--muted); margin-top:18px;">Belum punya akun? <span id="showRegisterBtn" style="color:var(--japan-gold); cursor:pointer; font-weight:bold;">Buat Akun Baru</span></p>
             </div>
 
             <div id="registerForm" style="display: none;">
-                <input type="text" id="regUsername" placeholder="Nama Tampilan (Contoh: Budi)">
-                <input type="email" id="regEmail" placeholder="Alamat Email Aktif">
-                <input type="password" id="regPassword" placeholder="Buat Kata Sandi Kuat">
+                <input type="text" id="regUsername" placeholder="Nama Lengkap / Panggilan (Contoh: Umaedi)" autocomplete="name">
+                <input type="email" id="regEmail" placeholder="Alamat Email Aktif (Contoh: kamu@gmail.com)" autocomplete="email">
+                <input type="password" id="regPassword" placeholder="Buat Kata Sandi (Minimal 6 Karakter)" autocomplete="new-password">
                 <p id="regError" class="login-error"></p>
-                <button type="button" id="mainRegBtn" class="btn btn-gold" style="width:100%; margin-bottom:10px;">DAFTAR SEKARANG</button>
+                <button type="button" id="mainRegBtn" class="btn btn-gold" style="width:100%; margin-bottom:10px;">DAFTAR AKUN BARU</button>
                 <p style="font-size:12px; color:var(--muted); margin-top:18px;">Sudah punya akun? <span id="showLoginBtn" style="color:var(--japan-red); cursor:pointer; font-weight:bold;">Login di sini</span></p>
             </div>
         </div>
     </div>
 
     <!-- FITUR KHUSUS ADMIN (UMAEDI) & GLOBAL ALERT -->
-    <button id="adminToggleBtn" class="admin-toggle-btn" style="display: none;">⚙️ SYSTEM OVERRIDE</button>
-
-    <div id="adminModal" class="global-login-overlay" style="display: none; z-index: 10000;">
-        <div class="login-modal" style="border-color: var(--japan-red); max-height: 90vh; overflow-y: auto;">
-            <span id="closeAdminModal" class="close-modal" aria-label="Tutup">×</span>
-            <div class="modal-icon">⚠️</div>
-            <h2 style="color: var(--japan-red);">Admin Control Panel</h2>
-            <p>Kirim pesan pengumuman real-time ke SEMUA pengunjung yang sedang membuka situs.</p>
-            <input type="text" id="announceTitle" placeholder="Judul Pengumuman (ex: UPDATE JADWAL)">
-            <textarea id="announceMessage" rows="4" placeholder="Ketik isi pengumuman sistem di sini..."
-                style="width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(8,12,16,.8); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; font-family: 'Plus Jakarta Sans', sans-serif; resize: none;"></textarea>
-            <button type="button" id="sendAnnounceBtn" class="btn btn-primary" style="width: 100%;">BROADCAST SEKARANG</button>
-
-            <!-- DATABASE CONTROL -->
-            <hr style="border-color: var(--border-subtle); margin: 25px 0;">
-            <h3 style="color: var(--japan-red); font-size: 1.1rem; margin-bottom: 5px;">Database Maintenance</h3>
-            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5;">Bersihkan riwayat pesan secara aman dengan sistem hitung mundur 10 detik otomatis.</p>
-            <button type="button" id="clearPublicBtn" class="btn btn-outline" style="width: 100%; margin-bottom: 10px; font-size: 11px;">🧹 BERSIHKAN PUBLIC LOUNGE</button>
-            <button type="button" id="clearCoreBtn" class="btn btn-outline" style="width: 100%; font-size: 11px; border-color: #D32F2F; color: #D32F2F;">🧹 BERSIHKAN TRINITY CORE</button>
-        </div>
-    </div>
+    <a id="adminToggleBtn" href="pages/admin.html" class="admin-toggle-btn" style="display: none; text-decoration: none;">⚙️ ADMIN COMMAND CENTER</a>
 
     <!-- POP-UP PERINGATAN GLOBAL ALERT (iOS PUSH BANNER) -->
     <div id="globalAlert" class="global-alert ios-broadcast-banner" style="display: none;" role="alert" aria-live="assertive">
         <div class="ios-banner-header">
             <div class="ios-banner-app-icon"><span>⛩️</span></div>
             <div class="ios-banner-meta">
-                <span class="ios-banner-app-name">TRINITY BROADCAST</span>
+                <span class="ios-banner-app-name">FOURNITY BROADCAST</span>
                 <span class="ios-banner-dev-badge" id="alertSenderBadge">👨‍💻 Dev: <strong id="alertSenderName">Umaedi</strong></span>
             </div>
             <span class="ios-banner-time">Baru Saja</span>
@@ -542,6 +712,345 @@
         </div>
         <div class="ios-banner-progress-track">
             <div class="ios-banner-progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: 📅 CHECK-IN SETIAP HARI (STREAK SYSTEM) -->
+    <!-- ========================================== -->
+    <div id="checkinModal" class="global-login-overlay" style="display: none; z-index: 10005;">
+        <div class="login-modal checkin-dialog-box">
+            <span id="closeCheckinModal" class="close-modal" aria-label="Tutup">×</span>
+            <div class="checkin-hero-header">
+                <div class="checkin-streak-flame">🔥</div>
+                <div class="checkin-title-meta">
+                    <span class="checkin-kicker">DISIPLIN & PRESENSI HARIAN</span>
+                    <h2>Check-In Harian Gakusei</h2>
+                    <p>Pertahankan streak belajarmu setiap hari untuk meraih Bonus EXP dan Foto Card Langka!</p>
+                </div>
+            </div>
+
+            <!-- Streak Status Badge -->
+            <div class="checkin-streak-status-strip">
+                <div class="streak-counter-pill">
+                    <span>🔥 Streak Aktif:</span>
+                    <strong id="modalStreakCount">1 Hari</strong>
+                </div>
+                <div class="streak-reward-hint" id="modalStreakRewardHint">
+                    ✨ Hari ke-3 & 7 Garansi Peluang Kartu!
+                </div>
+            </div>
+
+            <!-- 7-Days Calendar Streak Grid -->
+            <div class="checkin-days-grid" id="checkinDaysGrid">
+                <!-- Rendered dynamically by script.js -->
+            </div>
+
+            <!-- Action CTA Button -->
+            <div class="checkin-action-area">
+                <button type="button" class="btn btn-gold btn-checkin-claim" id="btnClaimDailyCheckin">
+                    🎁 KLAIM REWARD HARI INI (+XP)
+                </button>
+                <p class="checkin-footnote" id="checkinFootnote">
+                    Check-in direset setiap pukul 00:00 tengah malam.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: 🎴 ALBUM KOLEKSI FOTO CARD JEPANG (REBUILT FULL & MODERN) -->
+    <!-- ========================================== -->
+    <div id="cardAlbumModal" class="photocard-overlay" style="display: none; z-index: 10006;">
+        <div class="photocard-album-window">
+            <button type="button" id="closeAlbumModal" class="album-close-btn" aria-label="Tutup Album">✕</button>
+            
+            <div class="album-hero-header">
+                <div class="album-hero-titles">
+                    <div class="album-hero-kicker">
+                        <span class="kicker-gem">🎴</span>
+                        <span>FOURNITY CARD ARCHIVE · KOLEKSI RESMI</span>
+                    </div>
+                    <h2 class="album-hero-title">Koleksi Foto Card Jepang <span class="jp-title">(カード図鑑)</span></h2>
+                    <p class="album-hero-desc">Koleksi kartu eksklusif Fournity Japan Class dengan serial number unik, filosofi kanji, dan edisi terbatas.</p>
+                </div>
+            </div>
+
+            <!-- Controls: Category Filters (Ringkas & Rapi) -->
+            <div class="album-controls-bar">
+                <div class="album-filters-group">
+                    <button type="button" class="album-filter-btn is-active" data-filter="all">Semua</button>
+                    <button type="button" class="album-filter-btn" data-filter="legendary">🌟 Lagend</button>
+                    <button type="button" class="album-filter-btn" data-filter="ultra_rare">💜 UR</button>
+                    <button type="button" class="album-filter-btn" data-filter="rare">💎 Rare</button>
+                </div>
+            </div>
+
+            <!-- Viewport & Cards Grid Container (Full, clean & neatly arranged) -->
+            <div class="album-grid-viewport">
+                <div class="album-cards-grid" id="albumCardsGrid">
+                    <!-- Injected dynamically by script.js -->
+                </div>
+            </div>
+
+            <!-- Footer: Tombol Berwarna Kiri & Kanan Bawah (Teks Ringkas) -->
+            <div class="album-footer-bar">
+                <div class="album-footer-actions">
+                    <!-- Kiri Bawah: Kotak Hadiah (Vibrant Cyber Emerald) -->
+                    <button type="button" class="album-bottom-action-btn btn-bottom-inbox" id="btnOpenGiftInboxModal">
+                        <span class="btn-bottom-icon">📬</span>
+                        <span class="btn-bottom-title">Kotak Hadiah</span>
+                        <span class="gift-badge-counter" id="giftBadgeCounter" style="display: none;">0</span>
+                    </button>
+
+                    <!-- Hint Tengah -->
+                    <p class="album-footer-hint">
+                        💡 Dapatkan kartu dari <strong>Check-In</strong>, <strong>Misi Disiplin</strong>, atau <strong>Hadiah Teman</strong>!
+                    </p>
+
+                    <!-- Kanan Bawah: Klaim Kode (Vibrant Radiant Amber - Ringkas) -->
+                    <button type="button" class="album-bottom-action-btn btn-bottom-redeem" id="btnOpenRedeemCodeModal">
+                        <span class="btn-bottom-icon">🔑</span>
+                        <span class="btn-bottom-title">Klaim Kode</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 3: 🔍 INSPEKSI DETAIL FOTO CARD (3D TILT & HOLO) -->
+    <!-- ========================================== -->
+    <div id="cardInspectModal" class="global-login-overlay" style="display: none; z-index: 10008;">
+        <div class="card-inspect-dialog">
+            <button type="button" id="closeInspectModal" class="close-inspect-btn" aria-label="Tutup">✕</button>
+
+            <!-- 3D Perspective Card Showcase -->
+            <div class="inspect-perspective-container">
+                <div class="inspect-card-element" id="inspectCardElement">
+                    <!-- Dynamic foil layers & card face injected here -->
+                </div>
+            </div>
+
+            <!-- Card Lore & Detail Panel -->
+            <div class="inspect-info-panel">
+                <div class="inspect-header-tags">
+                    <span class="inspect-rarity-pill" id="inspectRarityPill">★ LAGEND ★</span>
+                    <span class="inspect-serial-pill" id="inspectSerialPill">#FN-LG-0000</span>
+                    <span class="inspect-version-pill" id="inspectVersionPill">Ver. 1.0</span>
+                </div>
+                <h3 class="inspect-card-title" id="inspectCardTitle">Lagend Card · Vol. 01</h3>
+                
+                <div class="inspect-quote-box">
+                    <p class="inspect-kanji-quote" id="inspectKanjiQuote">「継続は力なり」</p>
+                    <p class="inspect-romaji-quote" id="inspectRomajiQuote">Keizoku wa chikara nari.</p>
+                    <p class="inspect-id-quote" id="inspectIdQuote">Ketekunan dan konsistensi adalah kunci kekuatan sejati.</p>
+                    <button type="button" class="btn-inspect-speaker" id="inspectQuoteSpeaker" title="Dengarkan Pelafalan Asli">
+                        🔊 Dengarkan Suara
+                    </button>
+                </div>
+
+                <p class="inspect-desc-text" id="inspectDescText">
+                    Deskripsi kartu dan filosofi budaya Jepang...
+                </p>
+
+                <div class="inspect-status-row">
+                    <span class="inspect-obtained-tag" id="inspectObtainedTag">✓ Telah Dikoleksi</span>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnShareCard">📋 Salin Kutipan</button>
+                </div>
+
+                <div class="inspect-action-buttons-grid">
+                    <button type="button" class="btn btn-gold btn-sm inspect-action-btn" id="btnSetAsAvatar">
+                        👑 Jadikan Foto Profil
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm inspect-action-btn" id="btnSetAsChatBg">
+                        🌌 Jadikan Latar Chat
+                    </button>
+                    <button type="button" class="btn btn-emerald btn-sm inspect-action-btn is-gift-btn" id="btnSendCardInspect">
+                        🎁 Kirim Kartu ke Teman
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 4: 🎉 CELEBRATION UNVEIL KARTU BARU (GACHA DROP) -->
+    <!-- ========================================== -->
+    <div id="cardUnveilModal" class="global-login-overlay" style="display: none; z-index: 10010;">
+        <div class="unveil-dialog-box">
+            <div class="unveil-light-burst"></div>
+            <div class="unveil-header">
+                <div class="unveil-confetti-icon">🎊</div>
+                <span class="unveil-kicker">KARTU KOLEKSI BARU DIDAPATKAN!</span>
+                <h2 id="unveilTitle">Selamat! Mendapatkan Foto Card Baru!</h2>
+            </div>
+
+            <!-- Showcase Unveiled Card -->
+            <div class="unveil-card-slot" id="unveilCardSlot">
+                <!-- Injected dynamically -->
+            </div>
+
+            <div class="unveil-actions">
+                <button type="button" class="btn btn-gold btn-unveil-claim" id="btnUnveilClaim">
+                    🎴 SIMPAN KE ALBUM
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 5: 🎁 KIRIM FOTO CARD KE ORANG LAIN -->
+    <!-- ========================================== -->
+    <div id="sendCardModal" class="global-login-overlay" style="display: none; z-index: 10012;">
+        <div class="login-modal send-card-dialog">
+            <span id="closeSendCardModal" class="close-modal" aria-label="Tutup">×</span>
+            
+            <div class="send-card-header">
+                <span class="send-card-kicker">GIFT &amp; TRANSFER SYSTEM</span>
+                <h2>Kirim Foto Card ke Orang Lain <span>(カードを贈る)</span></h2>
+                <p>Berikan hadiah kartu koleksi pribadimu ke teman atau sesama pembelajar di komunitas Fournity.</p>
+            </div>
+
+            <!-- Preview Kartu yang Akan Dikirim -->
+            <div class="send-card-preview-strip" id="sendCardPreviewStrip">
+                <div class="send-card-thumb-wrap" id="sendCardThumbWrap">
+                    <img src="gambar/fotocard/lagend/card1.png" id="sendCardThumbImg" alt="Preview Kartu" class="send-card-thumb-img">
+                </div>
+                <div class="send-card-thumb-meta">
+                    <span class="send-card-rarity-pill" id="sendCardRarityPill">★ LAGEND ★</span>
+                    <h4 id="sendCardThumbTitle" class="send-card-thumb-title">Nama Kartu</h4>
+                    <span id="sendCardThumbSerial" class="send-card-thumb-serial">#FN-0000</span>
+                </div>
+            </div>
+
+            <!-- Card Selector Dropdown jika membuka dari menu album -->
+            <div class="send-card-select-group" id="sendCardSelectGroup" style="display: none;">
+                <label for="selectCardToSend" style="display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
+                    Pilih Kartu dari Koleksimu:
+                </label>
+                <select id="selectCardToSend" class="send-card-input send-card-select"></select>
+            </div>
+
+            <!-- Tabs Opsi Pengiriman: Direct Send vs Gift Code -->
+            <div class="send-tabs-bar">
+                <button type="button" class="send-tab-btn is-active" id="tabBtnDirectSend">
+                    👤 Kirim Langsung ke Teman
+                </button>
+                <button type="button" class="send-tab-btn" id="tabBtnGiftCode">
+                    🔑 Buat Kode Hadiah (Gift Code)
+                </button>
+            </div>
+
+            <!-- Panel 1: Direct Send ke User Komunitas -->
+            <div class="send-tab-pane is-active" id="paneDirectSend">
+                <div class="send-form-group">
+                    <label for="sendTargetUserSelect">Pilih Teman / Anggota Penerima:</label>
+                    <div class="recipient-input-wrap">
+                        <select id="sendTargetUserSelect" class="send-card-input">
+                            <option value="">-- Memuat daftar anggota komunitas... --</option>
+                        </select>
+                    </div>
+                    <div class="recipient-manual-row" style="margin-top: 6px;">
+                        <span style="font-size: 10.5px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Atau ketik nama pengguna secara manual:</span>
+                        <input type="text" id="sendTargetUserManual" class="send-card-input send-input-sub" placeholder="Ketik username penerima (cth: Iqbal, Fasya, Umaedi)...">
+                    </div>
+                </div>
+
+                <div class="send-form-group">
+                    <label for="sendCardMessage">Pesan / Ucapan Penyemangat (Opsional):</label>
+                    <textarea id="sendCardMessage" class="send-card-textarea" placeholder="Tuliskan ucapan penyemangat belajar untuknya... (contoh: Semangat belajar bahasa Jepang ya! Ini kartu langka buat kamu 🌸)" maxlength="150"></textarea>
+                </div>
+
+                <div class="send-action-row">
+                    <button type="button" class="btn btn-emerald send-submit-btn" id="btnConfirmSendCard">
+                        🚀 Kirim Kartu Sekarang
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel 2: Buat Kode Hadiah (Gift Code Transfer) -->
+            <div class="send-tab-pane" id="paneGiftCode">
+                <p class="gift-code-desc">
+                    Terbitkan kode hadiah eksklusif yang bisa kamu bagikan lewat WhatsApp, pesan pribadi, atau catatan. Siapa pun temanmu yang memasukkan kode ini akan langsung menerima kartumu!
+                </p>
+
+                <div class="send-form-group">
+                    <label for="giftCodeNote">Catatan Pengirim (Opsional):</label>
+                    <input type="text" id="giftCodeNote" class="send-card-input" placeholder="Pesan singkat (contoh: Hadiah dari teman belajarmu!)" maxlength="100">
+                </div>
+
+                <div class="gift-code-result-box" id="giftCodeResultBox" style="display: none;">
+                    <span class="gift-code-kicker">KODE HADIAH KARTU RESMI:</span>
+                    <div class="gift-code-display" id="giftCodeDisplay">FN-GIFT-XXXX</div>
+                    <button type="button" class="btn btn-gold btn-sm" id="btnCopyGiftCode" style="width: 100%;">
+                        📋 Salin Kode &amp; Pesan Hadiah
+                    </button>
+                </div>
+
+                <div class="send-action-row" id="generateCodeActionRow">
+                    <button type="button" class="btn btn-gold send-submit-btn" id="btnGenerateGiftCode">
+                        ✨ Terbitkan Kode Hadiah Baru
+                    </button>
+                </div>
+            </div>
+
+            <div class="send-card-footnote">
+                <p>⚠️ <em>Catatan:</em> Setelah kartu berhasil dikirim atau ditukarkan, kartu akan berpindah kepemilikan dari album pribadimu ke penerima.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 6: 🎊 CELEBRATION TERIMA HADIAH KARTU -->
+    <!-- ========================================== -->
+    <div id="giftReceivedModal" class="global-login-overlay" style="display: none; z-index: 10014;">
+        <div class="unveil-dialog-box gift-received-dialog">
+            <div class="unveil-light-burst"></div>
+            <div class="unveil-header">
+                <div class="unveil-confetti-icon">🎁</div>
+                <span class="unveil-kicker">HADIAH FOTO CARD DITERIMA!</span>
+                <h2 id="giftReceivedTitle">Kamu Menerima Hadiah Kartu!</h2>
+                <p id="giftReceivedFrom" class="gift-received-from">Dari: <strong id="giftSenderName">-</strong></p>
+            </div>
+
+            <div class="gift-message-bubble" id="giftMessageBubble" style="display: none;">
+                <p id="giftMessageText">"..."</p>
+            </div>
+
+            <!-- Showcase Card Slot -->
+            <div class="unveil-card-slot" id="giftReceivedCardSlot">
+                <!-- Injected dynamically -->
+            </div>
+
+            <div class="unveil-actions">
+                <button type="button" class="btn btn-gold btn-unveil-claim" id="btnClaimReceivedGift">
+                    🎴 SIMPAN KE ALBUM SAYA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 7: 🔑 KLAIM KODE HADIAH FOTO CARD -->
+    <!-- ========================================== -->
+    <div id="redeemCodeModal" class="global-login-overlay" style="display: none; z-index: 10012;">
+        <div class="login-modal redeem-dialog-box">
+            <span id="closeRedeemCodeModal" class="close-modal" aria-label="Tutup">×</span>
+            <div class="send-card-header">
+                <span class="send-card-kicker">REDEEM GIFT CODE</span>
+                <h2>Klaim Hadiah Kartu <span>(引き換え)</span></h2>
+                <p>Punya kode hadiah dari teman atau Sensei? Masukkan kodenya di bawah untuk mengklaim kartu koleksimu!</p>
+            </div>
+            <div class="redeem-input-wrap">
+                <input type="text" id="inputRedeemCode" class="send-card-input redeem-code-input" placeholder="Masukkan kode (contoh: FN-GIFT-1234)..." autocomplete="off">
+                <button type="button" class="btn btn-gold" id="btnSubmitRedeemCode" style="margin-top: 10px; width: 100%; padding: 11px; font-weight: 800;">
+                    🎁 Klaim Kartu Sekarang
+                </button>
+            </div>
+            <p style="font-size: 11px; color: var(--text-secondary); margin-top: 12px; text-align: center; line-height: 1.5;">
+                Setiap kode hadiah terhubung ke satu kartu spesifik dan akan otomatis dimasukkan ke Album Foto Card-mu setelah diklaim.
+            </p>
         </div>
     </div>
 

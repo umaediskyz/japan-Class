@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NIHONGO TRINITY - CORE JAPANESE LEARNING ENGINE & ATMOSPHERE
+   NIHONGO FOURNITY - CORE JAPANESE LEARNING ENGINE & ATMOSPHERE
    Features: Kanji of the Day, Audio Speech Engine, Kana Soundboard, 
    Writing Canvas, Phrasebook Vault, Katakana Name Maker, Zen Timer & Sakura FX
    ========================================================================== */
@@ -379,6 +379,23 @@ function playChime(type = 'success') {
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
             osc.start(now);
             osc.stop(now + 0.3);
+        } else if (type === 'legendary') {
+            // Mythic Arpeggio Fanfare (C5 -> E5 -> G5 -> B5 -> C6)
+            const notes = [523.25, 659.25, 783.99, 987.77, 1046.5];
+            notes.forEach((freq, idx) => {
+                const subOsc = audioCtx.createOscillator();
+                const subGain = audioCtx.createGain();
+                subOsc.connect(subGain);
+                subGain.connect(audioCtx.destination);
+                subOsc.type = 'triangle';
+                const startTime = now + idx * 0.08;
+                subOsc.frequency.setValueAtTime(freq, startTime);
+                subGain.gain.setValueAtTime(0.25, startTime);
+                subGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.8);
+                subOsc.start(startTime);
+                subOsc.stop(startTime + 0.8);
+            });
+            return;
         } else if (type === 'drop' || type === 'neutral') {
             // iOS subtle spring pop
             osc.type = 'sine';
@@ -410,6 +427,7 @@ function showToast(message) {
         toast.classList.remove("show");
     }, 2800);
 }
+window.showToast = showToast;
 
 // 7. SAKURA FALLING PETALS CANVAS ENGINE
 function initSakuraEngine() {
@@ -557,6 +575,9 @@ function setupSoundboard() {
             `;
             btn.addEventListener("click", () => {
                 speakJapanese(k.kana);
+                if (typeof window.recordStudyActivity === 'function') {
+                    window.recordStudyActivity('soundboard', k.kana);
+                }
                 btn.style.transform = "scale(0.92)";
                 setTimeout(() => btn.style.transform = "", 150);
             });
@@ -612,7 +633,12 @@ function setupPhrasebook() {
                     </button>
                 </div>
             `;
-            card.querySelector(".listen-btn")?.addEventListener("click", () => speakJapanese(p.jp));
+            card.querySelector(".listen-btn")?.addEventListener("click", () => {
+                speakJapanese(p.jp);
+                if (typeof window.recordStudyActivity === 'function') {
+                    window.recordStudyActivity('kotoba', p.jp);
+                }
+            });
             card.querySelector(".copy-phrase-btn")?.addEventListener("click", () => {
                 navigator.clipboard.writeText(`${p.jp} (${p.romaji}) - ${p.id}`).then(() => {
                     showToast("Teks percakapan disalin!");
@@ -901,10 +927,14 @@ function setupStudyPage() {
     cards.forEach(card => {
         card.addEventListener("click", () => {
             const kana = card.querySelector("span").innerText;
-            learned.has(kana) ? learned.delete(kana) : learned.add(kana);
+            const wasLearned = learned.has(kana);
+            wasLearned ? learned.delete(kana) : learned.add(kana);
             localStorage.setItem(storageKey, JSON.stringify([...learned]));
             updateProgress();
             speakJapanese(kana);
+            if (!wasLearned && typeof window.recordStudyActivity === 'function') {
+                window.recordStudyActivity('kana', kana);
+            }
         });
         card.addEventListener("dblclick", () => {
             const kana = card.querySelector("span").innerText;
@@ -998,73 +1028,647 @@ function checkAnswer() {
 // 15. MOBILE-FIRST ADVANCED HOMEPAGE ENGINES
 // ==========================================
 
-// A. STUDENT PASS & EXP SYSTEM
+// ==========================================================================
+// 15. PHOTO CARDS DATABASE & RARITY SYSTEM (EDISI UMUM FOURNITY)
+// 12 Edisi Koleksi Kartu Jepang dengan Penamaan & Nilai Filosofi Umum
+// Rarity Tiers: Rare (R), Ultra Rare (UR), Lagend (LG)
+// ==========================================================================
+const CARDS_DATABASE = [
+    {
+        id: "card_lagend_01",
+        aliasIds: ["card_aoi_legend"],
+        name: "Lagend Card · Vol. 01",
+        kanjiName: "神話の章 · 第一号",
+        rarity: "legendary",
+        image: "gambar/fotocard/lagend/card1.png",
+        kanjiSeal: "神話"
+    },
+    {
+        id: "card_lagend_02",
+        aliasIds: ["card_yozakura_legend"],
+        name: "Lagend Card · Vol. 02",
+        kanjiName: "極光の章 · 第二号",
+        rarity: "legendary",
+        image: "gambar/fotocard/lagend/card2.png",
+        kanjiSeal: "極光"
+    },
+    {
+        id: "card_lagend_03",
+        aliasIds: ["card_katana_legend"],
+        name: "Lagend Card · Vol. 03",
+        kanjiName: "名刀の章 · 第三号",
+        rarity: "legendary",
+        image: "gambar/fotocard/lagend/card3.png",
+        kanjiSeal: "名刀"
+    },
+    {
+        id: "card_ur_01",
+        aliasIds: ["card_miko_ur"],
+        name: "Ultra Rare Card · Vol. 01",
+        kanjiName: "幽玄の章 · 第一号",
+        rarity: "ultra_rare",
+        image: "gambar/fotocard/ultra_rare/card1.png",
+        kanjiSeal: "幽玄"
+    },
+    {
+        id: "card_ur_02",
+        aliasIds: ["card_kinkakuji_ur"],
+        name: "Ultra Rare Card · Vol. 02",
+        kanjiName: "金閣の章 · 第二号",
+        rarity: "ultra_rare",
+        image: "gambar/fotocard/ultra_rare/card2.png",
+        kanjiSeal: "金閣"
+    },
+    {
+        id: "card_ur_03",
+        aliasIds: ["card_hanafubuki_ur"],
+        name: "Ultra Rare Card · Vol. 03",
+        kanjiName: "雅美の章 · 第三号",
+        rarity: "ultra_rare",
+        image: "gambar/fotocard/ultra_rare/card3.png",
+        kanjiSeal: "雅美"
+    },
+    {
+        id: "card_ur_04",
+        aliasIds: ["card_tokyo_ur"],
+        name: "Ultra Rare Card · Vol. 04",
+        kanjiName: "明星の章 · 第四号",
+        rarity: "ultra_rare",
+        image: "gambar/fotocard/ultra_rare/card4.png",
+        kanjiSeal: "明星"
+    },
+    {
+        id: "card_rare_01",
+        aliasIds: ["card_yukata_rare"],
+        name: "Rare Card · Vol. 01",
+        kanjiName: "風雅の章 · 第一号",
+        rarity: "rare",
+        image: "gambar/fotocard/rare/card1.png",
+        kanjiSeal: "風雅"
+    },
+    {
+        id: "card_rare_02",
+        aliasIds: ["card_fuji_sakura_rare"],
+        name: "Rare Card · Vol. 02",
+        kanjiName: "清流の章 · 第二号",
+        rarity: "rare",
+        image: "gambar/fotocard/rare/card2.png",
+        kanjiSeal: "清流"
+    },
+    {
+        id: "card_rare_03",
+        aliasIds: ["card_omamori_rare"],
+        name: "Rare Card · Vol. 03",
+        kanjiName: "御守の章 · 第三号",
+        rarity: "rare",
+        image: "gambar/fotocard/rare/card3.png",
+        kanjiSeal: "御守"
+    },
+    {
+        id: "card_rare_04",
+        aliasIds: ["card_torii_rare"],
+        name: "Rare Card · Vol. 04",
+        kanjiName: "吉祥の章 · 第四号",
+        rarity: "rare",
+        image: "gambar/fotocard/rare/card4.png",
+        kanjiSeal: "吉祥"
+    },
+    {
+        id: "card_rare_05",
+        aliasIds: ["card_shibuya_rare"],
+        name: "Rare Card · Vol. 05",
+        kanjiName: "光彩の章 · 第五号",
+        rarity: "rare",
+        image: "gambar/fotocard/rare/card5.png",
+        kanjiSeal: "光彩"
+    }
+];
+
+function findBaseCard(idOrAlias) {
+    if (!idOrAlias) return CARDS_DATABASE[0];
+    return CARDS_DATABASE.find(c => c.id === idOrAlias || (c.aliasIds && c.aliasIds.includes(idOrAlias))) || CARDS_DATABASE[0];
+}
+
+// Koleksi variasi kutipan motivasi & deskripsi umum Jepang
+const UNIVERSAL_CARD_VARIANTS = [
+    {
+        kanjiQuote: "「継続は力なり」",
+        romajiQuote: "Keizoku wa chikara nari.",
+        idQuote: "Ketekunan dan konsistensi adalah kunci kekuatan sejati.",
+        desc: "Kartu koleksi resmi edisi ketekunan. Melambangkan dedikasi tanpa henti dalam menguasai bahasa dan budaya Jepang langkah demi langkah.",
+        versionName: "Ver. 1.0 · First Print"
+    },
+    {
+        kanjiQuote: "「一期一会」",
+        romajiQuote: "Ichigo ichie.",
+        idQuote: "Setiap momen dan pertemuan adalah anugerah berharga tak tergantikan.",
+        desc: "Kartu koleksi edisi kenangan berharga. Mengabadikan setiap jengkal proses belajar dan kehangatan kelas bersama Sensei.",
+        versionName: "Ver. 1.1 · Special Print"
+    },
+    {
+        kanjiQuote: "「初心忘るべからず」",
+        romajiQuote: "Shoshin wasurubekarazu.",
+        idQuote: "Jangan pernah melupakan niat tulus dan semangat awal saat memulai.",
+        desc: "Kartu koleksi edisi tekad baja. Mengingatkan agar kobaran semangat hari pertama selalu membimbing langkah menuju masa depan.",
+        versionName: "Ver. 1.2 · Limited Edition"
+    },
+    {
+        kanjiQuote: "「千里の道も一歩から」",
+        romajiQuote: "Senri no michi mo ippo kara.",
+        idQuote: "Perjalanan seribu mil selalu dimulai dari satu langkah kecil.",
+        desc: "Kartu koleksi edisi langkah awal. Mengapresiasi keberanian melangkah dari pengenalan huruf kana hingga fasih berkomunikasi.",
+        versionName: "Ver. 2.0 · Collector Edition"
+    },
+    {
+        kanjiQuote: "「七転び八起き」",
+        romajiQuote: "Nanakorobi yaoki.",
+        idQuote: "Tujuh kali terjatuh, delapan kali bangkit berdiri kembali.",
+        desc: "Kartu koleksi edisi daya juang. Lambang kegigihan pembelajar sejati yang pantang mundur menghadapi rintangan kanji dan tata bahasa.",
+        versionName: "Ver. 2.1 · Mythic Foil"
+    },
+    {
+        kanjiQuote: "「日進月歩」",
+        romajiQuote: "Nisshingeppo.",
+        idQuote: "Kemajuan yang pesat dan berkembang setiap hari tiada henti.",
+        desc: "Kartu koleksi edisi akselerasi. Diberikan sebagai bukti peningkatan pemahaman bahasa Jepang yang kian tajam dan matang.",
+        versionName: "Ver. 1.0 · Prime Batch"
+    },
+    {
+        kanjiQuote: "「日日是好日」",
+        romajiQuote: "Nichinichi kore koujitsu.",
+        idQuote: "Setiap hari yang dijalani adalah hari yang baik dan berharga.",
+        desc: "Kartu koleksi edisi kedamaian batin. Merayakan indahnya proses menikmati pembelajaran budaya Jepang dengan hati tenang.",
+        versionName: "Ver. 1.3 · Silver Edition"
+    },
+    {
+        kanjiQuote: "「温故知新」",
+        romajiQuote: "Onko chishin.",
+        idQuote: "Belajar dari kearifan masa lalu untuk melangkah ke masa depan.",
+        desc: "Kartu koleksi edisi wawasan mendalam. Menjembatani keagungan sejarah tradisional Jepang menuju komunikasi global modern.",
+        versionName: "Ver. 2.2 · Gold Edition"
+    },
+    {
+        kanjiQuote: "「明日は明日の風が吹く」",
+        romajiQuote: "Ashita wa ashita no kaze ga fuku.",
+        idQuote: "Hari esok akan membawa angin dan harapan baru yang membahagiakan.",
+        desc: "Kartu koleksi edisi optimisme. Simbol keyakinan bahwa impian menjejakkan kaki di Jepang akan segera menjadi kenyataan.",
+        versionName: "Ver. 1.4 · Rainbow Mint"
+    },
+    {
+        kanjiQuote: "「一意専心」",
+        romajiQuote: "Ichii senshin.",
+        idQuote: "Memusatkan seluruh jiwa dan raga demi menggapai impian mulia.",
+        desc: "Kartu koleksi edisi fokus utama. Bukti dedikasi tulus seorang pembelajar yang bertekad mencapai kelulusan tingkat tertinggi.",
+        versionName: "Ver. 3.0 · Master Edition"
+    }
+];
+
+function generateCardSerial(rarity) {
+    const prefix = rarity === "legendary" ? "FN-LG" : (rarity === "ultra_rare" ? "FN-UR" : "FN-R");
+    const num = Math.floor(1000 + Math.random() * 9000);
+    return `#${prefix}-${num}`;
+}
+
+function mintCardInstance(baseCardOrId, variantIdx = null) {
+    const base = typeof baseCardOrId === "string" ? findBaseCard(baseCardOrId) : baseCardOrId;
+    const vIndex = variantIdx !== null 
+        ? (variantIdx % UNIVERSAL_CARD_VARIANTS.length)
+        : Math.floor(Math.random() * UNIVERSAL_CARD_VARIANTS.length);
+    const variant = UNIVERSAL_CARD_VARIANTS[vIndex];
+
+    return {
+        instanceId: "inst_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+        cardId: base.id,
+        name: base.name,
+        rarity: base.rarity,
+        image: base.image,
+        kanjiSeal: base.kanjiSeal || "極",
+        serialNo: generateCardSerial(base.rarity),
+        versionCode: variant.versionName,
+        kanjiQuote: variant.kanjiQuote,
+        romajiQuote: variant.romajiQuote,
+        idQuote: variant.idQuote,
+        desc: variant.desc,
+        mintDate: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
+    };
+}
+
+// Progression Ladder (Level 1 to 8)
+const PROGRESSION_RANKS = [
+    { level: 1, minExp: 0,    maxExp: 150,  title: "見習い MINARAI",  badge: "🌱", sub: "Pemula Gakusei" },
+    { level: 2, minExp: 150,  maxExp: 350,  title: "門下生 MONKASEI", badge: "🥋", sub: "Murid Dojo" },
+    { level: 3, minExp: 350,  maxExp: 650,  title: "足軽 ASHIGARU",   badge: "🏹", sub: "Pejuang Tangkas" },
+    { level: 4, minExp: 650,  maxExp: 1050, title: "武士 BUSHI",      badge: "⚔️", sub: "Pendekar Sejati" },
+    { level: 5, minExp: 1050, maxExp: 1600, title: "侍 SAMURAI",    badge: "🗡️", sub: "Kesatria Kehormatan" },
+    { level: 6, minExp: 1600, maxExp: 2400, title: "旗本 HATAMOTO",   badge: "🛡️", sub: "Pengawal Elit" },
+    { level: 7, minExp: 2400, maxExp: 3500, title: "師範 SHIHAN",     badge: "🌸", sub: "Guru Besar" },
+    { level: 8, minExp: 3500, maxExp: 99999,title: "将軍 SHOGUN",     badge: "👑", sub: "Panglima Tertinggi" }
+];
+
+function getRankData(exp) {
+    for (let i = PROGRESSION_RANKS.length - 1; i >= 0; i--) {
+        if (exp >= PROGRESSION_RANKS[i].minExp) {
+            return PROGRESSION_RANKS[i];
+        }
+    }
+    return PROGRESSION_RANKS[0];
+}
+
+// 1. REALTIME MULTI-MODULE EXP AGGREGATOR
+function calculateTotalRealtimeExp() {
+    let exp = 80; // Base starter EXP
+
+    // 1. Hiragana Learned (10 XP each)
+    try {
+        const hiraUpper = JSON.parse(localStorage.getItem("nihongoLearned_HIRAGANA") || "[]");
+        const hiraLower = JSON.parse(localStorage.getItem("nihongoLearned_hiragana") || "[]");
+        const uniqueHira = new Set([...hiraUpper, ...hiraLower]);
+        exp += uniqueHira.size * 10;
+    } catch(e) {}
+
+    // 2. Katakana Learned (10 XP each)
+    try {
+        const kataUpper = JSON.parse(localStorage.getItem("nihongoLearned_KATAKANA") || "[]");
+        const kataLower = JSON.parse(localStorage.getItem("nihongoLearned_katakana") || "[]");
+        const uniqueKata = new Set([...kataUpper, ...kataLower]);
+        exp += uniqueKata.size * 10;
+    } catch(e) {}
+
+    // 3. Kanji Memorized (20 XP each)
+    try {
+        const kanjiMem = JSON.parse(localStorage.getItem("trinity_memorized_kanji") || "[]");
+        exp += kanjiMem.length * 20;
+    } catch(e) {}
+
+    // 4. Kotoba Phrases Studied (8 XP each)
+    try {
+        const kotobaStudied = JSON.parse(localStorage.getItem("nihongoLearned_kotoba") || "[]");
+        exp += kotobaStudied.length * 8;
+    } catch(e) {}
+
+    // 5. Soundboard Listened (4 XP each)
+    try {
+        const soundListened = JSON.parse(localStorage.getItem("nihongoSoundboard_listened") || "[]");
+        exp += soundListened.length * 4;
+    } catch(e) {}
+
+    // 6. Kuis Reflex Best Score (3 XP per point)
+    try {
+        const best = Number(localStorage.getItem("nihongoBestScore") || 0);
+        exp += best * 3;
+    } catch(e) {}
+
+    // 7. Delta EXP from multiplayer / chat activities
+    try {
+        const storedTrinExp = Number(localStorage.getItem("trinity_exp") || 80);
+        if (storedTrinExp > 80) {
+            exp += (storedTrinExp - 80);
+        }
+    } catch(e) {}
+
+    // 8. Daily Check-in Claimed EXP
+    try {
+        const checkinExp = Number(localStorage.getItem("fournity_checkin_exp") || 0);
+        exp += checkinExp;
+    } catch(e) {}
+
+    // 9. Quests Bonus EXP
+    try {
+        const questExp = Number(localStorage.getItem("fournity_quest_bonus_exp") || 0);
+        exp += questExp;
+    } catch(e) {}
+
+    // 10. Photo Card Collection Prestige (25 XP each card instance)
+    try {
+        const instances = JSON.parse(localStorage.getItem("fournity_card_instances_v3") || "[]");
+        exp += (Array.isArray(instances) ? instances.length : 1) * 25;
+    } catch(e) {}
+
+    return Math.max(80, exp);
+}
+
+// Helper Penanggalan Lokal Standar Anti-Bug (Reset tepat pukul 00:00 tengah malam lokal)
+function getLocalDateString(dateObj = new Date()) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+window.getLocalDateString = getLocalDateString;
+
+function getDaysDifference(dateStr1, dateStr2) {
+    if (!dateStr1 || !dateStr2) return 999;
+    const parts1 = dateStr1.split('-').map(Number);
+    const parts2 = dateStr2.split('-').map(Number);
+    if (parts1.length < 3 || parts2.length < 3) return 999;
+    const utc1 = Date.UTC(parts1[0], parts1[1] - 1, parts1[2]);
+    const utc2 = Date.UTC(parts2[0], parts2[1] - 1, parts2[2]);
+    return Math.round((utc2 - utc1) / (1000 * 60 * 60 * 24));
+}
+window.getDaysDifference = getDaysDifference;
+
+// Global Activity Recorder across all modules
+window.recordStudyActivity = function(type, payload) {
+    const todayStr = getLocalDateString();
+    const actKey = `fournity_activity_${todayStr}`;
+    let act = JSON.parse(localStorage.getItem(actKey) || '{"kana":0,"kotoba":0,"radar":0,"kanji":0,"chat":0,"checkin":0}');
+
+    if (type === 'kana') act.kana = (act.kana || 0) + 1;
+    if (type === 'kotoba') act.kotoba = (act.kotoba || 0) + 1;
+    if (type === 'soundboard') act.kotoba = (act.kotoba || 0) + 1;
+    if (type === 'radar') act.radar = (act.radar || 0) + 1;
+    if (type === 'kanji') act.kanji = (act.kanji || 0) + 1;
+    if (type === 'chat') act.chat = (act.chat || 0) + 1;
+    if (type === 'checkin') act.checkin = 1;
+
+    localStorage.setItem(actKey, JSON.stringify(act));
+
+    // Also update module-specific persistent storage
+    if (type === 'kotoba' && typeof payload === 'string') {
+        try {
+            let kotobaList = JSON.parse(localStorage.getItem("nihongoLearned_kotoba") || "[]");
+            if (!kotobaList.includes(payload)) {
+                kotobaList.push(payload);
+                localStorage.setItem("nihongoLearned_kotoba", JSON.stringify(kotobaList));
+            }
+        } catch(e) {}
+    }
+    if (type === 'soundboard' && typeof payload === 'string') {
+        try {
+            let sndList = JSON.parse(localStorage.getItem("nihongoSoundboard_listened") || "[]");
+            if (!sndList.includes(payload)) {
+                sndList.push(payload);
+                localStorage.setItem("nihongoSoundboard_listened", JSON.stringify(sndList));
+            }
+        } catch(e) {}
+    }
+
+    // Refresh UI & Quests
+    if (typeof refreshPass === 'function') refreshPass();
+    if (typeof checkAndUpdateDailyQuests === 'function') checkAndUpdateDailyQuests();
+
+    window.dispatchEvent(new CustomEvent('studyProgressUpdated'));
+};
+
+// A.0 SINKRONISASI FOTO PROFIL UTAMA DI POJOK KANAN ATAS (DENGAN EFEK RAINBOW LAGEND)
+function syncMainTopHeaderProfile() {
+    const topAvatar = document.getElementById("topAvatar");
+    const topIcon = document.getElementById("topIcon");
+    const topText = document.getElementById("topLoginText");
+    const topPill = document.getElementById("topLoginToggle");
+    const topWrap = document.getElementById("topAvatarWrap");
+
+    if (!topAvatar && !topPill) return;
+
+    const hasAuthUid = !!localStorage.getItem("nihongoChatUid");
+    let user = localStorage.getItem("nihongoChatUser");
+    const legacyMockUsers = ["umaedi", "iqbal", "rifki", "fasya"];
+    if (!hasAuthUid && user && (legacyMockUsers.includes(user.toLowerCase()) || user.startsWith("Gakusei_"))) {
+        localStorage.removeItem("nihongoChatUser");
+        localStorage.removeItem("fournity_user_avatar");
+        localStorage.removeItem("fournity_custom_avatar");
+        localStorage.removeItem("fournity_avatar_rarity");
+        localStorage.removeItem("fournity_avatar_serial");
+        user = null;
+    }
+
+    const customPhoto = hasAuthUid ? localStorage.getItem("fournity_custom_avatar") : null;
+    const cardAvatar = hasAuthUid ? localStorage.getItem("fournity_user_avatar") : null;
+    const userStoredAvatar = (hasAuthUid && user) ? localStorage.getItem(`avatar_${user}`) : null;
+    const profileFromDb = (hasAuthUid && window.userProfiles && user && window.userProfiles[user]) ? window.userProfiles[user].photoBase64 : null;
+    const equippedAvatar = cardAvatar || customPhoto || userStoredAvatar || profileFromDb || window.newPhotoBase64;
+    const equippedRarity = hasAuthUid ? (localStorage.getItem("fournity_avatar_rarity") || (user ? localStorage.getItem(`avatar_rarity_${user}`) : null)) : null;
+
+    // Update Text Username di Header
+    if (topText) {
+        if (hasAuthUid && user) {
+            topText.textContent = user;
+        } else {
+            topText.textContent = "Login";
+        }
+    }
+
+    // Tentukan URL Foto yang Benar
+    const isPages = window.location.pathname.includes('/pages/');
+    const defaultIcon = isPages ? '../gambar/icon.png' : 'gambar/icon.png';
+    let finalPhoto = equippedAvatar || (user ? defaultIcon : null);
+
+    if (finalPhoto && topAvatar) {
+        let src = finalPhoto;
+        if (!src.startsWith('data:') && !src.startsWith('http')) {
+            if (isPages && !src.startsWith('../')) {
+                src = '../' + src;
+            } else if (!isPages && src.startsWith('../')) {
+                src = src.replace('../', '');
+            }
+        }
+
+        topAvatar.onerror = function() {
+            this.onerror = null;
+            this.src = defaultIcon;
+        };
+
+        topAvatar.src = src;
+        topAvatar.style.display = "block";
+        if (topIcon) topIcon.style.display = "none";
+    } else if (!user && !equippedAvatar) {
+        if (topAvatar) topAvatar.style.display = "none";
+        if (topIcon) topIcon.style.display = "inline-block";
+    }
+
+    // Sinkronkan juga ke avatar hero pass jika elemen ada
+    const heroPassAvatar = document.getElementById("heroPassAvatar");
+    if (heroPassAvatar && finalPhoto) {
+        heroPassAvatar.onerror = function() {
+            this.onerror = null;
+            this.src = defaultIcon;
+        };
+        heroPassAvatar.src = topAvatar ? topAvatar.src : finalPhoto;
+    }
+
+    // Terapkan Efek Border Rarity (Warna-Warni untuk Lagend)
+    const targets = [topWrap, topPill, topAvatar].filter(Boolean);
+    targets.forEach(el => {
+        el.classList.remove("is-vip-legend", "is-avatar-ur", "is-avatar-rare");
+    });
+
+    if (equippedRarity === "legendary") {
+        if (topWrap) topWrap.classList.add("is-vip-legend");
+        if (topPill) topPill.classList.add("is-vip-legend");
+        if (topAvatar) topAvatar.classList.add("is-vip-legend");
+    } else if (equippedRarity === "ultra_rare") {
+        if (topWrap) topWrap.classList.add("is-avatar-ur");
+        if (topPill) topPill.classList.add("is-avatar-ur");
+        if (topAvatar) topAvatar.classList.add("is-avatar-ur");
+    } else if (equippedRarity === "rare") {
+        if (topWrap) topWrap.classList.add("is-avatar-rare");
+        if (topPill) topPill.classList.add("is-avatar-rare");
+        if (topAvatar) topAvatar.classList.add("is-avatar-rare");
+    }
+}
+window.syncMainTopHeaderProfile = syncMainTopHeaderProfile;
+
+// A. STUDENT PASS & REALTIME EXP SYSTEM
 function setupMobileAppHub() {
+    syncMainTopHeaderProfile();
+
     const userNameEl = document.getElementById("heroPassUserName");
     const rankEl = document.getElementById("heroPassRank");
     const streakEl = document.getElementById("heroPassStreak");
     const expValEl = document.getElementById("heroExpVal");
     const expFillEl = document.getElementById("heroExpFill");
     const avatarEl = document.getElementById("heroPassAvatar");
+    const heroCheckinStatus = document.getElementById("heroCheckinStatus");
+    const heroAlbumCount = document.getElementById("heroAlbumCount");
 
     if (!userNameEl) return;
 
-    function refreshPass() {
-        const user = localStorage.getItem("nihongoChatUser");
+    window.refreshPass = function() {
+        syncMainTopHeaderProfile();
+
+        const hasAuthUid = !!localStorage.getItem("nihongoChatUid");
+        const user = hasAuthUid ? localStorage.getItem("nihongoChatUser") : null;
         if (user) {
             userNameEl.textContent = `Okaeri, ${user}! 🌸`;
         } else {
             userNameEl.textContent = "Konnichiwa, Gakusei! 🌸";
         }
 
-        // Profile Avatar Sync
-        const savedAvatar = localStorage.getItem(`avatar_${user}`);
-        if (savedAvatar && avatarEl) {
-            avatarEl.src = savedAvatar;
+        // Profile Avatar Sync with Rarity Effect
+        const customPhoto = hasAuthUid ? localStorage.getItem("fournity_custom_avatar") : null;
+        const cardAvatar = hasAuthUid ? localStorage.getItem("fournity_user_avatar") : null;
+        const userStoredAvatar = (hasAuthUid && user) ? localStorage.getItem(`avatar_${user}`) : null;
+        const profileFromDb = (hasAuthUid && window.userProfiles && user && window.userProfiles[user]) ? window.userProfiles[user].photoBase64 : null;
+        const equippedAvatar = hasAuthUid ? (cardAvatar || customPhoto || userStoredAvatar || profileFromDb || window.newPhotoBase64) : null;
+        const equippedRarity = hasAuthUid ? (localStorage.getItem("fournity_avatar_rarity") || (user ? localStorage.getItem(`avatar_rarity_${user}`) : null)) : null;
+        const passWrapper = document.getElementById("passAvatarWrapper") || (avatarEl ? avatarEl.parentElement : null);
+
+        if (avatarEl) {
+            const isPages = window.location.pathname.includes('/pages/');
+            const defaultIcon = isPages ? '../gambar/icon.png' : 'gambar/icon.png';
+            let finalSrc = equippedAvatar || defaultIcon;
+            if (!finalSrc.startsWith('data:') && !finalSrc.startsWith('http')) {
+                if (isPages && !finalSrc.startsWith('../')) {
+                    finalSrc = '../' + finalSrc;
+                } else if (!isPages && finalSrc.startsWith('../')) {
+                    finalSrc = finalSrc.replace('../', '');
+                }
+            }
+            avatarEl.onerror = function() {
+                this.onerror = null;
+                this.src = defaultIcon;
+            };
+            avatarEl.src = finalSrc;
         }
 
-        // Calculate XP based on best score & completed quests
-        let currentExp = Number(localStorage.getItem("trinity_exp") || 80);
-        const best = Number(localStorage.getItem("nihongoBestScore") || 0);
-        currentExp = Math.max(currentExp, 80 + best * 2);
+        if (passWrapper) {
+            passWrapper.classList.remove("is-vip-legend", "is-avatar-ur", "is-avatar-rare");
+            const existingVipBadge = passWrapper.querySelector(".pass-vip-badge");
+            if (existingVipBadge) existingVipBadge.remove();
 
-        // Determine Level & Rank
-        let level = 1;
-        let rankTitle = "見習い MINARAI";
-        let maxExp = 300;
-
-        if (currentExp >= 750) {
-            level = 4;
-            rankTitle = "侍 SAMURAI";
-            maxExp = 1500;
-        } else if (currentExp >= 400) {
-            level = 3;
-            rankTitle = "武士 BUSHI";
-            maxExp = 750;
-        } else if (currentExp >= 180) {
-            level = 2;
-            rankTitle = "門下生 MONKASEI";
-            maxExp = 400;
+            if (equippedRarity === "legendary") {
+                passWrapper.classList.add("is-vip-legend");
+                const vipBadge = document.createElement("span");
+                vipBadge.className = "pass-vip-badge legend-vip";
+                vipBadge.innerHTML = `👑 LAGEND VIP`;
+                passWrapper.appendChild(vipBadge);
+            } else if (equippedRarity === "ultra_rare") {
+                passWrapper.classList.add("is-avatar-ur");
+                const urBadge = document.createElement("span");
+                urBadge.className = "pass-vip-badge ur-vip";
+                urBadge.innerHTML = `💜 UR`;
+                passWrapper.appendChild(urBadge);
+            } else if (equippedRarity === "rare") {
+                passWrapper.classList.add("is-avatar-rare");
+                const rareBadge = document.createElement("span");
+                rareBadge.className = "pass-vip-badge rare-vip";
+                rareBadge.innerHTML = `💎 RARE`;
+                passWrapper.appendChild(rareBadge);
+            }
         }
 
-        if (rankEl) rankEl.textContent = `⚔️ ${rankTitle} · LV.${level}`;
-        if (expValEl) expValEl.textContent = `${currentExp} / ${maxExp} XP`;
+        // Realtime Aggregated EXP calculation from ALL modules
+        const currentExp = calculateTotalRealtimeExp();
+        const rank = getRankData(currentExp);
+
+        if (rankEl) rankEl.textContent = `${rank.badge} ${rank.title} · LV.${rank.level}`;
+        if (expValEl) expValEl.textContent = `${currentExp} / ${rank.maxExp} XP`;
         if (expFillEl) {
-            const pct = Math.min(100, Math.round((currentExp / maxExp) * 100));
+            const expInLevel = currentExp - rank.minExp;
+            const levelRange = rank.maxExp - rank.minExp;
+            const pct = Math.min(100, Math.max(5, Math.round((expInLevel / levelRange) * 100)));
             expFillEl.style.width = `${pct}%`;
         }
 
-        // Streak Tracker
-        const streakDays = Number(localStorage.getItem("trinity_streak_days") || 1);
-        if (streakEl) {
-            const streakSpan = streakEl.querySelector("span");
-            if (streakSpan) streakSpan.textContent = `${streakDays} Hari`;
-        }
-    }
+        // Checkin Status & Streak
+        try {
+            const checkinData = JSON.parse(localStorage.getItem("fournity_checkin_v2") || '{"streak":0,"lastDate":""}');
+            const todayStr = getLocalDateString();
+            const isClaimedToday = Boolean(checkinData.lastDate && checkinData.lastDate === todayStr);
 
-    refreshPass();
-    window.addEventListener("storage", refreshPass);
-    window.addEventListener("profilesUpdated", refreshPass);
+            let activeStreak = Number(checkinData.streak) || 0;
+            if (checkinData.lastDate && checkinData.lastDate !== todayStr) {
+                const diff = getDaysDifference(checkinData.lastDate, todayStr);
+                if (diff > 1) {
+                    activeStreak = 0;
+                }
+            }
+
+            if (streakEl) {
+                const streakSpan = streakEl.querySelector("span");
+                if (streakSpan) streakSpan.textContent = `${activeStreak} Hari`;
+            }
+
+            const heroBtn = document.getElementById("heroCheckinBtn");
+            const quickBtn = document.getElementById("quickCheckinBtn");
+
+            if (heroCheckinStatus) {
+                heroCheckinStatus.textContent = isClaimedToday ? "✓ Sudah Hari Ini" : "Klaim XP & Kartu";
+            }
+            if (heroBtn) {
+                heroBtn.classList.toggle("is-claimed-today", isClaimedToday);
+            }
+            if (quickBtn) {
+                quickBtn.classList.toggle("is-claimed-today", isClaimedToday);
+                const quickText = quickBtn.querySelector("span:not(.chip-icon)");
+                if (quickText) {
+                    quickText.textContent = isClaimedToday ? "Check-In ✓" : "Check-In";
+                }
+            }
+        } catch(e) {}
+
+        // Card Collection Count
+        try {
+            const instances = getOwnedCardInstances();
+            if (heroAlbumCount) {
+                heroAlbumCount.textContent = `${instances.length} Kartu Dimiliki`;
+            }
+            const showcaseCount = document.querySelector("#showcaseOpenAlbumBtn span");
+            if (showcaseCount) showcaseCount.textContent = `${instances.length} Kartu`;
+        } catch(e) {}
+    };
+
+    window.refreshPass();
+    window.addEventListener("storage", window.refreshPass);
+    window.addEventListener("studyProgressUpdated", window.refreshPass);
+    window.addEventListener("profilesUpdated", window.refreshPass);
+
+    // Hero buttons click actions
+    document.getElementById("heroCheckinBtn")?.addEventListener("click", () => {
+        openCheckinModal();
+    });
+    document.getElementById("heroAlbumBtn")?.addEventListener("click", () => {
+        openCardAlbumModal();
+    });
+    document.getElementById("quickCheckinBtn")?.addEventListener("click", () => {
+        openCheckinModal();
+    });
+    document.getElementById("quickCardAlbumBtn")?.addEventListener("click", () => {
+        openCardAlbumModal();
+    });
+    document.getElementById("showcaseOpenAlbumBtn")?.addEventListener("click", () => {
+        openCardAlbumModal();
+    });
 
     // Segmented Tabs Switcher (Leaderboard vs Team)
     const tabRank = document.getElementById("tabBtnRank");
@@ -1087,64 +1691,180 @@ function setupMobileAppHub() {
     });
 }
 
-// B. DAILY MASTERY QUESTS TRACKER
+// B. AUTOMATED DAILY MASTERY QUESTS TRACKER (ANTI-CHEAT)
 function setupDailyQuests() {
     const progressText = document.getElementById("questProgressText");
-    const questItems = [
-        document.getElementById("questItem1"),
-        document.getElementById("questItem2"),
-        document.getElementById("questItem3")
-    ];
+    const questItem1 = document.getElementById("questItem1");
+    const questItem2 = document.getElementById("questItem2");
+    const questItem3 = document.getElementById("questItem3");
+    const questItem4 = document.getElementById("questItem4");
+    const allQuestsBanner = document.getElementById("allQuestsBanner");
 
-    if (!progressText || !questItems[0]) return;
+    if (!progressText || !questItem1) return;
 
-    const todayKey = `trinity_quests_${new Date().toISOString().slice(0, 10)}`;
-    let questState = JSON.parse(localStorage.getItem(todayKey) || "[false, false, false]");
+    window.checkAndUpdateDailyQuests = function() {
+        const todayStr = getLocalDateString();
+        const actKey = `fournity_activity_${todayStr}`;
+        const act = JSON.parse(localStorage.getItem(actKey) || '{"kana":0,"kotoba":0,"radar":0,"kanji":0,"chat":0,"checkin":0}');
 
-    function updateQuestUI() {
-        let completed = 0;
-        questItems.forEach((item, idx) => {
-            if (!item) return;
-            const isDone = questState[idx];
-            item.classList.toggle("is-completed", isDone);
-            if (isDone) completed++;
-        });
+        // Checkin status from checkin store
+        try {
+            const checkinData = JSON.parse(localStorage.getItem("fournity_checkin_v2") || '{}');
+            if (checkinData.lastDate === todayStr) act.checkin = 1;
+        } catch(e) {}
 
-        progressText.textContent = `${completed} / 3 Selesai`;
-        if (completed === 3) {
+        const questStoreKey = `fournity_quests_cleared_${todayStr}`;
+        let questsCleared = JSON.parse(localStorage.getItem(questStoreKey) || '{"q1":false,"q2":false,"q3":false,"q4":false,"allBonus":false}');
+
+        // 1. Quest 1: 3 Kana / Kotoba
+        const totalKanaKotoba = (act.kana || 0) + (act.kotoba || 0);
+        const q1Done = totalKanaKotoba >= 3;
+        const step1El = document.getElementById("questStep1");
+        const tag1El = document.getElementById("questTag1");
+        const check1El = document.getElementById("questCheck1");
+        if (step1El) step1El.textContent = `${Math.min(3, totalKanaKotoba)} / 3 Materi`;
+        if (questItem1) questItem1.classList.toggle("is-completed", q1Done);
+        if (tag1El) tag1El.textContent = q1Done ? "Selesai ✓" : "Belum";
+        if (check1El) check1El.textContent = q1Done ? "✓" : "⏳";
+
+        if (q1Done && !questsCleared.q1) {
+            questsCleared.q1 = true;
+            playChime('success');
+            showToast("🎯 Misi 1 Selesai Otomatis: Pelajari Kana & Kotoba (+35 XP)!");
+            let qBonus = Number(localStorage.getItem("fournity_quest_bonus_exp") || 0);
+            localStorage.setItem("fournity_quest_bonus_exp", qBonus + 35);
+        }
+
+        // 2. Quest 2: 3 Refleks Radar Benar
+        const totalRadar = act.radar || 0;
+        const q2Done = totalRadar >= 3;
+        const step2El = document.getElementById("questStep2");
+        const tag2El = document.getElementById("questTag2");
+        const check2El = document.getElementById("questCheck2");
+        if (step2El) step2El.textContent = `${Math.min(3, totalRadar)} / 3 Benar`;
+        if (questItem2) questItem2.classList.toggle("is-completed", q2Done);
+        if (tag2El) tag2El.textContent = q2Done ? "Selesai ✓" : "Belum";
+        if (check2El) check2El.textContent = q2Done ? "✓" : "⏳";
+
+        if (q2Done && !questsCleared.q2) {
+            questsCleared.q2 = true;
+            playChime('success');
+            showToast("🎯 Misi 2 Selesai Otomatis: Refleks Radar Beranda (+40 XP)!");
+            let qBonus = Number(localStorage.getItem("fournity_quest_bonus_exp") || 0);
+            localStorage.setItem("fournity_quest_bonus_exp", qBonus + 40);
+        }
+
+        // 3. Quest 3: 1 Kanji Hafal atau Sapa Sensei
+        const totalKanjiChat = (act.kanji || 0) + (act.chat || 0);
+        const q3Done = totalKanjiChat >= 1;
+        const step3El = document.getElementById("questStep3");
+        const tag3El = document.getElementById("questTag3");
+        const check3El = document.getElementById("questCheck3");
+        if (step3El) step3El.textContent = q3Done ? "1 / 1 Target" : "0 / 1 Target";
+        if (questItem3) questItem3.classList.toggle("is-completed", q3Done);
+        if (tag3El) tag3El.textContent = q3Done ? "Selesai ✓" : "Belum";
+        if (check3El) check3El.textContent = q3Done ? "✓" : "⏳";
+
+        if (q3Done && !questsCleared.q3) {
+            questsCleared.q3 = true;
+            playChime('success');
+            showToast("🎯 Misi 3 Selesai Otomatis: Kanji Radar / Chat Sensei (+45 XP)!");
+            let qBonus = Number(localStorage.getItem("fournity_quest_bonus_exp") || 0);
+            localStorage.setItem("fournity_quest_bonus_exp", qBonus + 45);
+        }
+
+        // 4. Quest 4: Check-In Hari Ini
+        const q4Done = (act.checkin || 0) >= 1;
+        const step4El = document.getElementById("questStep4");
+        const tag4El = document.getElementById("questTag4");
+        const check4El = document.getElementById("questCheck4");
+        if (step4El) step4El.textContent = q4Done ? "1 / 1 Hari" : "0 / 1 Hari";
+        if (questItem4) questItem4.classList.toggle("is-completed", q4Done);
+        if (tag4El) tag4El.textContent = q4Done ? "Selesai ✓" : "Belum";
+        if (check4El) check4El.textContent = q4Done ? "✓" : "⏳";
+
+        if (q4Done && !questsCleared.q4) {
+            questsCleared.q4 = true;
+            playChime('success');
+            showToast("🎯 Misi 4 Selesai Otomatis: Check-In Harian (+30 XP)!");
+            let qBonus = Number(localStorage.getItem("fournity_quest_bonus_exp") || 0);
+            localStorage.setItem("fournity_quest_bonus_exp", qBonus + 30);
+        }
+
+        // Count completed
+        let completedCount = 0;
+        if (q1Done) completedCount++;
+        if (q2Done) completedCount++;
+        if (q3Done) completedCount++;
+        if (q4Done) completedCount++;
+
+        progressText.textContent = `${completedCount} / 4 Selesai`;
+
+        // All 4 Cleared Bonus
+        if (completedCount === 4) {
             progressText.style.background = "rgba(76, 175, 80, 0.2)";
             progressText.style.color = "#a5d6a7";
             progressText.style.borderColor = "#4CAF50";
-        }
-    }
+            if (allQuestsBanner) allQuestsBanner.style.display = "flex";
 
-    questItems.forEach((item, idx) => {
-        item?.addEventListener("click", () => {
-            questState[idx] = !questState[idx];
-            localStorage.setItem(todayKey, JSON.stringify(questState));
-            if (questState[idx]) {
-                playChime('success');
-                showToast("✨ Misi harian selesai! +EXP");
-                let curExp = Number(localStorage.getItem("trinity_exp") || 80);
-                localStorage.setItem("trinity_exp", curExp + 30);
-                setupMobileAppHub();
+            if (!questsCleared.allBonus) {
+                questsCleared.allBonus = true;
+                playChime('legendary');
+                showToast("👑 SEMUA MISI SELESAI! +80 Bonus EXP & Roll Gacha Kartu!");
+                let qBonus = Number(localStorage.getItem("fournity_quest_bonus_exp") || 0);
+                localStorage.setItem("fournity_quest_bonus_exp", qBonus + 80);
+
+                // Chance to drop a photo card from discipline quests!
+                setTimeout(() => {
+                    dropRandomCard({ source: 'quests', forceNew: false });
+                }, 1200);
             }
-            updateQuestUI();
-        });
+        } else {
+            if (allQuestsBanner) allQuestsBanner.style.display = "none";
+        }
+
+        // Simpan pembaruan progres misi dan EXP ke cloud Firebase jika login
+        if (typeof window.syncUserDataToCloud === 'function') {
+            window.syncUserDataToCloud('progress');
+        }
+
+        localStorage.setItem(questStoreKey, JSON.stringify(questsCleared));
+        if (typeof window.refreshPass === 'function') window.refreshPass();
+    };
+
+    // Guide Navigation on Click (No Manual Toggling!)
+    questItem1?.addEventListener("click", () => {
+        showToast("📖 Menuju modul Kotoba & Kana...");
+        setTimeout(() => window.location.href = "pages/kotoba.html", 300);
     });
 
-    updateQuestUI();
-
-    // Auto complete quest 2 from other activities
-    window.completeQuest = function(index) {
-        if (!questState[index]) {
-            questState[index] = true;
-            localStorage.setItem(todayKey, JSON.stringify(questState));
-            updateQuestUI();
-            playChime('success');
-            showToast("🎯 Misi Harian Berhasil Dicapai!");
+    questItem2?.addEventListener("click", () => {
+        const radarSec = document.getElementById("fastRadarSection");
+        if (radarSec) {
+            radarSec.scrollIntoView({ behavior: "smooth", block: "center" });
+            radarSec.style.transform = "scale(1.02)";
+            setTimeout(() => radarSec.style.transform = "", 300);
+            showToast("⚡ Jawab 3 kuis refleks di bawah!");
         }
-    };
+    });
+
+    questItem3?.addEventListener("click", () => {
+        const kanjiSec = document.getElementById("kanjiRadarSection");
+        if (kanjiSec) {
+            kanjiSec.scrollIntoView({ behavior: "smooth", block: "center" });
+            showToast("漢 Tandai hafal kanji di bawah atau tanya Sensei!");
+        }
+    });
+
+    questItem4?.addEventListener("click", () => {
+        openCheckinModal();
+    });
+
+    document.getElementById("bannerGachaBtn")?.addEventListener("click", () => {
+        openCardAlbumModal();
+    });
+
+    checkAndUpdateDailyQuests();
 }
 
 // C. FAST 1-TAP KANA RADAR (INLINE MINI-GAME)
@@ -1220,13 +1940,10 @@ function setupFastKanaRadar() {
                 feedbackEl.style.color = "#81C784";
             }
 
-            // Award XP
-            let curExp = Number(localStorage.getItem("trinity_exp") || 80);
-            localStorage.setItem("trinity_exp", curExp + 10);
-            setupMobileAppHub();
-
-            // Mark Quest 2 as completed
-            if (window.completeQuest) window.completeQuest(1);
+            // Award XP & Record Activity
+            if (typeof window.recordStudyActivity === 'function') {
+                window.recordStudyActivity('radar', currentKana.romaji);
+            }
 
             setTimeout(nextQuestion, 600);
         } else {
@@ -1338,6 +2055,9 @@ function setupKanjiRadarWidget() {
             memorized.push(item.kanji);
             playChime('success');
             showToast(`✨ Kanji "${item.kanji}" berhasil dihafal! +20 XP`);
+            if (typeof window.recordStudyActivity === 'function') {
+                window.recordStudyActivity('kanji', item.kanji);
+            }
             let curExp = Number(localStorage.getItem("trinity_exp") || 80);
             localStorage.setItem("trinity_exp", curExp + 20);
             setupMobileAppHub();
@@ -1345,6 +2065,1554 @@ function setupKanjiRadarWidget() {
         localStorage.setItem("trinity_memorized_kanji", JSON.stringify(memorized));
         renderKanjiCard(kanjiIdx);
     });
+}
+
+// ==========================================================================
+// 15.5 DAILY CHECK-IN & PHOTO CARD COLLECTION ENGINES
+// ==========================================================================
+
+// Reset bersih awal otomatis agar semua pemain mulai dari 0 kartu (belum memiliki fotocard)
+(function enforceCleanZeroCards() {
+    if (localStorage.getItem("fournity_cards_wiped_clean_v3") !== "true") {
+        localStorage.setItem("fournity_card_instances_v3", "[]");
+        localStorage.setItem("fournity_unlocked_cards", "[]");
+        localStorage.removeItem("fournity_user_avatar");
+        localStorage.removeItem("fournity_avatar_rarity");
+        localStorage.removeItem("fournity_avatar_card_id");
+        localStorage.removeItem("fournity_avatar_serial");
+        const user = localStorage.getItem("nihongoChatUser");
+        if (user) {
+            localStorage.removeItem(`avatar_${user}`);
+            localStorage.removeItem(`avatar_rarity_${user}`);
+            localStorage.removeItem(`avatar_serial_${user}`);
+        }
+        localStorage.setItem("fournity_cards_wiped_clean_v3", "true");
+    }
+})();
+
+function getOwnedCardInstances() {
+    try {
+        const stored = localStorage.getItem("fournity_card_instances_v3");
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                // Pastikan setiap instans memiliki field lengkap (image, rarity, name, serialNo)
+                return parsed.map(resolveCardData);
+            }
+        }
+        return [];
+    } catch(e) {
+        return [];
+    }
+}
+
+function saveOwnedCardInstances(instances) {
+    const enriched = (instances || []).map(resolveCardData);
+    localStorage.setItem("fournity_card_instances_v3", JSON.stringify(enriched));
+    const uniqueIds = [...new Set(enriched.map(inst => inst.cardId || inst.id))];
+    localStorage.setItem("fournity_unlocked_cards", JSON.stringify(uniqueIds));
+    if (typeof window.syncUserDataToCloud === 'function') {
+        window.syncUserDataToCloud('inventory');
+    }
+}
+
+function getUnlockedCardIds() {
+    const instances = getOwnedCardInstances();
+    return [...new Set(instances.map(i => i.cardId))];
+}
+
+function resolveCardData(item) {
+    if (!item) return CARDS_DATABASE[0];
+    if (item.instanceId && item.cardId) {
+        const base = findBaseCard(item.cardId);
+        return {
+            ...base,
+            ...item,
+            id: item.cardId,
+            instanceId: item.instanceId
+        };
+    }
+    const base = findBaseCard(item.id || item);
+    return {
+        ...base,
+        ...item,
+        serialNo: item.serialNo || generateCardSerial(base.rarity),
+        versionCode: item.versionCode || "Ver. 1.0 · Standard Print",
+        kanjiQuote: item.kanjiQuote || UNIVERSAL_CARD_VARIANTS[0].kanjiQuote,
+        romajiQuote: item.romajiQuote || UNIVERSAL_CARD_VARIANTS[0].romajiQuote,
+        idQuote: item.idQuote || UNIVERSAL_CARD_VARIANTS[0].idQuote,
+        desc: item.desc || UNIVERSAL_CARD_VARIANTS[0].desc
+    };
+}
+
+// Expose card helpers to window for chat module and external components
+window.CARDS_DATABASE = CARDS_DATABASE;
+window.findBaseCard = findBaseCard;
+window.resolveCardData = resolveCardData;
+window.getOwnedCardInstances = getOwnedCardInstances;
+window.saveOwnedCardInstances = saveOwnedCardInstances;
+window.mintCardInstance = mintCardInstance;
+
+function renderSingleCardHTML(cardData) {
+    const card = resolveCardData(cardData);
+
+    const rarityClass = card.rarity === "legendary" 
+        ? "card-legendary" 
+        : (card.rarity === "ultra_rare" ? "card-ultra-rare" : "card-rare");
+
+    const rarityBadgeText = card.rarity === "legendary" 
+        ? "★ LAGEND ★" 
+        : (card.rarity === "ultra_rare" ? "★ ULTRA RARE ★" : "✦ RARE ✦");
+
+    const rankTierText = card.rarity === "legendary"
+        ? "RANK SSS · LAGEND"
+        : (card.rarity === "ultra_rare" ? "RANK SS · ULTRA RARE" : "RANK S · RARE");
+
+    return `
+        <div class="photo-card ${rarityClass}" data-instance-id="${card.instanceId || ''}" data-card-id="${card.id}">
+            <div class="card-inner">
+                <div class="card-foil-overlay"></div>
+                ${card.rarity === "legendary" ? '<div class="card-particles-overlay"></div>' : ''}
+                
+                <div class="card-image-box">
+                    <img src="${card.image}" alt="${card.name}" class="card-img" loading="lazy">
+                    <div class="card-scrim-gradient"></div>
+                </div>
+
+                <div class="card-meta-top">
+                    <span class="card-rarity-badge">${rarityBadgeText}</span>
+                </div>
+
+                <div class="card-meta-bottom">
+                    <div class="card-rank-tag-row">
+                        <span class="card-rank-pill ${card.rarity}">${rankTierText}</span>
+                        <span class="card-serial-badge">${card.serialNo || '#FN-0000'}</span>
+                    </div>
+                    <h4 class="card-title-text">${card.name}</h4>
+                    <p class="card-quote-jp">${card.kanjiQuote}</p>
+                    <div class="card-serial-row">
+                        <span class="card-ver-tag">${card.versionCode || 'Ver. 1.0'}</span>
+                        <span class="card-seal-tag">${card.kanjiSeal || "極"}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 1. SETUP DAILY CHECK-IN (SISTEM PRESENSI HARIAN ANTI-BUG & PERSISTEN)
+function setupDailyCheckin() {
+    const modal = document.getElementById("checkinModal");
+    const closeBtn = document.getElementById("closeCheckinModal");
+    const claimBtn = document.getElementById("btnClaimDailyCheckin");
+    const daysGrid = document.getElementById("checkinDaysGrid");
+    const streakCountEl = document.getElementById("modalStreakCount");
+    const rewardHintEl = document.getElementById("modalStreakRewardHint");
+    const footnoteEl = document.getElementById("checkinFootnote");
+
+    if (!modal) return;
+
+    let countdownTimer = null;
+    let isClaiming = false;
+
+    const CHECKIN_REWARDS = [
+        { day: 1, xp: 25, icon: "🎁", text: "+25 XP", isCard: false },
+        { day: 2, xp: 35, icon: "🎁", text: "+35 XP", isCard: false },
+        { day: 3, xp: 50, icon: "🎴", text: "+50 XP & Kartu", isCard: true, milestone: true },
+        { day: 4, xp: 60, icon: "🎁", text: "+60 XP", isCard: false },
+        { day: 5, xp: 75, icon: "🎁", text: "+75 XP", isCard: false },
+        { day: 6, xp: 90, icon: "🎁", text: "+90 XP", isCard: false },
+        { day: 7, xp: 150, icon: "🌟", text: "+150 XP & UR/LR", isCard: true, milestone: true }
+    ];
+
+    function getCheckinData() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem("fournity_checkin_v2") || "null");
+            if (parsed && typeof parsed === "object") {
+                return {
+                    streak: Math.max(0, Number(parsed.streak) || 0),
+                    lastDate: typeof parsed.lastDate === "string" ? parsed.lastDate : "",
+                    total: Math.max(0, Number(parsed.total) || 0)
+                };
+            }
+        } catch(e) {}
+        return { streak: 0, lastDate: "", total: 0 };
+    }
+    window.getCheckinData = getCheckinData;
+
+    function updateCountdown() {
+        if (!footnoteEl) return;
+        const now = new Date();
+        const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+        const diffMs = Math.max(0, midnight - now);
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        const data = getCheckinData();
+        const todayStr = getLocalDateString();
+        const isClaimedToday = (data.lastDate === todayStr);
+
+        if (isClaimedToday) {
+            footnoteEl.innerHTML = `✓ Presensi hari ini telah dicatat. Reset berikutnya dalam: <strong>${hours} jam ${mins} menit</strong> (pukul 00:00).`;
+        } else {
+            footnoteEl.innerHTML = `Check-in direset setiap pukul 00:00 tengah malam. Sisa waktu hari ini: <strong>${hours} jam ${mins} menit</strong>.`;
+        }
+    }
+
+    function renderCheckinUI() {
+        const data = getCheckinData();
+        const todayStr = getLocalDateString();
+        const isClaimedToday = Boolean(data.lastDate && data.lastDate === todayStr);
+
+        let activeStreak = data.streak || 0;
+        let diffDays = 999;
+        if (data.lastDate) {
+            diffDays = getDaysDifference(data.lastDate, todayStr);
+        }
+
+        let completedCycleDay = 0;
+        let todayTargetCycleDay = 1;
+
+        if (isClaimedToday) {
+            // Sudah klaim hari ini: posisi hari yang diklaim di siklus 7 hari
+            completedCycleDay = ((activeStreak - 1) % 7) + 1;
+            todayTargetCycleDay = completedCycleDay;
+        } else {
+            // Belum klaim hari ini
+            if (diffDays === 1) {
+                // Streak berlanjut dari kemarin
+                const nextStreak = activeStreak + 1;
+                todayTargetCycleDay = ((nextStreak - 1) % 7) + 1;
+                completedCycleDay = todayTargetCycleDay - 1;
+            } else {
+                // Terlewat atau akun baru
+                activeStreak = 0;
+                todayTargetCycleDay = 1;
+                completedCycleDay = 0;
+            }
+        }
+
+        // Update teks streak di modal
+        if (streakCountEl) {
+            if (isClaimedToday) {
+                streakCountEl.textContent = `${activeStreak} Hari 🔥`;
+            } else if (diffDays === 1) {
+                streakCountEl.textContent = `${activeStreak} Hari (Lanjutkan!)`;
+            } else {
+                streakCountEl.textContent = `0 Hari (Mulai Hari Ini!)`;
+            }
+        }
+
+        // Update hint reward
+        if (rewardHintEl) {
+            if (isClaimedToday) {
+                if (completedCycleDay === 7) {
+                    rewardHintEl.textContent = "🎉 Siklus 7 Hari Tuntas! Besok mulai siklus baru & streak tetap berlanjut!";
+                } else {
+                    rewardHintEl.textContent = `✨ Sukses! Kembali besok untuk klaim reward Hari ke-${completedCycleDay + 1}.`;
+                }
+            } else {
+                if (todayTargetCycleDay === 7) {
+                    rewardHintEl.textContent = "🌟 HARI KE-7: Garansi Kartu Ultra Rare / Legendary!";
+                } else if (todayTargetCycleDay === 3) {
+                    rewardHintEl.textContent = "🎴 HARI KE-3: Bonus Spesial Kartu Koleksi!";
+                } else {
+                    rewardHintEl.textContent = "✨ Hari ke-3 & 7 Garansi Peluang Kartu Langka!";
+                }
+            }
+        }
+
+        // Render grid 7 hari
+        if (daysGrid) {
+            daysGrid.innerHTML = "";
+            CHECKIN_REWARDS.forEach(r => {
+                const card = document.createElement("div");
+                card.className = "checkin-day-card";
+                if (r.milestone) card.classList.add("is-milestone");
+
+                let isCardClaimed = false;
+                let isCardToday = false;
+
+                if (isClaimedToday) {
+                    if (r.day <= completedCycleDay) {
+                        isCardClaimed = true;
+                    }
+                } else {
+                    if (r.day < todayTargetCycleDay) {
+                        isCardClaimed = true;
+                    } else if (r.day === todayTargetCycleDay) {
+                        isCardToday = true;
+                    }
+                }
+
+                if (isCardClaimed) card.classList.add("is-claimed");
+                if (isCardToday) card.classList.add("is-today");
+
+                card.innerHTML = `
+                    <span class="day-label">HARI ${r.day}</span>
+                    <span class="day-gift-icon">${isCardClaimed ? "✓" : r.icon}</span>
+                    <span class="day-reward-tag">${isCardClaimed ? "TERKLAIM" : r.text}</span>
+                `;
+                daysGrid.appendChild(card);
+            });
+        }
+
+        // Update status tombol klaim
+        if (claimBtn) {
+            if (isClaimedToday) {
+                claimBtn.disabled = true;
+                claimBtn.classList.remove("btn-gold");
+                claimBtn.textContent = "✓ SUDAH CHECK-IN HARI INI (KEMBALI BESOK)";
+            } else {
+                claimBtn.disabled = false;
+                claimBtn.classList.add("btn-gold");
+                const currentReward = CHECKIN_REWARDS[todayTargetCycleDay - 1];
+                claimBtn.textContent = `🎁 KLAIM REWARD HARI KE-${todayTargetCycleDay} (${currentReward.text})`;
+            }
+        }
+
+        updateCountdown();
+    }
+    window.renderCheckinUI = renderCheckinUI;
+
+    window.openCheckinModal = function() {
+        modal.style.display = "flex";
+        renderCheckinUI();
+        if (countdownTimer) clearInterval(countdownTimer);
+        countdownTimer = setInterval(updateCountdown, 30000);
+    };
+
+    window.closeCheckinModal = function() {
+        modal.style.display = "none";
+        if (countdownTimer) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+        }
+    };
+
+    closeBtn?.addEventListener("click", window.closeCheckinModal);
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) window.closeCheckinModal();
+    });
+
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.style.display === "flex") {
+            window.closeCheckinModal();
+        }
+    });
+
+    claimBtn?.addEventListener("click", () => {
+        if (isClaiming) return;
+
+        const data = getCheckinData();
+        const todayStr = getLocalDateString();
+
+        // VALIDASI KETAT: Hanya 1 kali sehari walaupun website di-refresh
+        if (data.lastDate === todayStr) {
+            showToast("✓ Kamu sudah check-in hari ini! Kembali lagi besok.");
+            renderCheckinUI();
+            return;
+        }
+
+        isClaiming = true;
+        claimBtn.disabled = true;
+
+        try {
+            let diffDays = 999;
+            if (data.lastDate) {
+                diffDays = getDaysDifference(data.lastDate, todayStr);
+            }
+
+            let newStreak = 1;
+            if (diffDays === 1) {
+                newStreak = (data.streak || 0) + 1;
+            } else {
+                newStreak = 1;
+            }
+
+            const dayIdx = ((newStreak - 1) % 7);
+            const reward = CHECKIN_REWARDS[dayIdx];
+
+            // 1. Simpan data checkin permanen ke localStorage
+            const updatedData = {
+                streak: newStreak,
+                lastDate: todayStr,
+                total: (data.total || 0) + 1,
+                lastReward: reward.text,
+                updatedAt: Date.now()
+            };
+            localStorage.setItem("fournity_checkin_v2", JSON.stringify(updatedData));
+
+            // 2. Tambahkan EXP Check-In
+            const currentCheckinExp = Number(localStorage.getItem("fournity_checkin_exp") || 0);
+            localStorage.setItem("fournity_checkin_exp", currentCheckinExp + reward.xp);
+
+            // 3. Catat aktivitas belajar harian (otomatis menyelesaikan Misi 4)
+            window.recordStudyActivity('checkin', 1);
+
+            // 4. Sinkronkan ke cloud
+            if (typeof window.syncUserDataToCloud === 'function') {
+                window.syncUserDataToCloud('checkin');
+                window.syncUserDataToCloud('progress');
+            }
+
+            playChime('success');
+            showToast(`🎉 Berhasil Check-In Hari ke-${dayIdx + 1}! +${reward.xp} EXP Diterima!`);
+
+            // 5. Perbarui tampilan UI
+            renderCheckinUI();
+            if (typeof window.refreshPass === 'function') window.refreshPass();
+            if (typeof window.checkAndUpdateDailyQuests === 'function') window.checkAndUpdateDailyQuests();
+
+            // 6. Gacha / Drop Photo Card
+            let shouldDropCard = false;
+            let guaranteedTier = null;
+
+            if (reward.isCard) {
+                shouldDropCard = true;
+                if (dayIdx + 1 === 7) guaranteedTier = "legendary";
+                else if (dayIdx + 1 === 3) guaranteedTier = "ultra_rare";
+            } else {
+                if (Math.random() < 0.25) {
+                    shouldDropCard = true;
+                }
+            }
+
+            if (shouldDropCard) {
+                setTimeout(() => {
+                    dropRandomCard({ source: 'checkin', guaranteedTier });
+                }, 800);
+            }
+        } catch(err) {
+            console.error("Error saat klaim checkin:", err);
+            showToast("Terjadi kendala saat check-in, silakan coba lagi.");
+        } finally {
+            isClaiming = false;
+        }
+    });
+
+    // Inisialisasi awal UI
+    renderCheckinUI();
+}
+
+// 2. DROP RANDOM CARD GACHA LOGIC (MENDUKUNG KARTU KEMBAR DENGAN KODE SERI & DESKRIPSI UNIK)
+function dropRandomCard(options = {}) {
+    const instances = getOwnedCardInstances();
+    let candidates = CARDS_DATABASE;
+
+    if (options.guaranteedTier) {
+        const byTier = CARDS_DATABASE.filter(c => c.rarity === options.guaranteedTier);
+        if (byTier.length > 0) candidates = byTier;
+    }
+
+    // Jika ada kartu edisi dasar yang belum dimiliki, prioritaskan (65% peluang),
+    // atau jika pemain beruntung, bisa mendapatkan varian kartu kembar baru
+    const unownedBases = candidates.filter(c => !instances.some(i => i.cardId === c.id));
+    let pickedBase = null;
+
+    if (unownedBases.length > 0 && Math.random() < 0.65) {
+        pickedBase = unownedBases[Math.floor(Math.random() * unownedBases.length)];
+    } else {
+        pickedBase = candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    // Cek apakah pemain sudah memiliki versi kartu ini (kartu kembar / varian cetak)
+    const existingCount = instances.filter(i => i.cardId === pickedBase.id).length;
+    const isTwinCard = existingCount > 0;
+
+    // Pilih varian kutipan & versi yang berbeda untuk kartu kembar
+    let variantIdx = null;
+    if (isTwinCard) {
+        variantIdx = (existingCount + Math.floor(Math.random() * (UNIVERSAL_CARD_VARIANTS.length - 1) + 1)) % UNIVERSAL_CARD_VARIANTS.length;
+    }
+
+    // Terbitkan (mint) nomor seri dan kode versi baru untuk kartu ini
+    const newInstance = mintCardInstance(pickedBase, variantIdx);
+    instances.unshift(newInstance); // Kartu terbaru diletakkan di paling depan
+    saveOwnedCardInstances(instances);
+
+    const resolvedCard = resolveCardData(newInstance);
+
+    if (isTwinCard) {
+        showToast(`🎴 Varian Kembar Diperoleh! [${resolvedCard.name}] Seri Baru: ${resolvedCard.serialNo}!`);
+    } else {
+        showToast(`🎉 Kartu Koleksi Baru: [${resolvedCard.name}] Seri: ${resolvedCard.serialNo}!`);
+    }
+
+    // Putar audio efek pembuka kartu
+    if (resolvedCard.rarity === "legendary") {
+        playChime('legendary');
+    } else {
+        playChime('success');
+    }
+
+    openUnveilModal(resolvedCard);
+    renderShowcaseSlider();
+    if (typeof window.refreshPass === 'function') window.refreshPass();
+    return resolvedCard;
+}
+
+// ==========================================================================
+// 15.5.1 MANAJER MODAL OVERLAY FOTOCARD TERPADU (ANTI-TUMPUKAN OVERLAY)
+// Menjamin hanya ada 1 modal fotocard yang aktif dalam satu waktu dan
+// mengelola riwayat kembali (return stack) dengan mulus.
+// ==========================================================================
+const PHOTOCARD_MODAL_IDS = [
+    "cardAlbumModal",
+    "cardInspectModal",
+    "sendCardModal",
+    "redeemCodeModal",
+    "giftReceivedModal",
+    "cardUnveilModal"
+];
+
+let _photocardReturnModal = null;
+
+function showPhotocardModal(modalId, options = {}) {
+    const { saveHistory = true, clearHistory = false } = options;
+
+    if (clearHistory) {
+        _photocardReturnModal = null;
+    } else if (saveHistory) {
+        // Deteksi jika sebelumnya ada modal fotocard yang sedang tampil
+        const activeId = PHOTOCARD_MODAL_IDS.find(id => {
+            const el = document.getElementById(id);
+            return el && el.style.display === "flex" && id !== modalId;
+        });
+        if (activeId) {
+            _photocardReturnModal = activeId;
+        }
+    }
+
+    // Sembunyikan semua overlay fotocard lain agar backdrop tidak pernah bertumpuk
+    PHOTOCARD_MODAL_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && id !== modalId) {
+            el.style.display = "none";
+        }
+    });
+
+    const targetEl = document.getElementById(modalId);
+    if (targetEl) {
+        targetEl.style.display = "flex";
+    }
+}
+
+function closePhotocardModal(modalId, returnToPrevious = true) {
+    const el = document.getElementById(modalId);
+    if (el) {
+        el.style.display = "none";
+    }
+
+    if (returnToPrevious && _photocardReturnModal) {
+        const prevId = _photocardReturnModal;
+        _photocardReturnModal = null;
+        if (prevId === "cardAlbumModal" && typeof window.openCardAlbumModal === "function") {
+            window.openCardAlbumModal();
+        } else {
+            const prevEl = document.getElementById(prevId);
+            if (prevEl) {
+                prevEl.style.display = "flex";
+            }
+        }
+    }
+}
+window.showPhotocardModal = showPhotocardModal;
+window.closePhotocardModal = closePhotocardModal;
+
+// 3. UNVEIL CELEBRATION MODAL
+function openUnveilModal(card) {
+    const modal = document.getElementById("cardUnveilModal");
+    const slot = document.getElementById("unveilCardSlot");
+    const claimBtn = document.getElementById("btnUnveilClaim");
+    const titleEl = document.getElementById("unveilTitle");
+
+    if (!modal || !slot) return;
+
+    if (titleEl) {
+        titleEl.textContent = `Mendapatkan ${card.name} (${card.serialNo || ''})!`;
+    }
+
+    slot.innerHTML = renderSingleCardHTML(card);
+    showPhotocardModal("cardUnveilModal", { clearHistory: true });
+
+    claimBtn.onclick = () => {
+        closePhotocardModal("cardUnveilModal", false);
+        openCardAlbumModal();
+    };
+    modal.onclick = (e) => {
+        if (e.target === modal) closePhotocardModal("cardUnveilModal", false);
+    };
+}
+
+// 4. PHOTO CARD ALBUM & GALLERY (INSTANCES & SERIAL CODES)
+function setupPhotoCardCollection() {
+    const modal = document.getElementById("cardAlbumModal");
+    const closeBtn = document.getElementById("closeAlbumModal");
+    const grid = document.getElementById("albumCardsGrid");
+    const filterBtns = document.querySelectorAll(".album-filter-btn");
+
+    if (!modal) return;
+
+    closeBtn?.addEventListener("click", () => {
+        closePhotocardModal("cardAlbumModal", false);
+    });
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) closePhotocardModal("cardAlbumModal", false);
+    });
+
+    window.openCardAlbumModal = function() {
+        showPhotocardModal("cardAlbumModal", { clearHistory: true });
+        renderAlbum("all");
+    };
+    window.renderAlbum = renderAlbum;
+    window.renderCardAlbum = renderAlbum;
+
+    function renderAlbum(filter = "all") {
+        const instances = getOwnedCardInstances();
+        // Resolusikan setiap instans kartu lengkap dengan kode seri, nomor versi & kutipan khususnya
+        const ownedCards = instances.map(resolveCardData);
+
+        // Update jumlah kartu pada tiap tombol filter berdasarkan koleksi instans pemain
+        const countAll = ownedCards.length;
+        const countLegend = ownedCards.filter(c => c.rarity === "legendary").length;
+        const countUR = ownedCards.filter(c => c.rarity === "ultra_rare").length;
+        const countRare = ownedCards.filter(c => c.rarity === "rare").length;
+
+        filterBtns.forEach(btn => {
+            const f = btn.dataset.filter;
+            if (f === "all") btn.textContent = `Semua (${countAll})`;
+            else if (f === "legendary") btn.textContent = `🌟 Lagend (${countLegend})`;
+            else if (f === "ultra_rare") btn.textContent = `💜 UR (${countUR})`;
+            else if (f === "rare") btn.textContent = `💎 Rare (${countRare})`;
+        });
+
+        // Filter kartu yang dimiliki berdasarkan filter aktif
+        let displayedCards = ownedCards;
+        if (filter !== "all") {
+            displayedCards = ownedCards.filter(c => c.rarity === filter);
+        }
+
+        if (grid) {
+            grid.innerHTML = "";
+
+            if (displayedCards.length === 0) {
+                grid.innerHTML = `
+                    <div class="album-empty-state">
+                        <div class="empty-icon-bubble">🎴</div>
+                        <h3 class="empty-title">${filter === "all" ? "Belum Memiliki Kartu Koleksi" : "Belum Memiliki Kartu di Rank Ini"}</h3>
+                        <p class="empty-desc">
+                            ${filter === "all" 
+                                ? "Kartu hanya tampil jika kamu sudah memilikinya. Dapatkan kartu eksklusif dari Check-In Harian (Hari ke-3 & 7) atau selesaikan Misi Disiplin Harian!" 
+                                : "Terus kumpulkan streak Check-In atau selesaikan misi belajar untuk membuka kartu rank ini!"}
+                        </p>
+                        <button type="button" class="btn btn-gold btn-sm" id="emptyAlbumCheckinBtn">
+                            🎁 Buka Check-In Harian
+                        </button>
+                    </div>
+                `;
+                grid.querySelector("#emptyAlbumCheckinBtn")?.addEventListener("click", () => {
+                    modal.style.display = "none";
+                    if (typeof openCheckinModal === "function") openCheckinModal();
+                });
+                return;
+            }
+
+            displayedCards.forEach(card => {
+                const cardWrapper = document.createElement("div");
+                cardWrapper.innerHTML = renderSingleCardHTML(card);
+                const el = cardWrapper.firstElementChild;
+
+                el.addEventListener("click", () => {
+                    openCardInspectModal(card);
+                });
+
+                grid.appendChild(el);
+            });
+        }
+    }
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            filterBtns.forEach(b => b.classList.remove("is-active"));
+            btn.classList.add("is-active");
+            renderAlbum(btn.dataset.filter);
+        });
+    });
+
+    // Tombol Aksi Kotak Hadiah & Klaim Kode Hadiah di Kiri & Kanan Bawah
+    document.getElementById("btnOpenGiftInboxModal")?.addEventListener("click", () => {
+        if (typeof window.openGiftInboxModal === "function") window.openGiftInboxModal();
+    });
+    document.getElementById("btnOpenRedeemCodeModal")?.addEventListener("click", () => {
+        if (typeof window.openRedeemCodeModal === "function") window.openRedeemCodeModal();
+    });
+
+    // Render Homepage Showcase Slider
+    renderShowcaseSlider();
+}
+
+function renderShowcaseSlider() {
+    const slider = document.getElementById("showcaseCardsSlider");
+    if (!slider) return;
+
+    const instances = getOwnedCardInstances();
+    const ownedCards = instances.map(resolveCardData);
+
+    // Urutkan kartu berdasarkan tingkatan rank tertinggi (Legendary -> Ultra Rare -> Rare)
+    const rarityPriority = { legendary: 1, ultra_rare: 2, rare: 3 };
+    ownedCards.sort((a, b) => (rarityPriority[a.rarity] || 4) - (rarityPriority[b.rarity] || 4));
+
+    // Sinkronkan badge counter di header showcase
+    const showcaseCount = document.querySelector("#showcaseOpenAlbumBtn span");
+    if (showcaseCount) showcaseCount.textContent = `${ownedCards.length} Kartu`;
+
+    slider.innerHTML = "";
+
+    if (ownedCards.length === 0) {
+        slider.innerHTML = `
+            <div class="showcase-empty-state">
+                <span style="font-size: 26px;">🎴</span>
+                <div class="showcase-empty-text">
+                    <h5>Belum Ada Koleksi Foto Card</h5>
+                    <p>Selesaikan Check-In Harian atau Misi Disiplin untuk membuka kartu pertamamu!</p>
+                </div>
+                <button type="button" class="btn btn-gold btn-sm" id="showcaseClaimCheckinBtn">
+                    🎁 Klaim Check-In
+                </button>
+            </div>
+        `;
+        slider.querySelector("#showcaseClaimCheckinBtn")?.addEventListener("click", () => {
+            if (typeof openCheckinModal === "function") openCheckinModal();
+        });
+        return;
+    }
+
+    // Tampilkan hingga 3 kartu terbaik yang dimiliki
+    const showcaseCards = ownedCards.slice(0, 3);
+    showcaseCards.forEach(card => {
+        const cardWrapper = document.createElement("div");
+        cardWrapper.innerHTML = renderSingleCardHTML(card);
+        const el = cardWrapper.firstElementChild;
+        el.addEventListener("click", () => {
+            openCardInspectModal(card);
+        });
+        slider.appendChild(el);
+    });
+}
+
+// 5. INSPECT DETAIL CARD MODAL (3D TILT & AUDIO DENGAN SERI & VERSI UMUM)
+function openCardInspectModal(cardData) {
+    const card = resolveCardData(cardData);
+    const modal = document.getElementById("cardInspectModal");
+    const closeBtn = document.getElementById("closeInspectModal");
+    const cardElementBox = document.getElementById("inspectCardElement");
+    const rarityPill = document.getElementById("inspectRarityPill");
+    const serialPill = document.getElementById("inspectSerialPill");
+    const versionPill = document.getElementById("inspectVersionPill");
+    const titleEl = document.getElementById("inspectCardTitle");
+    const kanjiQuoteEl = document.getElementById("inspectKanjiQuote");
+    const romajiQuoteEl = document.getElementById("inspectRomajiQuote");
+    const idQuoteEl = document.getElementById("inspectIdQuote");
+    const descTextEl = document.getElementById("inspectDescText");
+    const speakerBtn = document.getElementById("inspectQuoteSpeaker");
+    const shareBtn = document.getElementById("btnShareCard");
+
+    if (!modal) return;
+
+    if (rarityPill) {
+        rarityPill.textContent = card.rarity === "legendary" 
+            ? "★ LAGEND ★" 
+            : (card.rarity === "ultra_rare" ? "★ ULTRA RARE ★" : "✦ RARE ✦");
+        rarityPill.style.background = card.rarity === "legendary"
+            ? "linear-gradient(135deg, #FF0055, #FFB703)"
+            : (card.rarity === "ultra_rare" ? "linear-gradient(135deg, #7209B7, #FFD166)" : "linear-gradient(135deg, #00B4D8, #00F5D4)");
+    }
+
+    if (serialPill) {
+        serialPill.textContent = card.serialNo || "#FN-0000";
+    }
+
+    if (versionPill) {
+        versionPill.textContent = card.versionCode || "Ver. 1.0";
+    }
+
+    if (titleEl) {
+        titleEl.textContent = `${card.name} · ${card.kanjiName || ''}`;
+    }
+
+    if (kanjiQuoteEl) kanjiQuoteEl.textContent = card.kanjiQuote;
+    if (romajiQuoteEl) romajiQuoteEl.textContent = card.romajiQuote;
+    if (idQuoteEl) idQuoteEl.textContent = card.idQuote;
+    if (descTextEl) {
+        descTextEl.textContent = `${card.desc} Dilengkapi kode seri terverifikasi: ${card.serialNo || '-'}.`;
+    }
+
+    if (cardElementBox) {
+        cardElementBox.innerHTML = renderSingleCardHTML(card);
+        const cardNode = cardElementBox.querySelector(".photo-card");
+
+        // 3D Perspective Tilt on Mouse Movement
+        if (cardNode) {
+            cardNode.addEventListener("mousemove", (e) => {
+                const rect = cardNode.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -12;
+                const rotateY = ((x - centerX) / centerX) * 12;
+                cardNode.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+                cardNode.style.setProperty('--legend-angle', `${Math.round((x / rect.width) * 360)}deg`);
+            });
+
+            cardNode.addEventListener("mouseleave", () => {
+                cardNode.style.transform = "perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+            });
+        }
+    }
+
+    if (speakerBtn) {
+        speakerBtn.onclick = () => {
+            speakJapanese(`${card.kanjiName || ''}。${card.kanjiQuote}`);
+        };
+    }
+
+    if (shareBtn) {
+        shareBtn.onclick = () => {
+            navigator.clipboard.writeText(`${card.name} [${card.serialNo}] - ${card.kanjiQuote} (${card.romajiQuote}): ${card.idQuote}`).then(() => {
+                showToast("📋 Seri & kutipan kartu disalin ke clipboard!");
+            });
+        };
+    }
+
+    // Tombol Gunakan Sebagai Foto Profil & Latar Belakang Chat
+    const setAvatarBtn = document.getElementById("btnSetAsAvatar");
+    const setChatBgBtn = document.getElementById("btnSetAsChatBg");
+
+    if (setAvatarBtn) {
+        if (card.rarity === "legendary") {
+            setAvatarBtn.innerHTML = `👑 Jadikan Foto Profil (Efek VIP Lagend)`;
+            setAvatarBtn.className = "btn btn-gold btn-sm inspect-action-btn is-legend-btn";
+        } else if (card.rarity === "ultra_rare") {
+            setAvatarBtn.innerHTML = `💜 Jadikan Foto Profil (Aura UR)`;
+            setAvatarBtn.className = "btn btn-purple btn-sm inspect-action-btn";
+        } else {
+            setAvatarBtn.innerHTML = `💎 Jadikan Foto Profil (Aura Rare)`;
+            setAvatarBtn.className = "btn btn-primary btn-sm inspect-action-btn";
+        }
+
+        setAvatarBtn.onclick = () => {
+            applyCardAsAvatar(card);
+        };
+    }
+
+    if (setChatBgBtn) {
+        setChatBgBtn.onclick = () => {
+            applyCardAsChatBg(card);
+        };
+    }
+
+    // Tombol Kirim Kartu ke Teman
+    const sendCardBtn = document.getElementById("btnSendCardInspect");
+    if (sendCardBtn) {
+        sendCardBtn.onclick = () => {
+            if (typeof window.openSendCardModal === "function") {
+                window.openSendCardModal(card);
+            }
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            closePhotocardModal("cardInspectModal", true);
+        };
+    }
+
+    modal.onclick = (e) => {
+        if (e.target === modal) closePhotocardModal("cardInspectModal", true);
+    };
+
+    showPhotocardModal("cardInspectModal", { saveHistory: true });
+}
+
+// 6. TERAPKAN KARTU SEBAGAI FOTO PROFIL (VIP LAGEND EFFECT)
+function applyCardAsAvatar(card) {
+    if (!card) return;
+    const user = localStorage.getItem("nihongoChatUser") || "Gakusei";
+    const cleanImg = card.image ? card.image.replace(/^(\.\.\/|\.\/)+/, '') : '';
+    
+    // Simpan ke storage foto profil aktif & status rarity kartu
+    localStorage.setItem("fournity_user_avatar", cleanImg);
+    localStorage.setItem("fournity_avatar_rarity", card.rarity);
+    localStorage.setItem("fournity_avatar_card_id", card.id);
+    localStorage.setItem("fournity_avatar_serial", card.serialNo || '');
+    localStorage.setItem(`avatar_${user}`, cleanImg);
+    localStorage.setItem(`avatar_rarity_${user}`, card.rarity);
+    localStorage.setItem(`avatar_serial_${user}`, card.serialNo || '');
+
+    // Simpan juga ke struktur fournity_user_profiles untuk kompatibilitas penuh
+    try {
+        let profiles = JSON.parse(localStorage.getItem("fournity_user_profiles") || "{}");
+        profiles[user] = profiles[user] || {};
+        profiles[user].photoBase64 = cleanImg;
+        profiles[user].avatarRarity = card.rarity;
+        profiles[user].avatarSerial = card.serialNo || '';
+        localStorage.setItem("fournity_user_profiles", JSON.stringify(profiles));
+    } catch(e) {}
+
+    // Perbarui in-memory window.userProfiles seketika
+    if (window.userProfiles && user) {
+        window.userProfiles[user] = window.userProfiles[user] || {};
+        window.userProfiles[user].displayName = user;
+        window.userProfiles[user].photoBase64 = cleanImg;
+        window.userProfiles[user].avatar = cleanImg;
+        window.userProfiles[user].avatarRarity = card.rarity;
+        window.userProfiles[user].avatarSerial = card.serialNo || '';
+    }
+
+    // Suara & Feedback
+    if (card.rarity === "legendary") {
+        playChime('legendary');
+        showToast(`👑 EFEK VIP DIAKTIFKAN! Foto profil utama kini memiliki border pelangi warna-warni & mahkota VIP Lagend!`);
+    } else {
+        playChime('success');
+        showToast(`✨ Foto profil berhasil diganti dengan [${card.name}] (${card.serialNo || ''})!`);
+    }
+
+    syncMainTopHeaderProfile();
+    if (typeof refreshPass === 'function') refreshPass();
+    if (typeof window.updateAllRenderedChatAvatars === 'function') {
+        window.updateAllRenderedChatAvatars();
+    }
+    if (typeof window.syncUserDataToCloud === 'function') {
+        window.syncUserDataToCloud('avatar');
+    }
+    try { window.dispatchEvent(new Event("storage")); } catch(e) {}
+}
+
+// 7. TERAPKAN KARTU SEBAGAI LATAR BELAKANG CHAT
+function applyCardAsChatBg(card) {
+    if (!card) return;
+    const isPages = window.location.pathname.includes('/pages/');
+    const cardImgPath = isPages ? (card.image.startsWith('../') ? card.image : '../' + card.image) : (card.image.startsWith('../') ? card.image.replace('../', '') : card.image);
+
+    const bgConfig = {
+        type: 'custom',
+        url: cardImgPath,
+        rawPath: card.image,
+        cardId: card.id,
+        cardName: card.name,
+        serialNo: card.serialNo || '',
+        rarity: card.rarity,
+        overlay: 38,
+        blur: 0
+    };
+    localStorage.setItem("fournity_chat_wallpaper", JSON.stringify(bgConfig));
+    if (typeof window.syncUserDataToCloud === 'function') {
+        window.syncUserDataToCloud('wallpaper');
+    }
+
+    playChime('bell');
+    showToast(`🌌 Wallpaper Chat Aktif! [${card.name}] (${card.serialNo || ''}) kini menjadi latar belakang obrolan.`);
+    try { window.dispatchEvent(new Event("storage")); } catch(e) {}
+}
+
+// ==========================================================================
+// 15.6 FITUR KIRIM & TERIMA FOTO CARD KE ORANG LAIN (GIFT & TRANSFER SYSTEM)
+// Mendukung Transfer Langsung ke Member Komunitas & Pembuatan Kode Hadiah (Gift Code)
+// ==========================================================================
+
+function initCardGiftingSystem() {
+    const sendModal = document.getElementById("sendCardModal");
+    const closeSendBtn = document.getElementById("closeSendCardModal");
+    const thumbImg = document.getElementById("sendCardThumbImg");
+    const thumbTitle = document.getElementById("sendCardThumbTitle");
+    const thumbSerial = document.getElementById("sendCardThumbSerial");
+    const rarityPill = document.getElementById("sendCardRarityPill");
+    const selectCardGroup = document.getElementById("sendCardSelectGroup");
+    const selectCardInput = document.getElementById("selectCardToSend");
+    const tabDirect = document.getElementById("tabBtnDirectSend");
+    const tabGiftCode = document.getElementById("tabBtnGiftCode");
+    const paneDirect = document.getElementById("paneDirectSend");
+    const paneGiftCode = document.getElementById("paneGiftCode");
+    const targetUserSelect = document.getElementById("sendTargetUserSelect");
+    const targetUserManual = document.getElementById("sendTargetUserManual");
+    const cardMsgInput = document.getElementById("sendCardMessage");
+    const btnConfirmSend = document.getElementById("btnConfirmSendCard");
+    const giftCodeNote = document.getElementById("giftCodeNote");
+    const btnGenCode = document.getElementById("btnGenerateGiftCode");
+    const codeResultBox = document.getElementById("giftCodeResultBox");
+    const codeDisplay = document.getElementById("giftCodeDisplay");
+    const btnCopyCode = document.getElementById("btnCopyGiftCode");
+    const genCodeActionRow = document.getElementById("generateCodeActionRow");
+
+    // Modal Terima Hadiah
+    const receivedModal = document.getElementById("giftReceivedModal");
+    const receivedTitle = document.getElementById("giftReceivedTitle");
+    const receivedSenderName = document.getElementById("giftSenderName");
+    const receivedMsgBubble = document.getElementById("giftMessageBubble");
+    const receivedMsgText = document.getElementById("giftMessageText");
+    const receivedSlot = document.getElementById("giftReceivedCardSlot");
+    const btnClaimGift = document.getElementById("btnClaimReceivedGift");
+
+    // Modal Klaim Kode Hadiah
+    const redeemModal = document.getElementById("redeemCodeModal");
+    const closeRedeemBtn = document.getElementById("closeRedeemCodeModal");
+    const inputRedeemCode = document.getElementById("inputRedeemCode");
+    const btnSubmitRedeem = document.getElementById("btnSubmitRedeemCode");
+
+    let currentCardToGift = null;
+
+    // 1. Tab Switcher di Modal Kirim
+    tabDirect?.addEventListener("click", () => {
+        tabDirect.classList.add("is-active");
+        tabGiftCode?.classList.remove("is-active");
+        paneDirect?.classList.add("is-active");
+        paneGiftCode?.classList.remove("is-active");
+    });
+
+    tabGiftCode?.addEventListener("click", () => {
+        tabGiftCode.classList.add("is-active");
+        tabDirect?.classList.remove("is-active");
+        paneGiftCode?.classList.add("is-active");
+        paneDirect?.classList.remove("is-active");
+    });
+
+    closeSendBtn?.addEventListener("click", () => {
+        closePhotocardModal("sendCardModal", true);
+    });
+    sendModal?.addEventListener("click", (e) => {
+        if (e.target === sendModal) closePhotocardModal("sendCardModal", true);
+    });
+
+    closeRedeemBtn?.addEventListener("click", () => {
+        closePhotocardModal("redeemCodeModal", true);
+    });
+    redeemModal?.addEventListener("click", (e) => {
+        if (e.target === redeemModal) closePhotocardModal("redeemCodeModal", true);
+    });
+
+    btnClaimGift?.addEventListener("click", () => {
+        closePhotocardModal("giftReceivedModal", false);
+        if (typeof openCardAlbumModal === "function") openCardAlbumModal();
+    });
+    receivedModal?.addEventListener("click", (e) => {
+        if (e.target === receivedModal) closePhotocardModal("giftReceivedModal", false);
+    });
+
+    // 2. Fungsi Buka Modal Kirim Kartu
+    window.openSendCardModal = function(cardParam = null) {
+        const instances = getOwnedCardInstances();
+        if (!instances || instances.length === 0) {
+            showToast("⚠️ Kamu belum memiliki kartu untuk dikirim. Dapatkan kartu dari Check-In atau Misi!");
+            return;
+        }
+
+        currentCardToGift = cardParam ? resolveCardData(cardParam) : resolveCardData(instances[0]);
+
+        // Atur dropdown pilih kartu
+        if (selectCardInput) {
+            selectCardInput.innerHTML = "";
+            instances.forEach((inst, idx) => {
+                const resolved = resolveCardData(inst);
+                const opt = document.createElement("option");
+                opt.value = inst.instanceId || inst.serialNo || idx;
+                opt.textContent = `[${resolved.rarity.toUpperCase()}] ${resolved.name} (${resolved.serialNo})`;
+                if (currentCardToGift && ((currentCardToGift.instanceId && currentCardToGift.instanceId === inst.instanceId) || (currentCardToGift.serialNo && currentCardToGift.serialNo === inst.serialNo))) {
+                    opt.selected = true;
+                }
+                selectCardInput.appendChild(opt);
+            });
+
+            selectCardInput.onchange = () => {
+                const chosen = instances.find(i => (i.instanceId && i.instanceId === selectCardInput.value) || (i.serialNo && i.serialNo === selectCardInput.value));
+                if (chosen) {
+                    currentCardToGift = resolveCardData(chosen);
+                    updateCardPreviewStrip(currentCardToGift);
+                }
+            };
+        }
+
+        if (selectCardGroup) {
+            selectCardGroup.style.display = cardParam ? "none" : "block";
+        }
+
+        updateCardPreviewStrip(currentCardToGift);
+        populateRecipientDropdown();
+
+        // Reset state tabs & input
+        if (tabDirect && tabGiftCode && paneDirect && paneGiftCode) {
+            tabDirect.classList.add("is-active");
+            tabGiftCode.classList.remove("is-active");
+            paneDirect.classList.add("is-active");
+            paneGiftCode.classList.remove("is-active");
+        }
+        if (cardMsgInput) cardMsgInput.value = "";
+        if (targetUserManual) targetUserManual.value = "";
+        if (giftCodeNote) giftCodeNote.value = "";
+        if (codeResultBox) codeResultBox.style.display = "none";
+        if (genCodeActionRow) genCodeActionRow.style.display = "block";
+
+        showPhotocardModal("sendCardModal", { saveHistory: true });
+    };
+
+    function updateCardPreviewStrip(card) {
+        if (!card) return;
+        if (thumbImg) {
+            let src = card.image;
+            const isPages = window.location.pathname.includes('/pages/');
+            if (isPages && !src.startsWith('../')) src = '../' + src;
+            thumbImg.src = src;
+        }
+        if (thumbTitle) thumbTitle.textContent = card.name;
+        if (thumbSerial) thumbSerial.textContent = card.serialNo || "#FN-0000";
+        if (rarityPill) {
+            rarityPill.textContent = card.rarity === "legendary" 
+                ? "★ LAGEND ★" 
+                : (card.rarity === "ultra_rare" ? "★ ULTRA RARE ★" : "✦ RARE ✦");
+            rarityPill.style.background = card.rarity === "legendary"
+                ? "linear-gradient(135deg, #FF0055, #FFB703)"
+                : (card.rarity === "ultra_rare" ? "linear-gradient(135deg, #7209B7, #FFD166)" : "linear-gradient(135deg, #00B4D8, #00F5D4)");
+        }
+    }
+
+    // 3. Muat Anggota Komunitas Penerima dari Firebase & Profil (HANYA NAMA PENGGUNA)
+    async function populateRecipientDropdown() {
+        if (!targetUserSelect) return;
+        targetUserSelect.innerHTML = `<option value="">-- Pilih Anggota Komunitas --</option>`;
+
+        const myUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase().trim();
+        const candidateUsers = new Map();
+
+        // Helper filter format email
+        function isEmailFormat(str) {
+            if (!str || typeof str !== "string") return true;
+            const s = str.trim().toLowerCase();
+            return s.includes("@") || s.includes(".com") || s.includes(".net") || s.includes(".org") || s.includes(".id") || s.includes(".co");
+        }
+
+        // Helper pembersih display name (buang @ domain jika ada)
+        function cleanName(raw) {
+            if (!raw || typeof raw !== "string") return "";
+            let s = raw.trim();
+            if (s.includes("@")) {
+                s = s.split("@")[0].trim();
+            }
+            return s;
+        }
+
+        // 1. Anggota 4 Pilar Fournity dengan nama resmi
+        const defaultMembers = ["Sensei Iqbal", "Fasya", "Umaedi", "Rifki"];
+        defaultMembers.forEach(name => {
+            const key = name.toLowerCase();
+            if (key !== myUser) {
+                candidateUsers.set(key, name);
+            }
+        });
+
+        // 2. Tarik Profil Publik dari Firebase RTDB (user_profiles)
+        try {
+            const RTDB_BASE = 'https://nihongo-trinity-default-rtdb.firebaseio.com';
+            const res = await fetch(`${RTDB_BASE}/user_profiles.json`, { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && typeof data === 'object') {
+                    Object.entries(data).forEach(([key, val]) => {
+                        const rawName = (val && val.displayName) ? val.displayName : key;
+                        const name = cleanName(rawName);
+                        // Hanya masukkan jika bukan email, tidak kosong, dan bukan akun sendiri
+                        if (name && !isEmailFormat(name) && name.toLowerCase() !== myUser) {
+                            const nameKey = name.toLowerCase();
+                            candidateUsers.set(nameKey, name);
+                        }
+                    });
+                }
+            }
+        } catch(e) {}
+
+        // 3. Tarik dari in-memory window.userProfiles jika ada
+        if (window.userProfiles && typeof window.userProfiles === "object") {
+            Object.entries(window.userProfiles).forEach(([key, val]) => {
+                const rawName = (val && val.displayName) ? val.displayName : key;
+                const name = cleanName(rawName);
+                if (name && !isEmailFormat(name) && name.toLowerCase() !== myUser) {
+                    const nameKey = name.toLowerCase();
+                    if (!candidateUsers.has(nameKey)) {
+                        candidateUsers.set(nameKey, name);
+                    }
+                }
+            });
+        }
+
+        // 4. Render ke Dropdown: HANYA NAMA PENGGUNA SAJA (TANPA EMAIL)
+        candidateUsers.forEach((name) => {
+            const opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = `👤 ${name}`;
+            targetUserSelect.appendChild(opt);
+        });
+    }
+
+    // 4. Konfirmasi Kirim Langsung ke User
+    btnConfirmSend?.addEventListener("click", async () => {
+        if (!currentCardToGift) {
+            showToast("⚠️ Pilih kartu yang ingin dikirim terlebih dahulu.");
+            return;
+        }
+
+        let target = targetUserSelect ? targetUserSelect.value.trim() : "";
+        if (!target && targetUserManual) {
+            target = targetUserManual.value.trim();
+            if (target.includes("@")) {
+                target = target.split("@")[0].trim();
+            }
+        }
+
+        if (!target) {
+            showToast("⚠️ Pilih atau ketik nama teman/anggota penerima kartu.");
+            return;
+        }
+
+        const myUser = localStorage.getItem("nihongoChatUser") || "Gakusei";
+        if (target.toLowerCase() === myUser.toLowerCase()) {
+            showToast("⚠️ Kamu tidak bisa mengirim kartu ke akunmu sendiri.");
+            return;
+        }
+
+        btnConfirmSend.disabled = true;
+        btnConfirmSend.innerHTML = `⏳ Mengirimkan Kartu...`;
+
+        try {
+            await transferCardToUser(currentCardToGift, target, cardMsgInput ? cardMsgInput.value.trim() : "");
+            closePhotocardModal("sendCardModal", false);
+            if (typeof window.openCardAlbumModal === "function") {
+                window.openCardAlbumModal();
+            }
+        } catch(err) {
+            console.error("Gagal transfer kartu:", err);
+            showToast("⚠️ Gagal mengirim kartu: " + (err.message || "Koneksi terganggu"));
+        } finally {
+            btnConfirmSend.disabled = false;
+            btnConfirmSend.innerHTML = `🚀 Kirim Kartu Sekarang`;
+        }
+    });
+
+    // 5. Eksekusi Transfer Kartu & Potong dari Inventory Pengirim
+    async function transferCardToUser(card, recipientName, message = "") {
+        const instances = getOwnedCardInstances();
+        const cardIdx = instances.findIndex(i => 
+            (card.instanceId && i.instanceId === card.instanceId) ||
+            (card.serialNo && i.serialNo === card.serialNo) ||
+            (i.cardId === card.id || i.id === card.id)
+        );
+
+        if (cardIdx === -1) {
+            throw new Error("Kartu tidak ditemukan dalam koleksi milikmu.");
+        }
+
+        // Cabut kartu dari pengirim
+        const [transferredCard] = instances.splice(cardIdx, 1);
+        saveOwnedCardInstances(instances);
+
+        // Jika kartu ini adalah avatar aktif pengirim, perbarui profil
+        const activeSerial = localStorage.getItem("fournity_avatar_serial");
+        if (activeSerial && transferredCard.serialNo && activeSerial === transferredCard.serialNo) {
+            localStorage.removeItem("fournity_user_avatar");
+            localStorage.removeItem("fournity_avatar_rarity");
+            localStorage.removeItem("fournity_avatar_serial");
+            syncMainTopHeaderProfile();
+        }
+
+        const myUser = localStorage.getItem("nihongoChatUser") || "Teman Fournity";
+        const giftId = 'gift_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        const giftData = {
+            giftId: giftId,
+            fromUser: myUser,
+            toUser: recipientName,
+            card: resolveCardData(transferredCard),
+            message: message || "Selamat belajar bahasa Jepang! Ini kartu spesial untukmu 🌸",
+            timestamp: Date.now(),
+            status: "pending"
+        };
+
+        // Kirim ke Firebase RTDB
+        const RTDB_BASE = 'https://nihongo-trinity-default-rtdb.firebaseio.com';
+        try {
+            await fetch(`${RTDB_BASE}/card_gifts/${encodeURIComponent(recipientName)}/${giftId}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(giftData)
+            });
+        } catch(e) {}
+
+        // Broadcast pengumuman pesan gembira di chat jika tersedia
+        try {
+            await fetch(`${RTDB_BASE}/messages.json`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: "System",
+                    text: `🎁 [${myUser}] telah mengirimkan hadiah Foto Card [${transferredCard.name}] (${transferredCard.serialNo || ''}) kepada [${recipientName}]!`,
+                    time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                    timestamp: Date.now(),
+                    isSystem: true
+                })
+            });
+        } catch(e) {}
+
+        playChime('success');
+        showToast(`🎉 Sukses! Kartu [${transferredCard.name}] (${transferredCard.serialNo}) telah dikirimkan ke [${recipientName}]!`);
+
+        // Refresh UI
+        if (typeof window.refreshPass === 'function') window.refreshPass();
+        const albumModal = document.getElementById("cardAlbumModal");
+        if (albumModal && albumModal.style.display !== "none") {
+            const activeFilter = document.querySelector(".album-filter-btn.is-active")?.dataset.filter || "all";
+            if (typeof window.renderCardAlbum === "function") window.renderCardAlbum(activeFilter);
+        }
+        if (typeof renderShowcaseSlider === "function") renderShowcaseSlider();
+    }
+
+    // 6. Buat Kode Hadiah (Gift Code Transfer)
+    btnGenCode?.addEventListener("click", async () => {
+        if (!currentCardToGift) {
+            showToast("⚠️ Pilih kartu yang ingin dibuatkan kode hadiah.");
+            return;
+        }
+
+        btnGenCode.disabled = true;
+        btnGenCode.innerHTML = `⏳ Menerbitkan Kode...`;
+
+        try {
+            const code = await createGiftCodeForCard(currentCardToGift, giftCodeNote ? giftCodeNote.value.trim() : "");
+            if (codeDisplay) codeDisplay.textContent = code;
+            if (codeResultBox) codeResultBox.style.display = "block";
+            if (genCodeActionRow) genCodeActionRow.style.display = "none";
+        } catch(err) {
+            showToast("⚠️ " + (err.message || "Gagal membuat kode hadiah"));
+        } finally {
+            btnGenCode.disabled = false;
+            btnGenCode.innerHTML = `✨ Terbitkan Kode Hadiah Baru`;
+        }
+    });
+
+    async function createGiftCodeForCard(card, note = "") {
+        const instances = getOwnedCardInstances();
+        const cardIdx = instances.findIndex(i => 
+            (card.instanceId && i.instanceId === card.instanceId) ||
+            (card.serialNo && i.serialNo === card.serialNo) ||
+            (i.cardId === card.id || i.id === card.id)
+        );
+
+        if (cardIdx === -1) throw new Error("Kartu tidak ditemukan dalam koleksi.");
+
+        const [removedCard] = instances.splice(cardIdx, 1);
+        saveOwnedCardInstances(instances);
+
+        // Jika kartu ini adalah avatar aktif pengirim, perbarui profil
+        const activeSerial = localStorage.getItem("fournity_avatar_serial");
+        if (activeSerial && removedCard.serialNo && activeSerial === removedCard.serialNo) {
+            localStorage.removeItem("fournity_user_avatar");
+            localStorage.removeItem("fournity_avatar_rarity");
+            localStorage.removeItem("fournity_avatar_serial");
+            if (typeof syncMainTopHeaderProfile === "function") syncMainTopHeaderProfile();
+        }
+
+        const myUser = localStorage.getItem("nihongoChatUser") || "Teman Fournity";
+        const codeSuffix = (card.cardId || card.id || 'CARD').replace('card_', '').toUpperCase();
+        const cleanCode = `FN-GIFT-${Math.floor(1000 + Math.random() * 9000)}-${codeSuffix}`;
+
+        const codeData = {
+            code: cleanCode,
+            fromUser: myUser,
+            card: resolveCardData(removedCard),
+            note: note || "Hadiah Foto Card Fournity spesial untukmu!",
+            createdAt: Date.now(),
+            status: "active"
+        };
+
+        const RTDB_BASE = 'https://nihongo-trinity-default-rtdb.firebaseio.com';
+        await fetch(`${RTDB_BASE}/card_gift_codes/${cleanCode}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(codeData)
+        });
+
+        playChime('bell');
+        showToast(`✨ Kode Hadiah [${cleanCode}] berhasil diterbitkan!`);
+
+        if (typeof window.refreshPass === 'function') window.refreshPass();
+        const curAlbumModal = document.getElementById("cardAlbumModal");
+        if (curAlbumModal && curAlbumModal.style.display !== "none") {
+            const activeFilter = document.querySelector(".album-filter-btn.is-active")?.dataset.filter || "all";
+            if (typeof window.renderCardAlbum === "function") window.renderCardAlbum(activeFilter);
+        }
+        if (typeof renderShowcaseSlider === "function") renderShowcaseSlider();
+
+        return cleanCode;
+    }
+
+    btnCopyCode?.addEventListener("click", () => {
+        const code = codeDisplay ? codeDisplay.textContent.trim() : "";
+        if (!code) return;
+        const msg = `🎁 Hai! Aku kirim Foto Card [${currentCardToGift?.name || 'Koleksi'}] (${currentCardToGift?.serialNo || ''}) untukmu di Nihongo Fournity!\n\n🔑 Kode Hadiah: ${code}\n\nKlaim di Beranda -> Album Foto Card -> Klaim Kode Hadiah!`;
+        navigator.clipboard.writeText(msg).then(() => {
+            showToast("📋 Kode hadiah dan pesan berhasil disalin ke clipboard!");
+        });
+    });
+
+    // 7. Klaim Kode Hadiah (Redeem)
+    window.openRedeemCodeModal = function() {
+        if (inputRedeemCode) inputRedeemCode.value = "";
+        showPhotocardModal("redeemCodeModal", { saveHistory: true });
+    };
+
+    btnSubmitRedeem?.addEventListener("click", async () => {
+        const code = inputRedeemCode ? inputRedeemCode.value.trim().toUpperCase() : "";
+        if (!code) {
+            showToast("⚠️ Masukkan kode hadiah terlebih dahulu.");
+            return;
+        }
+
+        btnSubmitRedeem.disabled = true;
+        btnSubmitRedeem.innerHTML = `⏳ Memeriksa Kode...`;
+
+        try {
+            await redeemGiftCode(code);
+            closePhotocardModal("redeemCodeModal", false);
+        } catch(err) {
+            showToast("⚠️ " + (err.message || "Gagal mengklaim kode"));
+        } finally {
+            btnSubmitRedeem.disabled = false;
+            btnSubmitRedeem.innerHTML = `🎁 Klaim Kartu Sekarang`;
+        }
+    });
+
+    async function redeemGiftCode(code) {
+        const RTDB_BASE = 'https://nihongo-trinity-default-rtdb.firebaseio.com';
+        const res = await fetch(`${RTDB_BASE}/card_gift_codes/${encodeURIComponent(code)}.json`, { cache: 'no-store' });
+        if (!res.ok) throw new Error("Gagal memeriksa server.");
+        const data = await res.json();
+
+        if (!data || data.status !== 'active' || !data.card) {
+            throw new Error("Kode hadiah tidak valid atau sudah pernah diklaim.");
+        }
+
+        const myUser = localStorage.getItem("nihongoChatUser") || "Gakusei";
+        // Tandai sudah diklaim
+        await fetch(`${RTDB_BASE}/card_gift_codes/${encodeURIComponent(code)}.json`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'claimed', claimedBy: myUser, claimedAt: Date.now() })
+        });
+
+        // Masukkan kartu ke koleksi penerima
+        const instances = getOwnedCardInstances();
+        const giftedCard = resolveCardData(data.card);
+        instances.unshift(giftedCard);
+        saveOwnedCardInstances(instances);
+
+        // Buka modal perayaan
+        showReceivedGiftCelebration({
+            fromUser: data.fromUser || "Teman Fournity",
+            message: data.note || "Selamat! Kartu berhasil kamu klaim!",
+            card: giftedCard
+        });
+    }
+
+    function showReceivedGiftCelebration(gift) {
+        if (!gift || !gift.card) return;
+        if (receivedTitle) receivedTitle.textContent = `Mendapatkan ${gift.card.name}!`;
+        if (receivedSenderName) receivedSenderName.textContent = gift.fromUser || "Teman Fournity";
+        if (receivedMsgBubble && receivedMsgText) {
+            if (gift.message) {
+                receivedMsgText.textContent = `“${gift.message}”`;
+                receivedMsgBubble.style.display = "block";
+            } else {
+                receivedMsgBubble.style.display = "none";
+            }
+        }
+        if (receivedSlot) {
+            receivedSlot.innerHTML = renderSingleCardHTML(gift.card);
+        }
+
+        if (gift.card.rarity === "legendary") {
+            playChime('legendary');
+        } else {
+            playChime('success');
+        }
+
+        showPhotocardModal("giftReceivedModal", { clearHistory: true });
+        if (typeof window.refreshPass === 'function') window.refreshPass();
+    }
+    window.showReceivedGiftCelebration = showReceivedGiftCelebration;
+
+    // 8. Listener Realtime Hadiah Masuk ke Akun
+    let giftPollingInterval = null;
+    async function checkIncomingGifts() {
+        const myUser = (localStorage.getItem("nihongoChatUser") || "").trim();
+        if (!myUser) return;
+
+        try {
+            const RTDB_BASE = 'https://nihongo-trinity-default-rtdb.firebaseio.com';
+            const res = await fetch(`${RTDB_BASE}/card_gifts/${encodeURIComponent(myUser)}.json`, { cache: 'no-store' });
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data || typeof data !== "object") return;
+
+            const giftKeys = Object.keys(data);
+            let pendingCount = 0;
+
+            for (const key of giftKeys) {
+                const gift = data[key];
+                if (gift && gift.status === "pending" && gift.card) {
+                    pendingCount++;
+                    // Klaim otomatis ke inventory
+                    const instances = getOwnedCardInstances();
+                    const alreadyHasInst = instances.some(i => i.serialNo === gift.card.serialNo);
+                    if (!alreadyHasInst) {
+                        instances.unshift(resolveCardData(gift.card));
+                        saveOwnedCardInstances(instances);
+                    }
+
+                    // Update status claimed di cloud
+                    fetch(`${RTDB_BASE}/card_gifts/${encodeURIComponent(myUser)}/${key}.json`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'claimed', claimedAt: Date.now() })
+                    });
+
+                    // Tampilkan perayaan hadiah
+                    showReceivedGiftCelebration(gift);
+                    break; // Tampilkan satu per satu agar meriah
+                }
+            }
+
+            const counterEl = document.getElementById("giftBadgeCounter");
+            if (counterEl) {
+                if (pendingCount > 0) {
+                    counterEl.textContent = pendingCount;
+                    counterEl.style.display = "inline-block";
+                } else {
+                    counterEl.style.display = "none";
+                }
+            }
+        } catch(e) {}
+    }
+
+    // Periksa hadiah saat inisialisasi & polling berkala
+    checkIncomingGifts();
+    if (!giftPollingInterval) {
+        giftPollingInterval = setInterval(checkIncomingGifts, 20000);
+    }
+
+    // Modal Kotak Hadiah
+    window.openGiftInboxModal = function() {
+        checkIncomingGifts();
+        showToast("📬 Memeriksa kiriman kartu terbaru dari teman...");
+    };
 }
 
 // ==========================================================================
@@ -1897,6 +4165,11 @@ window.addEventListener("DOMContentLoaded", () => {
     setupInfoProfile();
     setupStudyPage();
 
+    // Inisialisasi Check-in Harian, Koleksi Foto Card & Sistem Kirim Hadiah
+    setupDailyCheckin();
+    setupPhotoCardCollection();
+    initCardGiftingSystem();
+
     // Inisialisasi Dynamic Island Voice Note
     initDynamicIslandScheduler();
 
@@ -1912,4 +4185,16 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("mottoSpeaker")?.addEventListener("click", () => {
         speakJapanese("継続は力なり。");
     });
+
+    syncMainTopHeaderProfile();
+});
+
+// Sinkronisasi otomatis saat ada pembaruan storage (misal dari chat modal atau tab lain)
+window.addEventListener("storage", (e) => {
+    if (!e.key || e.key.includes("avatar") || e.key.includes("card") || e.key.includes("user") || e.key.includes("checkin") || e.key.includes("activity")) {
+        syncMainTopHeaderProfile();
+        if (typeof window.refreshPass === 'function') window.refreshPass();
+        if (typeof window.renderCheckinUI === 'function') window.renderCheckinUI();
+        if (typeof window.checkAndUpdateDailyQuests === 'function') window.checkAndUpdateDailyQuests();
+    }
 });

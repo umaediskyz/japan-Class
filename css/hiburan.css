@@ -1,6 +1,6 @@
 /* ==========================================================================
    HIBURAN PAGE - Neo-Tokyo & Shinto Cyber-Zen Lounge
-   Nihongo Trinity Entertainment Experience
+   Nihongo Fournity Entertainment Experience
    ========================================================================== */
 
 .hiburan-page {
@@ -908,4 +908,267 @@
         justify-content: space-between;
         width: 100%;
     }
+}
+
+/* ==========================================================================
+   APP LAUNCHER GRID (LOGO & MENU APPS HUB)
+   ========================================================================== */
+.hiburan-launcher-section {
+    margin-bottom: 35px;
+}
+
+.hiburan-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding: 0 4px;
+}
+
+.hiburan-section-title-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fff;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.hiburan-section-count {
+    font-size: 11px;
+    color: var(--japan-gold, #d4af37);
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+/* 7 App Cards Grid */
+.hiburan-apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 25px;
+}
+
+@media (max-width: 600px) {
+    .hiburan-apps-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+@media (min-width: 900px) {
+    .hiburan-apps-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.hiburan-app-item {
+    background: linear-gradient(145deg, rgba(22, 28, 44, 0.78), rgba(12, 16, 26, 0.88));
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 20px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    cursor: pointer;
+}
+
+.hiburan-app-item:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5);
+}
+
+.hiburan-app-item:active {
+    transform: scale(0.97);
+}
+
+/* App Icon Badges */
+.hiburan-app-icon-wrap {
+    width: 62px;
+    height: 62px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 12px;
+    position: relative;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hiburan-app-item:hover .hiburan-app-icon-wrap {
+    transform: scale(1.12) rotate(3deg);
+}
+
+/* Theme Gradients for App Icons */
+.icon-theme-battle {
+    background: linear-gradient(135deg, #FF2A54, #00F5D4);
+    border: 1.5px solid rgba(255, 42, 84, 0.5);
+    box-shadow: 0 0 20px rgba(255, 42, 84, 0.3);
+}
+
+.icon-theme-game {
+    background: linear-gradient(135deg, #8E44AD, #F39C12);
+    border: 1.5px solid rgba(142, 68, 173, 0.5);
+    box-shadow: 0 0 20px rgba(142, 68, 173, 0.3);
+}
+
+.icon-theme-zen {
+    background: linear-gradient(135deg, #10B981, #065F46);
+    border: 1.5px solid rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.icon-theme-omikuji {
+    background: linear-gradient(135deg, #D4AF37, #E63946);
+    border: 1.5px solid rgba(212, 175, 55, 0.5);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+.icon-theme-movie {
+    background: linear-gradient(135deg, #E63946, #6D28D9);
+    border: 1.5px solid rgba(230, 57, 70, 0.5);
+    box-shadow: 0 0 20px rgba(230, 57, 70, 0.3);
+}
+
+.icon-theme-music {
+    background: linear-gradient(135deg, #3B82F6, #EC4899);
+    border: 1.5px solid rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.icon-theme-culture {
+    background: linear-gradient(135deg, #F59E0B, #B45309);
+    border: 1.5px solid rgba(245, 158, 11, 0.5);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+/* App Title & Subtitle */
+.hiburan-app-name {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    line-height: 1.3;
+}
+
+.hiburan-app-kanji {
+    font-size: 11px;
+    color: var(--japan-gold, #d4af37);
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.hiburan-app-sub {
+    font-size: 11px;
+    color: var(--text-secondary, #94a3b8);
+    font-weight: 500;
+}
+
+.hiburan-app-badge {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.badge-live {
+    background: rgba(255, 42, 84, 0.2);
+    border-color: #FF2A54;
+    color: #FF758C;
+    box-shadow: 0 0 10px rgba(255, 42, 84, 0.3);
+}
+
+.badge-gold {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--japan-gold, #d4af37);
+    color: var(--japan-gold, #d4af37);
+}
+
+.badge-interactive {
+    background: rgba(0, 245, 212, 0.15);
+    border-color: #00F5D4;
+    color: #00F5D4;
+}
+
+/* ==========================================================================
+   INTERACTIVE TOOLS STAGE (TAB SWITCHER FOR IN-PAGE FEATURES)
+   ========================================================================== */
+.hiburan-interactive-stage {
+    margin-top: 35px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 30px;
+}
+
+.hiburan-tabs-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 26px;
+    flex-wrap: wrap;
+}
+
+.hiburan-tab-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary, #94a3b8);
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(12px);
+}
+
+.hiburan-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.hiburan-tab-btn.is-active {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(230, 57, 70, 0.2));
+    border-color: var(--japan-gold, #d4af37);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+}
+
+.hiburan-tab-pane {
+    display: none;
+    animation: hiburanFadeIn 0.35s ease;
+}
+
+.hiburan-tab-pane.is-active {
+    display: block;
+}
+
+@keyframes hiburanFadeIn {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
 }

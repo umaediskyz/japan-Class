@@ -1,5 +1,13 @@
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, query, limitToLast, onValue, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, query, limitToLast, onValue, set, get, child, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged, 
+    updateProfile 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBedu3Z7AMdD5dmaudzeCwxzkegpX5Qfvs",
@@ -13,12 +21,300 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getDatabase(app);
+const auth = getAuth(app);
 const announceRef = ref(db, "announcements");
 
-const currentUser = localStorage.getItem("nihongoChatUser");
+// Ekspos global helper untuk System Health & Diagnostics Radar & Card Gifts
+window.db = db;
+window.firebaseAuth = auth;
+window.auth = auth;
+window.firebaseDb = db;
+window.firebaseRef = ref;
+window.firebaseGet = get;
+window.firebaseSet = set;
+window.firebaseUpdate = update;
+window.firebasePush = push;
+window.firebaseRemove = remove;
+window.firebaseChild = child;
+window.firebaseOnValue = onValue;
+window.firebaseConfig = firebaseConfig;
+
+let currentUid = localStorage.getItem("nihongoChatUid");
+let currentEmail = localStorage.getItem("nihongoChatEmail");
+let currentUser = localStorage.getItem("nihongoChatUser");
+
+// Auto-reset akun sistem lama (Iqbal, Fasya, Rifki, Umaedi) jika tidak memiliki sesi Firebase Auth yang sah
+const legacyMockUsers = ["umaedi", "iqbal", "rifki", "fasya"];
+if (!currentUid && currentUser && (legacyMockUsers.includes(currentUser.toLowerCase()) || currentUser.startsWith("Gakusei_"))) {
+    clearUserSessionData();
+    currentUser = null;
+    currentUid = null;
+    currentEmail = null;
+}
 
 // ==========================================
-// 1. SISTEM LOGIN & REGISTER
+// 1. HELPER SINKRONISASI DATA PER-AKUN (ISOLASI USER)
+// ==========================================
+
+function clearUserSessionData() {
+    localStorage.removeItem("nihongoChatUid");
+    localStorage.removeItem("nihongoChatEmail");
+    localStorage.removeItem("nihongoChatUser");
+    localStorage.removeItem("fournity_card_instances_v3");
+    localStorage.removeItem("fournity_unlocked_cards");
+    localStorage.removeItem("fournity_user_avatar");
+    localStorage.removeItem("fournity_avatar_rarity");
+    localStorage.removeItem("fournity_avatar_serial");
+    localStorage.removeItem("fournity_checkin_v2");
+    localStorage.removeItem("trinity_exp");
+    localStorage.removeItem("fournity_quest_bonus_exp");
+    localStorage.removeItem("fournity_checkin_exp");
+    localStorage.removeItem("fournity_chat_wallpaper");
+}
+
+async function initNewUserInCloud(uid, displayName, email) {
+    const initialUserData = {
+        profile: {
+            displayName: displayName,
+            email: email,
+            avatar: "",
+            avatarRarity: "",
+            avatarSerial: "",
+            photoBase64: "",
+            createdAt: Date.now()
+        },
+        inventory: {
+            card_instances: [],
+            unlocked_cards: []
+        },
+        progress: {
+            exp: 80,
+            quest_bonus_exp: 0,
+            checkin_exp: 0,
+            memorized_kanji: []
+        },
+        checkin: {
+            streak: 0,
+            lastDate: "",
+            total: 0
+        },
+        settings: {
+            chat_wallpaper: null
+        }
+    };
+
+    await set(ref(db, `users/${uid}`), initialUserData);
+    await set(ref(db, `user_profiles/${displayName}`), {
+        displayName: displayName,
+        photoBase64: "",
+        uid: uid
+    });
+
+    localStorage.setItem("fournity_card_instances_v3", "[]");
+    localStorage.setItem("fournity_unlocked_cards", "[]");
+    localStorage.setItem("trinity_exp", "80");
+    localStorage.setItem("fournity_quest_bonus_exp", "0");
+    localStorage.setItem("fournity_checkin_exp", "0");
+    localStorage.setItem("fournity_checkin_v2", JSON.stringify({ streak: 0, lastDate: "", total: 0 }));
+    localStorage.removeItem("fournity_user_avatar");
+    localStorage.removeItem("fournity_avatar_rarity");
+    localStorage.removeItem("fournity_avatar_serial");
+}
+
+async function loadUserDataFromCloud(user) {
+    if (!user) return;
+    const uid = user.uid;
+    const displayName = user.displayName || user.email.split("@")[0];
+
+    try {
+        const snap = await get(child(ref(db), `users/${uid}`));
+        if (snap.exists()) {
+            const data = snap.val();
+
+            // Reset awal bersih agar kartu awal 0 (belum memiliki fotocard)
+            const isUserResetClean = localStorage.getItem("fournity_cloud_reset_" + uid);
+            if (!isUserResetClean) {
+                await update(ref(db), {
+                    [`users/${uid}/inventory/card_instances`]: [],
+                    [`users/${uid}/inventory/unlocked_cards`]: [],
+                    [`users/${uid}/profile/avatar`]: "",
+                    [`users/${uid}/profile/avatarRarity`]: "",
+                    [`users/${uid}/profile/avatarSerial`]: "",
+                    [`user_profiles/${displayName}/avatarRarity`]: ""
+                });
+                localStorage.setItem("fournity_cloud_reset_" + uid, "true");
+                localStorage.setItem("fournity_card_instances_v3", "[]");
+                localStorage.setItem("fournity_unlocked_cards", "[]");
+                localStorage.removeItem("fournity_user_avatar");
+                localStorage.removeItem("fournity_avatar_rarity");
+                localStorage.removeItem("fournity_avatar_serial");
+                localStorage.removeItem(`avatar_${displayName}`);
+                localStorage.removeItem(`avatar_rarity_${displayName}`);
+                localStorage.removeItem(`avatar_serial_${displayName}`);
+                return;
+            }
+
+            // 1. Inventory Fotocard (ISOLATED PER USER)
+            if (data.inventory?.card_instances && Array.isArray(data.inventory.card_instances)) {
+                localStorage.setItem("fournity_card_instances_v3", JSON.stringify(data.inventory.card_instances));
+                localStorage.setItem("fournity_unlocked_cards", JSON.stringify(data.inventory.unlocked_cards || []));
+            } else {
+                localStorage.setItem("fournity_card_instances_v3", "[]");
+                localStorage.setItem("fournity_unlocked_cards", "[]");
+            }
+
+            // 2. Avatar & Efek Profil
+            if (data.profile?.avatar) {
+                localStorage.setItem("fournity_user_avatar", data.profile.avatar);
+                localStorage.setItem("fournity_avatar_rarity", data.profile.avatarRarity || "");
+                localStorage.setItem("fournity_avatar_serial", data.profile.avatarSerial || "");
+                localStorage.setItem(`avatar_${displayName}`, data.profile.avatar);
+                localStorage.setItem(`avatar_rarity_${displayName}`, data.profile.avatarRarity || "");
+                localStorage.setItem(`avatar_serial_${displayName}`, data.profile.avatarSerial || "");
+            } else {
+                localStorage.removeItem("fournity_user_avatar");
+                localStorage.removeItem("fournity_avatar_rarity");
+                localStorage.removeItem("fournity_avatar_serial");
+            }
+
+            // 3. Progres EXP & Misi
+            if (data.progress) {
+                localStorage.setItem("trinity_exp", typeof data.progress.exp !== 'undefined' ? data.progress.exp : 80);
+                localStorage.setItem("fournity_quest_bonus_exp", data.progress.quest_bonus_exp || 0);
+
+                // Pertahankan checkin_exp lokal jika pengguna baru saja klaim checkin hari ini
+                const localCheckinExp = Number(localStorage.getItem("fournity_checkin_exp") || 0);
+                const cloudCheckinExp = Number(data.progress.checkin_exp || 0);
+                localStorage.setItem("fournity_checkin_exp", Math.max(localCheckinExp, cloudCheckinExp));
+
+                if (data.progress.memorized_kanji) {
+                    localStorage.setItem("trinity_memorized_kanji", JSON.stringify(data.progress.memorized_kanji));
+                }
+            }
+
+            // 4. Checkin Streak (Proteksi Anti-Overwrite Saat Refresh)
+            if (data.checkin) {
+                const localCheckin = JSON.parse(localStorage.getItem("fournity_checkin_v2") || "{}");
+                const todayStr = (typeof window.getLocalDateString === 'function')
+                    ? window.getLocalDateString()
+                    : (() => {
+                        const d = new Date();
+                        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    })();
+
+                if (localCheckin.lastDate === todayStr && data.checkin.lastDate !== todayStr) {
+                    if (typeof window.syncUserDataToCloud === 'function') {
+                        window.syncUserDataToCloud('checkin');
+                        window.syncUserDataToCloud('progress');
+                    }
+                } else {
+                    localStorage.setItem("fournity_checkin_v2", JSON.stringify(data.checkin));
+                }
+            }
+
+            // 5. Chat Wallpaper
+            if (data.settings?.chat_wallpaper) {
+                localStorage.setItem("fournity_chat_wallpaper", JSON.stringify(data.settings.chat_wallpaper));
+            } else {
+                localStorage.removeItem("fournity_chat_wallpaper");
+            }
+        } else {
+            // Belum ada data di users/${uid} -> inisialisasi starter pack baru
+            await initNewUserInCloud(uid, displayName, user.email);
+        }
+    } catch(err) {
+        console.warn("Gagal membaca profil cloud user:", err);
+    }
+}
+
+let pendingSyncSections = new Set();
+let syncDebounceTimer = null;
+window.syncUserDataToCloud = async function(section = 'all') {
+    if (!auth.currentUser) return;
+    const uid = auth.currentUser.uid;
+    const displayName = auth.currentUser.displayName || localStorage.getItem("nihongoChatUser") || "Gakusei";
+    const email = auth.currentUser.email || "";
+
+    if (section === 'all') {
+        pendingSyncSections.add('all');
+    } else {
+        pendingSyncSections.add(section);
+    }
+
+    const doSync = async () => {
+        const sectionsToSync = new Set(pendingSyncSections);
+        pendingSyncSections.clear();
+        try {
+            const updates = {};
+            const syncAll = sectionsToSync.has('all');
+            if (syncAll || sectionsToSync.has('inventory')) {
+                const instances = JSON.parse(localStorage.getItem("fournity_card_instances_v3") || "[]");
+                const unlocked = JSON.parse(localStorage.getItem("fournity_unlocked_cards") || "[]");
+                updates[`users/${uid}/inventory`] = {
+                    card_instances: instances,
+                    unlocked_cards: unlocked,
+                    updatedAt: Date.now()
+                };
+            }
+            if (syncAll || sectionsToSync.has('profile') || sectionsToSync.has('avatar')) {
+                const avatar = localStorage.getItem("fournity_user_avatar") || "";
+                const avatarRarity = localStorage.getItem("fournity_avatar_rarity") || "";
+                const avatarSerial = localStorage.getItem("fournity_avatar_serial") || "";
+                const cleanAvatar = avatar ? avatar.replace(/^(\.\.\/|\.\/)+/, '') : "";
+
+                updates[`users/${uid}/profile/avatar`] = cleanAvatar;
+                updates[`users/${uid}/profile/photoBase64`] = cleanAvatar;
+                updates[`users/${uid}/profile/avatarRarity`] = avatarRarity;
+                updates[`users/${uid}/profile/avatarSerial`] = avatarSerial;
+                updates[`users/${uid}/profile/displayName`] = displayName;
+                updates[`users/${uid}/profile/email`] = email;
+                updates[`users/${uid}/profile/updatedAt`] = Date.now();
+
+                // Sinkronkan juga ke user_profiles publik
+                updates[`user_profiles/${displayName}/displayName`] = displayName;
+                updates[`user_profiles/${displayName}/avatarRarity`] = avatarRarity;
+                updates[`user_profiles/${displayName}/avatarSerial`] = avatarSerial;
+                updates[`user_profiles/${displayName}/photoBase64`] = cleanAvatar;
+
+                if (window.userProfiles && window.userProfiles[displayName]) {
+                    window.userProfiles[displayName].photoBase64 = cleanAvatar;
+                    window.userProfiles[displayName].avatarRarity = avatarRarity;
+                    window.userProfiles[displayName].avatarSerial = avatarSerial;
+                }
+            }
+
+            if (syncAll || sectionsToSync.has('checkin')) {
+                const checkin = JSON.parse(localStorage.getItem("fournity_checkin_v2") || "{}");
+                updates[`users/${uid}/checkin`] = checkin;
+            }
+
+            if (syncAll || sectionsToSync.has('progress')) {
+                updates[`users/${uid}/progress`] = {
+                    exp: Number(localStorage.getItem("trinity_exp") || 80),
+                    quest_bonus_exp: Number(localStorage.getItem("fournity_quest_bonus_exp") || 0),
+                    checkin_exp: Number(localStorage.getItem("fournity_checkin_exp") || 0),
+                    memorized_kanji: JSON.parse(localStorage.getItem("trinity_memorized_kanji") || "[]"),
+                    updatedAt: Date.now()
+                };
+            }
+
+            if (syncAll || sectionsToSync.has('wallpaper')) {
+                const wp = JSON.parse(localStorage.getItem("fournity_chat_wallpaper") || "null");
+                updates[`users/${uid}/settings/chat_wallpaper`] = wp;
+            }
+
+            await update(ref(db), updates);
+        } catch(e) {
+            console.warn("Gagal sinkronisasi cloud:", e);
+        }
+    };
+
+    clearTimeout(syncDebounceTimer);
+    syncDebounceTimer = setTimeout(doSync, 250);
+};
+
+// ==========================================
+// 2. SISTEM LOGIN & REGISTER (FIREBASE AUTH)
 // ==========================================
 const globalLoginOverlay = document.getElementById("globalLoginOverlay");
 if (globalLoginOverlay) {
@@ -38,13 +334,13 @@ if (globalLoginOverlay) {
             loginForm.style.display = "none";
             registerForm.style.display = "block";
             modalTitle.textContent = "Buat Akun Baru";
-            modalDesc.textContent = "Daftarkan dirimu untuk bergabung dengan Trinity.";
+            modalDesc.textContent = "Daftarkan dirimu dengan email untuk bergabung dengan Nihongo Fournity.";
         });
         showLoginBtn.addEventListener("click", () => {
             registerForm.style.display = "none";
             loginForm.style.display = "block";
             modalTitle.textContent = "Identifikasi Member";
-            modalDesc.textContent = "Silakan masuk untuk mengakses pusat kontrol.";
+            modalDesc.textContent = "Silakan masuk menggunakan email untuk mengakses pusat kontrol.";
         });
     }
 
@@ -66,7 +362,7 @@ if (globalLoginOverlay) {
 
     if (topLoginToggle) {
         topLoginToggle.addEventListener("click", () => {
-            if (currentUser) document.getElementById("profileModalOverlay").style.display = "flex";
+            if (auth.currentUser || currentUser) document.getElementById("profileModalOverlay").style.display = "flex";
             else {
                 globalLoginOverlay.style.display = "flex";
                 if(guestPromptPopup) guestPromptPopup.style.display = "none";
@@ -76,85 +372,119 @@ if (globalLoginOverlay) {
 
     if (closeLoginModal) closeLoginModal.addEventListener("click", () => globalLoginOverlay.style.display = "none");
 
+    // PROSES REGISTER FIREBASE AUTH
     const mainRegBtn = document.getElementById("mainRegBtn");
     if (mainRegBtn) {
         const processReg = async () => {
-            const userRaw = document.getElementById("regUsername").value.trim();
-            const searchUser = userRaw.toLowerCase().replace(/\s+/g, '');
-            const email = document.getElementById("regEmail").value.trim();
-            const pass = document.getElementById("regPassword").value.trim();
+            const userRaw = document.getElementById("regUsername")?.value.trim() || "";
+            const email = document.getElementById("regEmail")?.value.trim() || "";
+            const pass = document.getElementById("regPassword")?.value.trim() || "";
             const regError = document.getElementById("regError");
+            if (regError) regError.textContent = "";
             
-            if (!userRaw || !email || !pass) { regError.textContent = "Semua kolom wajib diisi!"; return; }
-            if (searchUser.length < 3) { regError.textContent = "Username minimal 3 huruf!"; return; }
+            if (!userRaw || !email || !pass) {
+                if (regError) regError.textContent = "Semua kolom wajib diisi!";
+                return;
+            }
+            if (userRaw.length < 3) {
+                if (regError) regError.textContent = "Nama minimal 3 karakter!";
+                return;
+            }
+            if (pass.length < 6) {
+                if (regError) regError.textContent = "Kata sandi minimal 6 karakter (ketentuan Firebase Auth)!";
+                return;
+            }
+            if (!email.includes("@") || !email.includes(".")) {
+                if (regError) regError.textContent = "Format email tidak valid!";
+                return;
+            }
             
-            mainRegBtn.textContent = "MEMPROSES...";
+            mainRegBtn.textContent = "MEMBUAT AKUN...";
+            mainRegBtn.disabled = true;
+
             try {
-                const snapshot = await get(child(ref(db), `accounts/${searchUser}`));
-                if (snapshot.exists()) {
-                    regError.textContent = "Maaf, nama akun ini sudah dipakai!";
-                    mainRegBtn.textContent = "DAFTAR SEKARANG";
-                } else {
-                    await set(ref(db, `accounts/${searchUser}`), { email: email, password: pass, originalName: userRaw });
-                    await set(ref(db, `user_profiles/${userRaw}`), { displayName: userRaw, photoBase64: "" });
-                    localStorage.setItem("nihongoChatUser", userRaw);
-                    window.location.reload(); 
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                const user = userCredential.user;
+                await updateProfile(user, { displayName: userRaw });
+                await initNewUserInCloud(user.uid, userRaw, email);
+                
+                if (globalLoginOverlay) globalLoginOverlay.style.display = "none";
+                if (typeof window.showToast === 'function') window.showToast(`🌸 Akun berhasil didaftarkan! Selamat datang, ${userRaw}!`);
+                window.location.reload();
+            } catch(err) {
+                mainRegBtn.textContent = "DAFTAR AKUN BARU";
+                mainRegBtn.disabled = false;
+                let msg = "Gagal mendaftar: " + err.message;
+                if (err.code === "auth/email-already-in-use") {
+                    msg = "Email ini sudah terdaftar! Silakan login di tab Masuk.";
+                } else if (err.code === "auth/invalid-email") {
+                    msg = "Format email tidak valid!";
+                } else if (err.code === "auth/weak-password") {
+                    msg = "Kata sandi terlalu pendek (minimal 6 karakter)!";
+                } else if (err.code === "auth/operation-not-allowed") {
+                    msg = "Layanan Email/Password belum diaktifkan di Firebase Console!";
                 }
-            } catch(e) {
-                regError.textContent = "Gagal menghubungi database server.";
-                mainRegBtn.textContent = "DAFTAR SEKARANG";
+                if (regError) regError.textContent = msg;
             }
         };
         mainRegBtn.addEventListener("click", processReg);
-        document.getElementById("regPassword").addEventListener("keypress", (e) => { if (e.key === "Enter") processReg(); });
+        document.getElementById("regPassword")?.addEventListener("keypress", (e) => { if (e.key === "Enter") processReg(); });
     }
 
+    // PROSES LOGIN FIREBASE AUTH
     const mainLoginBtn = document.getElementById("mainLoginBtn");
     if (mainLoginBtn) {
         const processLogin = async () => {
-            const userRaw = document.getElementById("loginUsername").value.trim();
-            const pass = document.getElementById("loginPassword").value.trim();
-            const searchUser = userRaw.toLowerCase().replace(/\s+/g, '');
+            const emailInput = document.getElementById("loginEmail") || document.getElementById("loginUsername");
+            const emailOrUser = emailInput ? emailInput.value.trim() : "";
+            const pass = document.getElementById("loginPassword")?.value.trim() || "";
             const loginError = document.getElementById("loginError");
+            if (loginError) loginError.textContent = "";
             
-            if (!userRaw || !pass) { loginError.textContent = "Isi nama dan sandi Anda."; return; }
+            if (!emailOrUser || !pass) {
+                if (loginError) loginError.textContent = "Isi alamat email dan kata sandi Anda.";
+                return;
+            }
 
             mainLoginBtn.textContent = "MEMERIKSA...";
+            mainLoginBtn.disabled = true;
+
+            let targetEmail = emailOrUser;
+            if (!targetEmail.includes("@")) {
+                if (loginError) loginError.textContent = "Silakan gunakan alamat email terdaftar Anda (contoh: nama@gmail.com).";
+                mainLoginBtn.textContent = "MASUK DENGAN EMAIL";
+                mainLoginBtn.disabled = false;
+                return;
+            }
+
             try {
-                const snapshot = await get(child(ref(db), `accounts/${searchUser}`));
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    if (data.password === pass) {
-                        localStorage.setItem("nihongoChatUser", data.originalName || userRaw);
-                        window.location.reload();
-                    } else {
-                        loginError.textContent = "Kata sandi salah!";
-                        mainLoginBtn.textContent = "MASUK";
-                    }
-                } else {
-                    const accountCodes = { "Umaedi": "UMAEDI2026", "Iqbal": "IQBAL2026", "Rifki": "RIFKI2026", "Fasya": "FASYA2026" };
-                    const foundUser = Object.keys(accountCodes).find(k => k.toLowerCase() === searchUser);
-                    
-                    if (foundUser && accountCodes[foundUser] === pass.toUpperCase()) {
-                        localStorage.setItem("nihongoChatUser", foundUser);
-                        window.location.reload();
-                    } else {
-                        loginError.textContent = "Akun tidak ditemukan atau sandi salah.";
-                        mainLoginBtn.textContent = "MASUK";
-                    }
+                await signInWithEmailAndPassword(auth, targetEmail, pass);
+                if (globalLoginOverlay) globalLoginOverlay.style.display = "none";
+                if (typeof window.showToast === 'function') window.showToast("🌸 Berhasil masuk!");
+                window.location.reload();
+            } catch(err) {
+                mainLoginBtn.textContent = "MASUK DENGAN EMAIL";
+                mainLoginBtn.disabled = false;
+                let msg = "Gagal masuk: " + err.message;
+                if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+                    msg = "Alamat email atau kata sandi salah!";
+                } else if (err.code === "auth/invalid-email") {
+                    msg = "Format email tidak valid!";
+                } else if (err.code === "auth/too-many-requests") {
+                    msg = "Terlalu banyak percobaan gagal. Silakan tunggu beberapa saat.";
+                } else if (err.code === "auth/operation-not-allowed") {
+                    msg = "Layanan Email/Password belum diaktifkan di Firebase Console!";
                 }
-            } catch(e) {
-                loginError.textContent = "Gagal menghubungi server.";
-                mainLoginBtn.textContent = "MASUK";
+                if (loginError) loginError.textContent = msg;
             }
         };
         mainLoginBtn.addEventListener("click", processLogin);
-        document.getElementById("loginPassword").addEventListener("keypress", (e) => { if (e.key === "Enter") processLogin(); });
+        document.getElementById("loginPassword")?.addEventListener("keypress", (e) => { if (e.key === "Enter") processLogin(); });
     }
 }
 
 // ==========================================
-// 2. SISTEM PROFIL GLOBAL
+// 3. OBSERVER AUTENTIKASI AKTIF & PROFIL GLOBAL
 // ==========================================
 window.userProfiles = {}; 
 const profilesRef = ref(db, 'user_profiles');
@@ -162,21 +492,26 @@ const profilesRef = ref(db, 'user_profiles');
 onValue(profilesRef, (snapshot) => {
     if(snapshot.exists()) {
         window.userProfiles = snapshot.val();
-        if(currentUser) {
+        if(currentUid && currentUser) {
             const myProfile = window.userProfiles[currentUser] || {};
             const topText = document.getElementById("topLoginText");
             const topAvatar = document.getElementById("topAvatar");
             const topIcon = document.getElementById("topIcon");
             
             const isPages = window.location.pathname.includes('/pages/');
-            const basePath = isPages ? `../gambar/${currentUser.toLowerCase()}.png` : `gambar/${currentUser.toLowerCase()}.png`;
-            const finalPhoto = myProfile.photoBase64 || basePath;
+            const defaultIcon = isPages ? '../gambar/icon.png' : 'gambar/icon.png';
+            const cardAvatar = localStorage.getItem("fournity_user_avatar") || localStorage.getItem(`avatar_${currentUser}`);
+            const finalPhoto = cardAvatar || myProfile.photoBase64 || defaultIcon;
 
             if(topText) topText.textContent = myProfile.displayName || currentUser;
             if(topAvatar && topIcon) {
                 topAvatar.src = finalPhoto;
                 topAvatar.style.display = "block";
                 topIcon.style.display = "none";
+            }
+
+            if (typeof window.syncMainTopHeaderProfile === 'function') {
+                window.syncMainTopHeaderProfile();
             }
 
             const profilePreviewImg = document.getElementById("profilePreviewImg");
@@ -186,6 +521,87 @@ onValue(profilesRef, (snapshot) => {
         }
         window.dispatchEvent(new Event('profilesUpdated'));
     }
+});
+
+// Listener status login Firebase Auth
+onAuthStateChanged(auth, async (user) => {
+    const adminToggleBtn = document.getElementById("adminToggleBtn");
+    const topText = document.getElementById("topLoginText");
+    const topAvatar = document.getElementById("topAvatar");
+    const topIcon = document.getElementById("topIcon");
+    const profileEmailDisplay = document.getElementById("profileEmailDisplay");
+    const profileNameInput = document.getElementById("profileNameInput");
+    const profilePreviewImg = document.getElementById("profilePreviewImg");
+
+    if (user) {
+        currentUser = user.displayName || user.email.split("@")[0];
+        currentUid = user.uid;
+        currentEmail = user.email;
+        localStorage.setItem("nihongoChatUser", currentUser);
+        localStorage.setItem("nihongoChatUid", currentUid);
+        localStorage.setItem("nihongoChatEmail", currentEmail);
+
+        // Ambil data milik akun ini dari Firebase Realtime Database
+        await loadUserDataFromCloud(user);
+
+        // Update UI Header
+        if (topText) topText.textContent = currentUser;
+        
+        const cardAvatar = localStorage.getItem("fournity_user_avatar");
+        const myProfile = window.userProfiles ? (window.userProfiles[currentUser] || {}) : {};
+        const finalPhoto = cardAvatar || myProfile.photoBase64 || "gambar/icon.png";
+
+        if (topAvatar && topIcon) {
+            topAvatar.src = finalPhoto;
+            topAvatar.style.display = "block";
+            topIcon.style.display = "none";
+        }
+
+        if (profileEmailDisplay) profileEmailDisplay.textContent = `📧 ${user.email}`;
+        if (profileNameInput && !profileNameInput.value) profileNameInput.value = currentUser;
+        if (profilePreviewImg && !window.newPhotoBase64) profilePreviewImg.src = finalPhoto;
+
+        // Cek Admin System Override
+        const isLeadDev = (user.email && user.email.toLowerCase().includes("umaedi")) || (currentUser.toLowerCase() === "umaedi");
+        if (isLeadDev && adminToggleBtn) adminToggleBtn.style.display = "block";
+        else if (adminToggleBtn) adminToggleBtn.style.display = "none";
+
+        if (typeof window.syncMainTopHeaderProfile === 'function') window.syncMainTopHeaderProfile();
+        if (typeof window.refreshPass === 'function') window.refreshPass();
+        if (typeof window.renderCheckinUI === 'function') window.renderCheckinUI();
+        if (typeof window.checkAndUpdateDailyQuests === 'function') window.checkAndUpdateDailyQuests();
+        if (typeof window.renderShowcaseSlider === 'function') window.renderShowcaseSlider();
+    } else {
+        // Mode Guest (Belum Login)
+        currentUser = null;
+        currentUid = null;
+        currentEmail = null;
+        localStorage.removeItem("nihongoChatUid");
+        localStorage.removeItem("nihongoChatEmail");
+        const storedUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase();
+        if (["umaedi", "iqbal", "rifki", "fasya"].includes(storedUser) || storedUser.startsWith("gakusei_")) {
+            localStorage.removeItem("nihongoChatUser");
+            localStorage.removeItem("fournity_user_avatar");
+            localStorage.removeItem("fournity_custom_avatar");
+        }
+
+        if (topText) topText.textContent = "Login";
+        if (topAvatar) {
+            topAvatar.style.display = "none";
+            topAvatar.src = "gambar/icon.png";
+        }
+        if (topIcon) topIcon.style.display = "block";
+        if (adminToggleBtn) adminToggleBtn.style.display = "none";
+        if (profileEmailDisplay) profileEmailDisplay.textContent = "";
+
+        if (typeof window.syncMainTopHeaderProfile === 'function') window.syncMainTopHeaderProfile();
+        if (typeof window.refreshPass === 'function') window.refreshPass();
+        if (typeof window.renderShowcaseSlider === 'function') window.renderShowcaseSlider();
+    }
+
+    window.dispatchEvent(new Event('profilesUpdated'));
+    window.dispatchEvent(new Event('studyProgressUpdated'));
+    window.dispatchEvent(new Event('storage'));
 });
 
 window.newPhotoBase64 = null;
@@ -217,19 +633,158 @@ if(profileImageUpload) {
 }
 
 const saveProfileBtn = document.getElementById("saveProfileBtn");
-if(saveProfileBtn && currentUser) {
-    saveProfileBtn.addEventListener("click", () => {
+if(saveProfileBtn) {
+    saveProfileBtn.addEventListener("click", async () => {
         saveProfileBtn.textContent = "MENYIMPAN...";
-        const newName = document.getElementById("profileNameInput").value.trim() || currentUser;
+        const newName = document.getElementById("profileNameInput")?.value.trim() || currentUser || "Gakusei";
+        const currentAvatar = localStorage.getItem("fournity_user_avatar") || localStorage.getItem("fournity_custom_avatar") || "";
+        const rawPhoto = window.newPhotoBase64 || currentAvatar || (window.userProfiles && window.userProfiles[currentUser]?.photoBase64 || "");
+        const finalPhoto = rawPhoto ? rawPhoto.replace(/^(\.\.\/|\.\/)+/, '') : "";
+        const currentRarity = localStorage.getItem("fournity_avatar_rarity") || "";
+        const currentSerial = localStorage.getItem("fournity_avatar_serial") || "";
+        
         const profileData = {
             displayName: newName,
-            photoBase64: window.newPhotoBase64 || (window.userProfiles[currentUser]?.photoBase64 || "")
+            photoBase64: finalPhoto,
+            avatarRarity: currentRarity,
+            avatarSerial: currentSerial
         };
         
-        set(ref(db, 'user_profiles/' + currentUser), profileData).then(() => {
+        try {
+            if (currentUser) {
+                await update(ref(db, 'user_profiles/' + newName), profileData);
+                if (currentUser !== newName) {
+                    try {
+                        await remove(ref(db, 'user_profiles/' + currentUser));
+                    } catch(e) {}
+                }
+            }
+            if (auth.currentUser) {
+                await updateProfile(auth.currentUser, { displayName: newName });
+                await update(ref(db, `users/${auth.currentUser.uid}/profile`), {
+                    displayName: newName,
+                    photoBase64: finalPhoto,
+                    avatar: finalPhoto,
+                    avatarRarity: currentRarity,
+                    avatarSerial: currentSerial,
+                    updatedAt: Date.now()
+                });
+            }
+            currentUser = newName;
+            localStorage.setItem("nihongoChatUser", newName);
+            
+            if (finalPhoto) {
+                localStorage.setItem("fournity_user_avatar", finalPhoto);
+                localStorage.setItem("fournity_custom_avatar", finalPhoto);
+                localStorage.setItem(`avatar_${newName}`, finalPhoto);
+            } else {
+                localStorage.removeItem("fournity_user_avatar");
+                localStorage.removeItem("fournity_custom_avatar");
+                localStorage.removeItem("fournity_avatar_rarity");
+                localStorage.removeItem(`avatar_${newName}`);
+                localStorage.removeItem(`avatar_rarity_${newName}`);
+            }
+
+            if (window.userProfiles) {
+                window.userProfiles[newName] = window.userProfiles[newName] || {};
+                window.userProfiles[newName].displayName = newName;
+                window.userProfiles[newName].photoBase64 = finalPhoto;
+                window.userProfiles[newName].avatarRarity = currentRarity;
+                window.userProfiles[newName].avatarSerial = currentSerial;
+            }
+
+            // Langsung perbarui avatar di pojok kanan atas dan hero pass seketika
+            const topAvatarEl = document.getElementById("topAvatar");
+            const topIconEl = document.getElementById("topIcon");
+            const topTextEl = document.getElementById("topLoginText");
+            if (topTextEl) topTextEl.textContent = newName;
+            if (topAvatarEl) {
+                if (finalPhoto) {
+                    topAvatarEl.src = finalPhoto;
+                    topAvatarEl.style.display = "block";
+                    if (topIconEl) topIconEl.style.display = "none";
+                } else {
+                    topAvatarEl.style.display = "none";
+                    if (topIconEl) topIconEl.style.display = "inline-block";
+                }
+            }
+            const heroPassAvatarEl = document.getElementById("heroPassAvatar");
+            if (heroPassAvatarEl && finalPhoto) {
+                heroPassAvatarEl.src = finalPhoto;
+            }
+
+            window.newPhotoBase64 = null;
             saveProfileBtn.textContent = "SIMPAN PERUBAHAN";
-            document.getElementById("profileModalOverlay").style.display = "none";
-        });
+            const profileModal = document.getElementById("profileModalOverlay");
+            if (profileModal) profileModal.style.display = "none";
+            
+            if (typeof window.syncMainTopHeaderProfile === 'function') window.syncMainTopHeaderProfile();
+            if (typeof window.refreshPass === 'function') window.refreshPass();
+            if (typeof window.updateAllRenderedChatAvatars === 'function') window.updateAllRenderedChatAvatars();
+            window.dispatchEvent(new Event('profilesUpdated'));
+            window.dispatchEvent(new Event('storage'));
+            if (typeof window.showToast === 'function') window.showToast("✓ Foto profil berhasil disimpan!");
+        } catch(err) {
+            saveProfileBtn.textContent = "SIMPAN PERUBAHAN";
+            alert("Gagal menyimpan profil: " + err.message);
+        }
+    });
+}
+
+// Handler Reset Foto Profil ke Default Bawaan di Modal Profil Utama
+const resetProfilePhotoBtn = document.getElementById("resetProfilePhotoBtn");
+if (resetProfilePhotoBtn) {
+    resetProfilePhotoBtn.addEventListener("click", async () => {
+        if (!confirm("Kembalikan foto profil ke default bawaan sistem?")) return;
+        window.newPhotoBase64 = null;
+        localStorage.removeItem("fournity_user_avatar");
+        localStorage.removeItem("fournity_custom_avatar");
+        localStorage.removeItem("fournity_avatar_rarity");
+        localStorage.removeItem("fournity_avatar_card_id");
+        localStorage.removeItem("fournity_avatar_serial");
+        if (currentUser) {
+            localStorage.removeItem(`avatar_${currentUser}`);
+            localStorage.removeItem(`avatar_rarity_${currentUser}`);
+            localStorage.removeItem(`avatar_serial_${currentUser}`);
+        }
+
+        const isPages = window.location.pathname.includes('/pages/');
+        const defaultIcon = isPages ? '../gambar/icon.png' : 'gambar/icon.png';
+        const profilePreviewImg = document.getElementById("profilePreviewImg");
+        if (profilePreviewImg) profilePreviewImg.src = defaultIcon;
+
+        if (window.userProfiles && currentUser && window.userProfiles[currentUser]) {
+            window.userProfiles[currentUser].photoBase64 = "";
+            window.userProfiles[currentUser].avatar = "";
+            window.userProfiles[currentUser].avatarRarity = "";
+            window.userProfiles[currentUser].avatarSerial = "";
+        }
+
+        if (auth.currentUser) {
+            try {
+                const uid = auth.currentUser.uid;
+                const displayName = currentUser || auth.currentUser.displayName || "Gakusei";
+                const updates = {};
+                updates[`users/${uid}/profile/avatar`] = "";
+                updates[`users/${uid}/profile/photoBase64`] = "";
+                updates[`users/${uid}/profile/avatarRarity`] = "";
+                updates[`users/${uid}/profile/avatarSerial`] = "";
+                updates[`users/${uid}/profile/updatedAt`] = Date.now();
+                updates[`user_profiles/${displayName}/photoBase64`] = "";
+                updates[`user_profiles/${displayName}/avatarRarity`] = "";
+                updates[`user_profiles/${displayName}/avatarSerial`] = "";
+                await update(ref(db), updates);
+            } catch(e) {
+                console.warn("Gagal update reset profil ke server:", e);
+            }
+        }
+
+        if (typeof window.syncMainTopHeaderProfile === 'function') window.syncMainTopHeaderProfile();
+        if (typeof window.refreshPass === 'function') window.refreshPass();
+        if (typeof window.updateAllRenderedChatAvatars === 'function') window.updateAllRenderedChatAvatars();
+        window.dispatchEvent(new Event('profilesUpdated'));
+        window.dispatchEvent(new Event('storage'));
+        if (typeof window.showToast === 'function') window.showToast("✓ Foto profil telah direset ke default bawaan!");
     });
 }
 
@@ -237,119 +792,30 @@ const closeProfileModal = document.getElementById("closeProfileModal");
 if (closeProfileModal) closeProfileModal.addEventListener("click", () => document.getElementById("profileModalOverlay").style.display = "none");
 
 const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) logoutBtn.addEventListener("click", () => { localStorage.removeItem("nihongoChatUser"); window.location.reload(); });
-
-// ==========================================
-// 3. ADMIN OVERRIDE & PEMBERSIH CHAT BOT
-// ==========================================
-const adminToggleBtn = document.getElementById("adminToggleBtn");
-const adminModal = document.getElementById("adminModal");
-const closeAdminModal = document.getElementById("closeAdminModal");
-const announceTitle = document.getElementById("announceTitle");
-const announceMessage = document.getElementById("announceMessage");
-const sendAnnounceBtn = document.getElementById("sendAnnounceBtn");
-const clearPublicBtn = document.getElementById("clearPublicBtn");
-const clearCoreBtn = document.getElementById("clearCoreBtn");
-
-if (currentUser === "Umaedi" && adminToggleBtn) adminToggleBtn.style.display = "block"; 
-
-// Layar Pengunci Khusus Admin
-function showAdminWipeOverlay() {
-    const overlay = document.createElement("div");
-    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:monospace; text-align:center; padding:20px; backdrop-filter:blur(10px);";
-    overlay.innerHTML = `
-        <div style="font-size:50px; margin-bottom:20px;">⚠️</div>
-        <h2 style="color:#ff3b30; margin:0 0 10px; font-size:1.5rem;">SYSTEM OVERRIDE IN PROGRESS</h2>
-        <p style="color:#E2E8F0; margin-bottom:20px;">Mengunci database dan memusnahkan riwayat obrolan...</p>
-        <h1 id="adminCountdown" style="font-size:5rem; margin:0; color:#D4AF37;">10</h1>
-        <p style="color:#ff3b30; margin-top:30px; font-weight:bold; max-width:80%; line-height:1.5;">MOHON JANGAN TUTUP ATAU PINDAH HALAMAN INI SELAMA PROSES BERLANGSUNG!</p>
-    `;
-    document.body.appendChild(overlay);
-
-    let c = 10;
-    const cInt = setInterval(() => {
-        c--;
-        const counter = document.getElementById("adminCountdown");
-        if(counter) counter.innerText = c;
-        if(c <= 0) clearInterval(cInt);
-    }, 1000);
-
-    return overlay;
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+        try {
+            await signOut(auth);
+        } catch(e) {}
+        clearUserSessionData();
+        window.location.reload();
+    });
 }
 
-if (adminToggleBtn && adminModal) {
-    adminToggleBtn.addEventListener("click", () => adminModal.style.display = "flex");
-    closeAdminModal.addEventListener("click", () => adminModal.style.display = "none");
-    
-    sendAnnounceBtn.addEventListener("click", () => {
-        const title = announceTitle.value.trim() || "PENGUMUMAN SISTEM";
-        const message = announceMessage.value.trim();
-        if (message !== "") {
-            push(announceRef, { title, message, timestamp: Date.now(), sender: "Umaedi" });
-            adminModal.style.display = "none";
-            announceTitle.value = ""; announceMessage.value = "";
-        } else alert("Pesan tidak boleh kosong!");
-    });
-    
-    // PEMICU SYSTEM ALERT PUBLIC LOUNGE
-    if (clearPublicBtn) {
-        clearPublicBtn.addEventListener("click", () => {
-            if (confirm("YAKIN HAPUS PUBLIC LOUNGE? Sistem akan memberikan peringatan dan hitung mundur 10 detik di layar member.")) {
-                adminModal.style.display = "none";
-                const dbRef = ref(db, "messages_public");
-                
-                const overlay = showAdminWipeOverlay(); 
-                
-                // Memicu Sistem Peringatan Masuk
-                push(dbRef, { 
-                    name: "SYSTEM", 
-                    message: "Seluruh pesan akan dihapus oleh admin dalam hitung mundur", 
-                    isCountdown: true, 
-                    timestamp: Date.now() 
-                });
-                
-                // Hancurkan Database
-                setTimeout(async () => {
-                    await remove(dbRef); 
-                    await push(dbRef, {
-                        name: "SYSTEM",
-                        message: "Ruang obrolan telah dibersihkan secara permanen oleh Admin.",
-                        isPostClear: true,
-                        timestamp: Date.now()
-                    });
-                    if(document.body.contains(overlay)) document.body.removeChild(overlay);
-                }, 10500);
-            }
-        });
-    }
+// ==========================================
+// 3. ADMIN COMMAND CENTER LINK & ACCESS
+// ==========================================
+const adminToggleBtn = document.getElementById("adminToggleBtn");
 
-    // PEMICU SYSTEM ALERT TRINITY CORE
-    if (clearCoreBtn) {
-        clearCoreBtn.addEventListener("click", () => {
-            if (confirm("YAKIN HAPUS TRINITY CORE? Sistem akan memulai hitung mundur 10 detik.")) {
-                adminModal.style.display = "none";
-                const dbRef = ref(db, "messages");
+const isUmaedi = (currentUser && currentUser.toLowerCase() === "umaedi") || (currentEmail && currentEmail.toLowerCase().includes("umaedi"));
+if (isUmaedi && adminToggleBtn) {
+    adminToggleBtn.style.display = "inline-flex";
+}
 
-                const overlay = showAdminWipeOverlay();
-
-                push(dbRef, { 
-                    name: "SYSTEM", 
-                    message: "Seluruh pesan akan dihapus oleh admin dalam hitung mundur", 
-                    isCountdown: true, 
-                    timestamp: Date.now() 
-                });
-
-                setTimeout(async () => {
-                    await remove(dbRef);
-                    await push(dbRef, {
-                        name: "SYSTEM",
-                        message: "Ruang rahasia Trinity Core telah aman dan dibersihkan dari jejak.",
-                        isPostClear: true,
-                        timestamp: Date.now()
-                    });
-                    if(document.body.contains(overlay)) document.body.removeChild(overlay);
-                }, 10500);
-            }
+if (adminToggleBtn) {
+    if (adminToggleBtn.tagName !== "A") {
+        adminToggleBtn.addEventListener("click", () => {
+            window.location.href = "pages/admin.html";
         });
     }
 }
@@ -530,9 +996,11 @@ if (leaderboardList) {
 // ==========================================
 const msgBadge = document.getElementById("msgBadge");
 
-if (currentUser && msgBadge) {
-    const coreMembers = ["umaedi", "iqbal", "rifki", "fasya"];
-    const isCore = coreMembers.includes(currentUser.toLowerCase());
+if (currentUid && currentUser && msgBadge) {
+    const isCore = !!currentUid && (
+        (currentEmail && currentEmail.toLowerCase().includes("umaedi")) ||
+        (currentUser && currentUser.toLowerCase() === "umaedi")
+    );
     
     const checkUnread = (roomName) => {
         const refName = roomName === "core" ? "messages" : "messages_public";

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NIHONGO TRINITY - AUTHENTIC JAPANESE MODERN DESIGN SYSTEM
+   NIHONGO FOURNITY - AUTHENTIC JAPANESE MODERN DESIGN SYSTEM
    Cyber-Zen & Neo-Tokyo Aesthetic | Crafted for Serious Kana Learners
    ========================================================================== */
 
@@ -1513,26 +1513,42 @@ a {
 }
 
 /* ==========================================================================
-   BOTTOM DOCK NAVIGATION (MOBILE & DESKTOP)
+   FUTURISTIC FLOATING DOCK NAVIGATION (NEXT-GEN CYBER GLASSMORPHISM)
    ========================================================================== */
 .main-bottom-nav {
     position: fixed;
     left: 50%;
-    bottom: 22px;
-    z-index: 180;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 9990;
     display: flex;
     align-items: center;
-    gap: 6px;
-    width: min(600px, calc(100% - 32px));
-    padding: 8px 16px;
-    background: rgba(11, 15, 22, 0.88);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-    transform: translateX(-50%);
-    transition: all 0.3s ease;
+    justify-content: space-between;
+    width: min(540px, calc(100% - 28px));
+    padding: 7px 14px 6px;
+    background: rgba(13, 17, 26, 0.82);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 28px;
+    box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 0 28px -4px rgba(230, 57, 70, 0.2);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Garis Refleksi Cahaya Halus di Bagian Atas Dock */
+.main-bottom-nav::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 18%;
+    right: 18%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    border-radius: 50%;
+    pointer-events: none;
 }
 
 .main-bottom-item {
@@ -1541,91 +1557,192 @@ a {
     min-width: 0;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3px;
     flex-direction: column;
-    padding: 8px 4px;
-    color: var(--muted);
+    padding: 6px 4px 4px;
+    color: #94A3B8;
     background: transparent;
     border: 0;
-    border-radius: var(--radius-sm);
+    border-radius: 16px;
     text-decoration: none;
     font-size: 10px;
     font-weight: 600;
-    text-transform: uppercase;
-    transition: all 0.25s ease;
+    letter-spacing: 0.3px;
+    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    user-select: none;
 }
 
-.main-bottom-item:hover, .main-bottom-item.is-active {
-    color: #fff;
+.main-bottom-item span:last-child {
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: 0.2px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.main-bottom-item:hover {
+    color: #FFFFFF;
+    transform: translateY(-2px);
+}
+
+.main-bottom-item:active {
+    transform: scale(0.92);
+}
+
+/* Status Tab Aktif dengan Indikator Glowing Pill Neon */
+.main-bottom-item.is-active {
+    color: #FFFFFF;
+}
+
+.main-bottom-item.is-active::after {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    width: 14px;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #FF2E4D, #FF9F0A);
+    box-shadow: 0 0 10px rgba(255, 46, 77, 0.9);
 }
 
 .main-bottom-icon {
-    display: grid;
-    place-items: center;
-    min-height: 22px;
-    font-size: 20px;
-    line-height: 1;
-    transition: transform 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    position: relative;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.main-bottom-item:hover .main-bottom-icon {
-    transform: scale(1.15);
+.main-bottom-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    transition: stroke 0.25s ease, filter 0.25s ease, transform 0.25s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
 
-.main-bottom-item.is-active .main-bottom-icon {
-    color: var(--japan-red);
-    text-shadow: 0 0 10px rgba(230, 57, 70, 0.6);
+.main-bottom-item:hover .main-bottom-icon svg {
+    stroke: #FFFFFF;
+    transform: scale(1.12);
 }
 
+.main-bottom-item.is-active .main-bottom-icon svg {
+    stroke: #FF2E4D;
+    filter: drop-shadow(0 0 8px rgba(255, 46, 77, 0.7));
+    transform: scale(1.08);
+}
+
+/* ==========================================================================
+   TOMBOL PESAN TENGAH (FUTURISTIC FLOATING ACTION ORB BUTTON)
+   ========================================================================== */
 .main-bottom-message {
     position: relative;
     margin: -30px 4px 0;
-    color: #fff;
-    background: linear-gradient(135deg, var(--japan-red) 0%, #b71c1c 100%);
-    border: 5px solid var(--bg-color);
+    flex: 0 0 56px;
+    height: 56px;
+    width: 56px;
     border-radius: 50%;
-    box-shadow: 0 8px 25px rgba(230, 57, 70, 0.5);
-    flex: 0 0 58px;
-    height: 58px;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    background: linear-gradient(135deg, #FF2E4D 0%, #E63946 50%, #900C1E 100%);
+    border: 4px solid #0D111A;
+    box-shadow: 0 10px 28px rgba(230, 57, 70, 0.6),
+                0 0 20px rgba(255, 46, 77, 0.35),
+                inset 0 1px 2px rgba(255, 255, 255, 0.45);
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    z-index: 5;
+    animation: fabOrbPulse 3s infinite ease-in-out;
+}
+
+@keyframes fabOrbPulse {
+    0%, 100% {
+        box-shadow: 0 10px 26px rgba(230, 57, 70, 0.55),
+                    0 0 16px rgba(255, 46, 77, 0.35),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.45);
+    }
+    50% {
+        box-shadow: 0 14px 34px rgba(230, 57, 70, 0.8),
+                    0 0 26px rgba(255, 46, 77, 0.55),
+                    inset 0 1px 3px rgba(255, 255, 255, 0.65);
+    }
+}
+
+.main-bottom-message::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(from 180deg, #FF2E4D, #FF9F0A, #FF2E4D);
+    z-index: -1;
+    opacity: 0.65;
+    filter: blur(4px);
+    transition: opacity 0.3s ease;
 }
 
 .main-bottom-message:hover {
-    background: linear-gradient(135deg, #ff4d5a 0%, var(--japan-red) 100%);
-    transform: translateY(-4px);
+    transform: translateY(-5px) scale(1.08);
+    box-shadow: 0 16px 36px rgba(230, 57, 70, 0.85),
+                0 0 30px rgba(255, 46, 77, 0.65),
+                inset 0 1px 3px rgba(255, 255, 255, 0.7);
 }
 
-.main-bottom-message span:not(.main-bottom-icon) {
-    display: none;
+.main-bottom-message:hover::before {
+    opacity: 0.95;
+    filter: blur(6px);
+}
+
+.main-bottom-message:active {
+    transform: translateY(-1px) scale(0.96);
 }
 
 .main-bottom-message .main-bottom-icon {
-    font-size: 24px;
-    color: #fff !important;
+    width: 32px;
+    height: 32px;
 }
 
+.main-bottom-message .main-bottom-icon svg {
+    width: 25px;
+    height: 25px;
+    stroke: #FFFFFF !important;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.main-bottom-message span:not(.main-bottom-icon):not(#msgBadge) {
+    display: none;
+}
+
+/* Badge Notifikasi Pesan Belum Dibaca Glowing Crimson */
 .msg-badge {
     position: absolute;
     top: -5px;
     right: -8px;
-    background: #8e44ad;
-    color: #fff;
+    background: linear-gradient(135deg, #FF3B30 0%, #D70015 100%);
+    color: #FFFFFF;
     font-size: 10px;
     font-weight: 800;
     padding: 2px 6px;
-    border-radius: 10px;
-    border: 2px solid var(--bg-color);
+    border-radius: 12px;
+    border: 2px solid #0D111A;
     display: grid;
     place-items: center;
-    min-width: 18px;
-    height: 18px;
-    box-shadow: 0 4px 10px rgba(142, 68, 173, 0.6);
-    animation: popBadge 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    min-width: 19px;
+    height: 19px;
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.7), 0 0 8px rgba(255, 59, 48, 0.5);
+    animation: popBadge 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    letter-spacing: -0.3px;
+    z-index: 10;
 }
 
 @keyframes popBadge {
-    0% { transform: scale(0); }
-    100% { transform: scale(1); }
+    0% { transform: scale(0); opacity: 0; }
+    80% { transform: scale(1.18); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* ==========================================================================
@@ -2106,10 +2223,10 @@ a {
         position: static;
     }
     .main-bottom-nav {
-        bottom: 14px;
-        width: calc(100% - 24px);
-        padding: 6px 10px;
-        border-radius: 14px;
+        bottom: 12px;
+        width: calc(100% - 20px);
+        padding: 6px 10px 5px;
+        border-radius: 26px;
     }
     .soundboard-grid {
         grid-template-columns: repeat(5, 1fr);
@@ -2336,6 +2453,7 @@ a {
     gap: 6px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     transition: all 0.25s ease;
+    position: relative;
 }
 
 .mobile-profile-pill:active {
@@ -2343,12 +2461,118 @@ a {
     border-color: var(--japan-gold);
 }
 
+/* Container Frame Avatar Header */
+.top-avatar-wrap {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .mobile-profile-avatar {
-    width: 24px;
-    height: 24px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid var(--japan-gold);
+    background: #0b0f19;
+    display: block;
+}
+
+/* ==========================================================================
+   EFEK BORDER WARNA-WARNI KHUSUS FOTO PROFIL LAGEND (RAINBOW VIP PRISMATIC)
+   ========================================================================== */
+.top-avatar-wrap.is-vip-legend {
+    width: 29px;
+    height: 29px;
+    padding: 2.5px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        #FF0055, #FF7700, #FFEE00, #00FF88, #00D4FF, #7B2CBF, #FF00AA, #FF0055
+    );
+    animation: topRainbowGlow 3s ease-in-out infinite alternate;
+    box-shadow: 
+        0 0 10px rgba(255, 0, 85, 0.75),
+        0 0 18px rgba(0, 212, 255, 0.55),
+        0 0 4px #FFEE00;
+    overflow: visible;
+}
+
+.top-avatar-wrap.is-vip-legend .mobile-profile-avatar {
+    border: 1px solid rgba(0, 0, 0, 0.9);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 25%;
+}
+
+/* Mahkota VIP Emas Mini di Avatar Header Kanan Atas */
+.top-avatar-wrap.is-vip-legend::after {
+    content: "👑";
+    position: absolute;
+    top: -9px;
+    right: -7px;
+    font-size: 13px;
+    line-height: 1;
+    filter: drop-shadow(0 0 4px #FFD700) drop-shadow(0 0 8px #FF0055);
+    animation: topCrownFloat 2s ease-in-out infinite;
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* Tombol Pill Header Menyala Pelangi untuk Lagend */
+.mobile-profile-pill.is-vip-legend {
+    border: 1.5px solid transparent !important;
+    background: 
+        linear-gradient(#0e1526, #0e1526) padding-box,
+        linear-gradient(135deg, #FF0055, #FFB703, #00FF88, #00F5D4, #7B2CBF, #FF0055) border-box !important;
+    background-size: 200% 200% !important;
+    animation: topPillRainbowBorder 4s ease infinite alternate !important;
+    box-shadow: 0 4px 18px rgba(255, 0, 85, 0.35), 0 0 12px rgba(255, 183, 3, 0.45) !important;
+}
+
+.mobile-profile-pill.is-vip-legend #topLoginText {
+    background: linear-gradient(90deg, #FFFFFF, #FFD700, #FF758F);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+/* Varian Ultra Rare di Header Kanan Atas */
+.top-avatar-wrap.is-avatar-ur {
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7209B7, #FFD166, #F72585);
+    box-shadow: 0 0 10px rgba(114, 9, 183, 0.8), 0 0 5px rgba(255, 209, 102, 0.6);
+}
+
+.mobile-profile-pill.is-avatar-ur {
+    border-color: rgba(114, 9, 183, 0.6) !important;
+    box-shadow: 0 4px 15px rgba(114, 9, 183, 0.35) !important;
+}
+
+/* Varian Rare di Header Kanan Atas */
+.top-avatar-wrap.is-avatar-rare {
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00B4D8, #00F5D4);
+    box-shadow: 0 0 8px rgba(0, 245, 212, 0.7);
+}
+
+.mobile-profile-pill.is-avatar-rare {
+    border-color: rgba(0, 245, 212, 0.5) !important;
+    box-shadow: 0 4px 15px rgba(0, 245, 212, 0.25) !important;
 }
 
 /* 1. HERO STUDENT PASS CARD (HOLOGRAM CYBER PASS) */
@@ -2366,7 +2590,7 @@ a {
 }
 
 .student-pass-card::before {
-    content: 'TRINITY';
+    content: 'FOURNITY';
     position: absolute;
     right: -10px;
     bottom: -15px;
@@ -3203,60 +3427,7 @@ a {
     margin: 0;
 }
 
-/* Modern Floating Bottom Nav */
-.main-bottom-nav {
-    position: fixed;
-    bottom: 14px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 28px);
-    max-width: 520px;
-    background: rgba(10, 14, 22, 0.88);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 8px 12px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(230, 57, 70, 0.15);
-    z-index: 9999;
-}
-
-.main-bottom-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    color: var(--muted);
-    font-size: 10px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.25s ease;
-    padding: 4px 8px;
-    border-radius: 12px;
-    position: relative;
-}
-
-.main-bottom-item:active {
-    transform: scale(0.9);
-}
-
-.main-bottom-item.is-active {
-    color: #fff;
-    background: rgba(230, 57, 70, 0.15);
-}
-
-.main-bottom-icon {
-    font-size: 18px;
-    line-height: 1;
-}
-
-.main-bottom-item.is-active .main-bottom-icon {
-    color: var(--japan-red);
-    text-shadow: 0 0 10px var(--japan-red-glow);
-}
+/* (Navigasi bottom dock dikelola secara terpusat di blok utama Futuristic Floating Dock) */
 
 /* ==========================================================================
    iOS DYNAMIC ISLAND VOICE NOTE (VN) - COMPACT CAPSULE DARK RGB EDITION
@@ -3583,4 +3754,2288 @@ a {
 @keyframes vnWaveJump {
     0% { transform: scaleY(0.75); }
     100% { transform: scaleY(1.3); }
+}
+
+/* ==========================================================================
+   17. GAMIFICATION & REALTIME EXP / CHECK-IN / CARD ALBUM STYLES
+   ========================================================================== */
+
+/* A. Student Pass Quick Action Hub */
+.pass-actions-hub {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.pass-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    backdrop-filter: blur(8px);
+}
+
+.pass-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.pass-action-checkin {
+    border-color: rgba(255, 183, 3, 0.4);
+    background: linear-gradient(135deg, rgba(255, 183, 3, 0.12), rgba(255, 140, 0, 0.06));
+}
+
+.pass-action-checkin:hover {
+    border-color: #FFB703;
+    box-shadow: 0 6px 20px rgba(255, 183, 3, 0.25);
+}
+
+.pass-action-checkin.is-claimed-today {
+    border-color: rgba(76, 175, 80, 0.45);
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.14), rgba(46, 125, 50, 0.08));
+}
+
+.pass-action-checkin.is-claimed-today:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.25);
+}
+
+.pass-action-checkin.is-claimed-today #heroCheckinStatus {
+    color: #81C784;
+    font-weight: 700;
+}
+
+.pass-action-album {
+    border-color: rgba(247, 37, 133, 0.4);
+    background: linear-gradient(135deg, rgba(247, 37, 133, 0.12), rgba(181, 23, 158, 0.06));
+}
+
+.pass-action-album:hover {
+    border-color: #F72585;
+    box-shadow: 0 6px 20px rgba(247, 37, 133, 0.25);
+}
+
+.hub-btn-icon {
+    font-size: 20px;
+    display: grid;
+    place-items: center;
+}
+
+.hub-btn-texts strong {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.hub-btn-texts span {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 1px;
+}
+
+/* B. Automated Quests Refinements */
+.quest-auto-subtitle {
+    font-size: 10px;
+    color: var(--muted);
+    display: block;
+    margin-top: 2px;
+}
+
+.quest-auto-item {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+.quest-auto-item:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(18, 24, 36, 0.75);
+    transform: translateX(2px);
+}
+
+.quest-status-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.quest-auto-item.is-completed {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.12), rgba(56, 142, 60, 0.05));
+    border-color: rgba(76, 175, 80, 0.4);
+}
+
+.quest-auto-item.is-completed .quest-status-icon {
+    background: #4CAF50;
+    border-color: #66BB6A;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(76, 175, 80, 0.5);
+}
+
+.quest-text-box {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.quest-sub-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.quest-step-pill {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(0, 245, 212, 0.12);
+    color: #00F5D4;
+    border: 1px solid rgba(0, 245, 212, 0.25);
+}
+
+.quest-auto-item.is-completed .quest-step-pill {
+    background: rgba(76, 175, 80, 0.15);
+    color: #81C784;
+    border-color: rgba(76, 175, 80, 0.3);
+}
+
+.quest-guide-hint {
+    font-size: 9.5px;
+    color: var(--muted);
+}
+
+.quest-right-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.quest-status-tag {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--muted);
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.quest-auto-item.is-completed .quest-status-tag {
+    color: #A5D6A7;
+    background: rgba(76, 175, 80, 0.2);
+}
+
+/* Quests Cleared Banner */
+.quests-cleared-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-top: 10px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(255, 140, 0, 0.12));
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+}
+
+.cleared-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cleared-sparkle-icon {
+    font-size: 22px;
+}
+
+.cleared-banner-content strong {
+    font-size: 11px;
+    color: #FFD700;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+.cleared-banner-content p {
+    margin: 2px 0 0;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* C. Card Showcase Section */
+.card-showcase-section {
+    background: linear-gradient(145deg, rgba(16, 20, 32, 0.95), rgba(10, 14, 24, 0.98));
+    border: 1px solid rgba(247, 37, 133, 0.25);
+    border-radius: 20px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(12px);
+}
+
+.btn-album-open {
+    background: rgba(247, 37, 133, 0.12);
+    border: 1px solid rgba(247, 37, 133, 0.35);
+    color: #FF758F;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-album-open:hover {
+    background: #F72585;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(247, 37, 133, 0.4);
+}
+
+.showcase-cards-slider {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 190px));
+    justify-content: center;
+    gap: 14px;
+    margin: 14px 0 10px;
+}
+
+@media (max-width: 580px) {
+    .showcase-cards-slider {
+        display: flex;
+        overflow-x: auto;
+        justify-content: flex-start;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 6px;
+        gap: 12px;
+    }
+    .showcase-cards-slider .photo-card {
+        min-width: 140px;
+        max-width: 170px;
+        scroll-snap-align: start;
+        flex-shrink: 0;
+    }
+}
+
+.showcase-empty-state {
+    grid-column: 1 / -1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    box-sizing: border-box;
+}
+
+.showcase-empty-text {
+    flex: 1;
+    min-width: 180px;
+    text-align: left;
+}
+
+.showcase-empty-text h5 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 3px;
+}
+
+.showcase-empty-text p {
+    font-size: 10.5px;
+    color: var(--muted);
+    margin: 0;
+}
+
+.showcase-info-strip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-strip-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9.5px;
+    color: var(--muted);
+}
+
+.dot-legendary {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF0055, #FFEE00, #00FFAA);
+    box-shadow: 0 0 6px #FF0055;
+}
+
+.dot-ur {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7209B7, #FFD166);
+    box-shadow: 0 0 6px #FFD166;
+}
+
+.dot-rare {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00F5D4;
+    box-shadow: 0 0 6px #00F5D4;
+}
+
+/* ==========================================================================
+   D. PHOTO CARD MASTER COMPONENT & RARITY SYSTEM
+   ========================================================================== */
+.photo-card {
+    position: relative;
+    border-radius: 16px;
+    background: #0b1019;
+    aspect-ratio: 3 / 4.4;
+    width: 100%;
+    max-width: 190px;
+    margin: 0 auto;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+    perspective: 800px;
+    box-sizing: border-box;
+}
+
+.photo-card:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+.card-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    z-index: 2;
+}
+
+/* Art Image Slot - Full 100% Edge-to-Edge Gambar */
+.card-image-box {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.photo-card:hover .card-img {
+    transform: scale(1.06);
+}
+
+/* Gradient Sinematik: Bening di Tengah agar Foto Full Tajam, Kontras Halus di Atas & Bawah */
+.card-scrim-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(6, 9, 16, 0.45) 0%,
+        rgba(6, 9, 16, 0.1) 22%,
+        transparent 38%,
+        transparent 58%,
+        rgba(6, 9, 16, 0.65) 76%,
+        rgba(6, 9, 16, 0.96) 94%
+    );
+    z-index: 2;
+}
+
+/* Card Header Meta */
+.card-meta-top {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 8px 10px;
+}
+
+.card-cat-badge {
+    display: none !important;
+}
+
+.card-rarity-badge {
+    font-size: 8px;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* Card Bottom Content & Teks Rank */
+.card-meta-bottom {
+    position: relative;
+    z-index: 4;
+    padding: 8px 10px 8px;
+}
+
+.card-rank-tag-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    gap: 6px;
+}
+
+.card-rank-pill {
+    font-size: 7.5px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.card-rank-pill.legendary {
+    background: linear-gradient(135deg, rgba(255, 0, 85, 0.9), rgba(255, 183, 3, 0.95));
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.card-rank-pill.ultra_rare {
+    background: linear-gradient(135deg, rgba(114, 9, 183, 0.95), rgba(247, 37, 133, 0.95));
+    color: #fff;
+    box-shadow: 0 0 8px rgba(114, 9, 183, 0.6);
+    border: 1px solid rgba(255, 215, 0, 0.6);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.card-rank-pill.rare {
+    background: linear-gradient(135deg, rgba(0, 180, 216, 0.95), rgba(0, 245, 212, 0.95));
+    color: #001219;
+    box-shadow: 0 0 8px rgba(0, 245, 212, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.card-serial-badge {
+    font-size: 7px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+
+.card-ver-tag {
+    font-size: 7.5px;
+    color: #FFD166;
+    font-family: monospace;
+    letter-spacing: 0.3px;
+}
+
+.card-seal-tag,
+.card-rank-jp-seal {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 8px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    padding: 1px 5px;
+    line-height: 1.2;
+}
+
+.card-title-text {
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 2px;
+    font-family: 'Noto Serif JP', serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.card-quote-jp {
+    font-size: 8.5px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.card-serial-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+    padding-top: 3px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: monospace;
+}
+
+/* ==========================================================================
+   RARITY 1: 💎 RARE (CRYSTAL CYAN & SILVER)
+   ========================================================================== */
+.card-rare {
+    border: 1.5px solid rgba(0, 245, 212, 0.6);
+    box-shadow: 0 6px 20px rgba(0, 245, 212, 0.2);
+}
+
+.card-rare:hover {
+    box-shadow: 0 12px 28px rgba(0, 245, 212, 0.35);
+    border-color: #00F5D4;
+}
+
+.card-rare .card-rarity-badge {
+    background: linear-gradient(135deg, #00B4D8, #00F5D4);
+    color: #001219;
+}
+
+.card-rare .card-foil-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: linear-gradient(
+        135deg,
+        transparent 35%,
+        rgba(0, 245, 212, 0.15) 50%,
+        transparent 65%
+    );
+    background-size: 200% 200%;
+    mix-blend-mode: overlay;
+    transition: background-position 0.5s ease;
+}
+
+.card-rare:hover .card-foil-overlay {
+    background-position: 100% 100%;
+}
+
+/* ==========================================================================
+   RARITY 2: 💜 ULTRA RARE (ROYAL PURPLE & GOLD SHIMMER)
+   ========================================================================== */
+.card-ultra-rare {
+    border: 2px solid rgba(255, 215, 0, 0.65);
+    box-shadow: 0 8px 25px rgba(114, 9, 183, 0.35), 0 0 15px rgba(255, 215, 0, 0.2);
+}
+
+.card-ultra-rare:hover {
+    box-shadow: 0 14px 34px rgba(114, 9, 183, 0.5), 0 0 22px rgba(255, 215, 0, 0.4);
+    border-color: #FFD700;
+}
+
+.card-ultra-rare .card-rarity-badge {
+    background: linear-gradient(135deg, #7209B7, #F72585, #FFD166);
+    color: #fff;
+    border: 1px solid #FFE066;
+}
+
+.card-ultra-rare .card-foil-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: linear-gradient(
+        125deg,
+        transparent 20%,
+        rgba(255, 215, 0, 0.25) 40%,
+        rgba(181, 23, 158, 0.3) 55%,
+        transparent 75%
+    );
+    background-size: 250% 250%;
+    mix-blend-mode: screen;
+    animation: urShimmerSweep 4.5s ease-in-out infinite;
+}
+
+@keyframes urShimmerSweep {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+/* ==========================================================================
+   RARITY 3: 🌟 LEGENDARY (DIVINE HOLOGRAPHIC PRISMATIC RAINBOW)
+   The Ultimate Showstopper ("efek khusus keren dan beda dari yg lain")
+   ========================================================================== */
+.card-legendary {
+    border: none;
+    background: #090d15;
+    box-shadow: 0 10px 30px rgba(255, 0, 110, 0.35), 0 0 20px rgba(0, 245, 212, 0.25);
+}
+
+/* Spinning Mythic Conic Border */
+.card-legendary::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 19px;
+    background: conic-gradient(
+        from var(--legend-angle, 0deg),
+        #FF0055, #FF9900, #FFEE00, #00FFAA, #00CCFF, #9900FF, #FF00BB, #FF0055
+    );
+    z-index: 0;
+    animation: legendBorderRotate 4.5s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(255, 0, 110, 0.6));
+}
+
+@keyframes legendBorderRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.card-legendary:hover {
+    box-shadow: 0 16px 40px rgba(255, 0, 110, 0.5), 0 0 30px rgba(0, 255, 200, 0.45);
+}
+
+.card-legendary .card-rarity-badge {
+    background: linear-gradient(135deg, #FF0055, #FFB703, #00F5D4, #7209B7);
+    background-size: 200% 200%;
+    color: #fff;
+    animation: legendBadgeShift 3s ease infinite;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    font-size: 8.5px;
+    box-shadow: 0 0 10px rgba(255, 183, 3, 0.7);
+}
+
+@keyframes legendBadgeShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Prismatic Diffraction Rainbow Foil Layer */
+.card-legendary .card-foil-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: linear-gradient(
+        115deg,
+        transparent 0%,
+        rgba(255, 0, 110, 0.35) 20%,
+        rgba(255, 183, 3, 0.45) 35%,
+        rgba(0, 245, 212, 0.45) 50%,
+        rgba(0, 119, 255, 0.4) 65%,
+        rgba(181, 23, 158, 0.35) 80%,
+        transparent 100%
+    );
+    background-size: 300% 300%;
+    mix-blend-mode: color-dodge;
+    opacity: 0.85;
+    animation: legendRainbowSweep 5s ease-in-out infinite alternate;
+}
+
+@keyframes legendRainbowSweep {
+    0% { background-position: 0% 0%; opacity: 0.7; }
+    50% { opacity: 0.95; }
+    100% { background-position: 100% 100%; opacity: 0.75; }
+}
+
+/* Floating Golden Sakura Particles on Legendary */
+.card-legendary .card-particles-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255, 235, 150, 0.85) 1.5px, transparent 2px),
+        radial-gradient(circle at 75% 30%, rgba(255, 182, 193, 0.9) 2px, transparent 2.5px),
+        radial-gradient(circle at 45% 70%, rgba(255, 255, 255, 0.9) 1.5px, transparent 2px),
+        radial-gradient(circle at 85% 80%, rgba(255, 215, 0, 0.85) 2px, transparent 2.5px);
+    background-size: 100% 100%;
+    animation: legendSparkles 3s ease-in-out infinite alternate;
+}
+
+@keyframes legendSparkles {
+    0% { opacity: 0.4; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1.02); }
+}
+
+/* Locked Card State */
+.photo-card.is-locked {
+    filter: grayscale(0.85) contrast(0.9);
+    cursor: pointer;
+    border: 1px dashed rgba(255, 255, 255, 0.2) !important;
+}
+
+.photo-card.is-locked .card-inner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 12, 18, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 5;
+}
+
+.card-lock-center {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
+    text-align: center;
+}
+
+.lock-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: grid;
+    place-items: center;
+    font-size: 16px;
+}
+
+.lock-hint-text {
+    font-size: 9px;
+    color: var(--muted);
+    line-height: 1.3;
+}
+
+/* ==========================================================================
+   E. MODAL 1: CHECK-IN HARIAN DIALOG
+   ========================================================================== */
+.checkin-dialog-box {
+    max-width: 480px;
+    width: 92%;
+    border-color: rgba(255, 183, 3, 0.5);
+    background: linear-gradient(160deg, #101624, #080C14);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 183, 3, 0.2);
+}
+
+.checkin-hero-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.checkin-streak-flame {
+    font-size: 38px;
+    animation: flamePulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes flamePulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.4)); }
+    100% { transform: scale(1.12); filter: drop-shadow(0 0 16px rgba(255, 69, 0, 0.8)); }
+}
+
+.checkin-kicker {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--japan-gold);
+    letter-spacing: 1px;
+    display: block;
+}
+
+.checkin-title-meta h2 {
+    margin: 2px 0 4px;
+    font-size: 1.3rem;
+    color: #fff;
+}
+
+.checkin-title-meta p {
+    margin: 0;
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.checkin-streak-status-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+}
+
+.streak-counter-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #fff;
+}
+
+.streak-counter-pill strong {
+    color: #FFB703;
+    font-size: 13px;
+}
+
+.streak-reward-hint {
+    font-size: 10px;
+    color: #FF758F;
+    font-weight: 700;
+}
+
+.checkin-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 480px) {
+    .checkin-days-grid {
+        gap: 4px;
+    }
+}
+
+.checkin-day-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 4px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.25s ease;
+    min-height: 85px;
+}
+
+.day-label {
+    font-size: 8.5px;
+    font-weight: 800;
+    color: var(--muted);
+}
+
+.day-gift-icon {
+    font-size: 16px;
+    margin: 4px 0;
+}
+
+.day-reward-tag {
+    font-size: 8px;
+    font-weight: 800;
+    color: #FFD700;
+    background: rgba(212, 175, 55, 0.15);
+    padding: 1px 4px;
+    border-radius: 4px;
+}
+
+/* Day states */
+.checkin-day-card.is-claimed {
+    background: rgba(76, 175, 80, 0.16);
+    border-color: rgba(76, 175, 80, 0.45);
+    box-shadow: inset 0 0 10px rgba(76, 175, 80, 0.1);
+}
+
+.checkin-day-card.is-claimed .day-label {
+    color: #A5D6A7;
+}
+
+.checkin-day-card.is-claimed .day-gift-icon {
+    filter: drop-shadow(0 0 6px rgba(76, 175, 80, 0.7));
+    color: #4CAF50;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.checkin-day-card.is-claimed .day-reward-tag {
+    background: rgba(76, 175, 80, 0.25);
+    color: #A5D6A7;
+    font-weight: 800;
+}
+
+.checkin-day-card.is-today {
+    background: linear-gradient(135deg, rgba(255, 183, 3, 0.22), rgba(255, 140, 0, 0.12));
+    border-color: #FFB703;
+    box-shadow: 0 0 14px rgba(255, 183, 3, 0.4);
+    transform: scale(1.04);
+}
+
+.checkin-day-card.is-today .day-label {
+    color: #FFD166;
+}
+
+.checkin-day-card.is-milestone {
+    border-color: rgba(247, 37, 133, 0.5);
+    background: linear-gradient(135deg, rgba(247, 37, 133, 0.15), rgba(114, 9, 183, 0.1));
+}
+
+.btn-checkin-claim {
+    width: 100%;
+    padding: 13px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+}
+
+.btn-checkin-claim:disabled {
+    opacity: 0.65 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.quick-chip-item.is-claimed-today {
+    border-color: rgba(76, 175, 80, 0.5) !important;
+    background: rgba(76, 175, 80, 0.15) !important;
+    color: #81C784 !important;
+}
+
+.checkin-footnote {
+    font-size: 9.5px;
+    color: var(--muted);
+    margin: 8px 0 0;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.checkin-footnote strong {
+    color: #FFD166;
+}
+
+/* ==========================================================================
+   F. MODAL 2: ALBUM KOLEKSI FOTO CARD (REBUILT FULL & MODERN - ANTI TUMPUK)
+   ========================================================================== */
+.photocard-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(3, 6, 12, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 16px;
+    z-index: 10006;
+    box-sizing: border-box;
+}
+
+.photocard-album-window {
+    width: 100%;
+    max-width: 1160px;
+    height: 92vh;
+    max-height: 890px;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(circle at 85% 10%, rgba(247, 37, 133, 0.12), transparent 45%),
+                radial-gradient(circle at 10% 90%, rgba(0, 245, 212, 0.08), transparent 45%),
+                linear-gradient(165deg, #101626 0%, #080c15 100%);
+    border: 1px solid rgba(247, 37, 133, 0.35);
+    border-radius: 24px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 50px rgba(247, 37, 133, 0.16);
+    position: relative;
+    overflow: hidden;
+    padding: 24px 28px 18px;
+    box-sizing: border-box;
+    animation: albumFadeScale 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes albumFadeScale {
+    from { opacity: 0; transform: scale(0.96) translateY(12px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.album-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 22px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 15;
+}
+
+.album-close-btn:hover {
+    background: rgba(239, 68, 68, 0.9);
+    border-color: #ef4444;
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+}
+
+.album-hero-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    padding-right: 40px;
+}
+
+.album-hero-titles {
+    flex: 1;
+    min-width: 260px;
+    text-align: left;
+}
+
+.album-hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9.5px;
+    font-weight: 900;
+    color: #FF758F;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.album-hero-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 2px 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.album-hero-title .jp-title {
+    font-size: 1rem;
+    color: var(--japan-gold, #ffd700);
+    font-weight: 600;
+}
+
+.album-hero-desc {
+    font-size: 11.5px;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0;
+    line-height: 1.45;
+}
+
+/* Controls Bar */
+.album-controls-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.album-filters-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.album-filter-btn {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--muted, #94a3b8);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.album-filter-btn:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.album-filter-btn.is-active {
+    background: rgba(247, 37, 133, 0.25);
+    border-color: #F72585;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(247, 37, 133, 0.4);
+}
+
+/* Viewport & Cards Grid */
+.album-grid-viewport {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    box-sizing: border-box;
+}
+
+.album-grid-viewport::-webkit-scrollbar {
+    width: 6px;
+}
+.album-grid-viewport::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+}
+.album-grid-viewport::-webkit-scrollbar-thumb {
+    background: rgba(247, 37, 133, 0.4);
+    border-radius: 10px;
+}
+.album-grid-viewport::-webkit-scrollbar-thumb:hover {
+    background: rgba(247, 37, 133, 0.7);
+}
+
+.album-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 20px;
+    width: 100%;
+    padding: 6px 4px 22px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+    .album-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+        gap: 14px;
+    }
+}
+
+@media (max-width: 540px) {
+    .album-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 4px 2px 16px;
+    }
+}
+
+.album-cards-grid .photo-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    aspect-ratio: 3 / 4.4;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease;
+}
+
+.album-cards-grid .photo-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    z-index: 5;
+}
+
+.album-empty-state {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding: 48px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1.5px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 18px;
+    box-sizing: border-box;
+}
+
+.album-empty-state .empty-icon-bubble {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(247, 37, 133, 0.15);
+    border: 1px solid rgba(247, 37, 133, 0.4);
+    display: grid;
+    place-items: center;
+    font-size: 30px;
+    box-shadow: 0 0 20px rgba(247, 37, 133, 0.2);
+}
+
+.album-empty-state .empty-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+}
+
+.album-empty-state .empty-desc {
+    font-size: 12px;
+    color: var(--text-secondary, #94a3b8);
+    max-width: 440px;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Footer: Tombol Aksi Kiri & Kanan Bawah yang Berwarna */
+.album-footer-bar {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+}
+
+.album-footer-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.album-footer-hint {
+    font-size: 11px;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0;
+    line-height: 1.4;
+    text-align: center;
+    flex: 1;
+    padding: 0 8px;
+}
+
+.album-footer-hint strong {
+    color: #ffd700;
+}
+
+/* Base Tombol Aksi Berwarna Bawah (Compact & Standout) */
+.album-bottom-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 14px;
+    cursor: pointer;
+    border: none;
+    position: relative;
+    user-select: none;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    flex-shrink: 0;
+    text-decoration: none;
+}
+
+.album-bottom-action-btn .btn-bottom-icon {
+    font-size: 18px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.album-bottom-action-btn .btn-bottom-title {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+/* 1. Kiri Bawah: Kotak Hadiah (Vibrant Cyber Emerald Glow) */
+.btn-bottom-inbox {
+    background: linear-gradient(135deg, #059669 0%, #10b981 55%, #06b6d4 100%);
+    color: #ffffff;
+    border: 1px solid rgba(52, 211, 153, 0.55);
+    box-shadow: 0 4px 18px rgba(16, 185, 129, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.btn-bottom-inbox:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    border-color: #34d399;
+}
+
+.btn-bottom-inbox:active {
+    transform: translateY(0);
+}
+
+/* 2. Kanan Bawah: Klaim Kode Hadiah (Vibrant Radiant Amber / Sunset Gold) */
+.btn-bottom-redeem {
+    background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+    color: #1a1202;
+    border: 1px solid rgba(251, 191, 36, 0.7);
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.btn-bottom-redeem .btn-bottom-title {
+    color: #1c1917;
+    font-weight: 900;
+}
+
+.btn-bottom-redeem .btn-bottom-sub {
+    color: #451a03;
+    font-weight: 700;
+}
+
+.btn-bottom-redeem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    border-color: #fde047;
+}
+
+.btn-bottom-redeem:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 720px) {
+    .album-footer-actions {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .album-footer-hint {
+        order: 3;
+        width: 100%;
+        margin-top: 4px;
+        font-size: 10px;
+    }
+    .album-bottom-action-btn {
+        flex: 1;
+        min-width: 140px;
+        padding: 8px 12px;
+    }
+    .album-bottom-action-btn .btn-bottom-title {
+        font-size: 11px;
+    }
+}
+
+/* ==========================================================================
+   G. MODAL 3: INSPEKSI DETAIL FOTO CARD
+   ========================================================================== */
+.card-inspect-dialog {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    max-width: 680px;
+    width: 92%;
+    background: linear-gradient(145deg, #121826, #090D15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    padding: 26px;
+    position: relative;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+    color: #fff;
+}
+
+@media (max-width: 650px) {
+    .card-inspect-dialog {
+        grid-template-columns: 1fr;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 20px;
+        gap: 16px;
+    }
+}
+
+.close-inspect-btn {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: grid;
+    place-items: center;
+    transition: 0.2s;
+    z-index: 10;
+}
+
+.close-inspect-btn:hover {
+    background: rgba(255, 69, 58, 0.5);
+    transform: scale(1.1);
+}
+
+.inspect-perspective-container {
+    perspective: 1000px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.inspect-card-element {
+    width: 100%;
+    max-width: 260px;
+}
+
+.inspect-info-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}
+
+.inspect-header-tags {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.inspect-rarity-pill {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+}
+
+.inspect-serial-pill {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(0, 245, 212, 0.15);
+    border: 1px solid rgba(0, 245, 212, 0.4);
+    color: #00F5D4;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+
+.inspect-version-pill {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 215, 0, 0.15);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    color: #FFD700;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+
+.inspect-category-pill {
+    display: none !important;
+}
+
+.inspect-card-title {
+    font-size: 1.35rem;
+    margin: 0 0 12px;
+    font-family: 'Noto Serif JP', serif;
+    color: #fff;
+}
+
+.inspect-quote-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+}
+
+.inspect-kanji-quote {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #FFD166;
+    margin: 0 0 4px;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.inspect-romaji-quote {
+    font-size: 10.5px;
+    color: #00F5D4;
+    font-style: italic;
+    margin: 0 0 4px;
+}
+
+.inspect-id-quote {
+    font-size: 10.5px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0 0 10px;
+    line-height: 1.4;
+}
+
+.btn-inspect-speaker {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-inspect-speaker:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.inspect-desc-text {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0 0 16px;
+}
+
+.inspect-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inspect-obtained-tag {
+    font-size: 10px;
+    font-weight: 800;
+    color: #81C784;
+}
+
+/* ==========================================================================
+   H. MODAL 4: UNVEIL CELEBRATION (GACHA OPENING)
+   ========================================================================== */
+.unveil-dialog-box {
+    max-width: 360px;
+    width: 88%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: linear-gradient(160deg, #151a28, #0a0d14);
+    border: 2px solid #FFD700;
+    border-radius: 24px;
+    padding: 26px 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.35);
+    animation: unveilPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes unveilPop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.unveil-confetti-icon {
+    font-size: 40px;
+    margin-bottom: 6px;
+    animation: confettiShake 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes confettiShake {
+    0% { transform: rotate(-8deg) scale(1); }
+    100% { transform: rotate(8deg) scale(1.1); }
+}
+
+.unveil-kicker {
+    font-size: 9.5px;
+    font-weight: 900;
+    color: #FFD700;
+    letter-spacing: 1.2px;
+    display: block;
+}
+
+.unveil-header h2 {
+    font-size: 1.2rem;
+    color: #fff;
+    margin: 4px 0 16px;
+}
+
+.unveil-card-slot {
+    max-width: 210px;
+    margin: 0 auto 20px;
+}
+
+.btn-unveil-claim {
+    width: 100%;
+    padding: 13px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    border-radius: 12px;
+}
+
+/* ==========================================================================
+   17. FOTOCARD AVATAR & EFEK KHUSUS VIP LAGEND
+   ========================================================================== */
+
+/* Inspect Action Buttons Grid */
+.inspect-action-buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    width: 100%;
+}
+
+.inspect-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 12px;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease;
+    text-align: center;
+}
+
+.inspect-action-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+}
+
+.inspect-action-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.inspect-action-btn.is-legend-btn {
+    background: linear-gradient(135deg, #FF0055, #FFB703) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 0 15px rgba(255, 183, 3, 0.6), 0 0 5px rgba(255, 0, 85, 0.8) !important;
+    animation: vipTagPulse 2s infinite ease-in-out;
+}
+
+.inspect-action-btn.btn-purple {
+    background: linear-gradient(135deg, #7209B7, #FFD166) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 12px rgba(114, 9, 183, 0.5) !important;
+}
+
+/* --- EFEK KHUSUS VIP LAGEND PADA FOTO PROFIL (HERO PASS & UMUM) --- */
+.pass-avatar-wrapper.is-vip-legend {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    padding: 3px;
+    background: conic-gradient(
+        from 0deg,
+        #FF0055, #FF7700, #FFEE00, #00FF88, #00D4FF, #7B2CBF, #FF00AA, #FF0055
+    );
+    animation: topRainbowGlow 3s ease-in-out infinite alternate;
+    box-shadow: 0 0 16px rgba(255, 183, 3, 0.95), 0 0 35px rgba(255, 0, 85, 0.7), inset 0 0 10px rgba(255, 230, 0, 0.8);
+    overflow: visible !important;
+    cursor: pointer;
+}
+
+.pass-avatar-wrapper.is-vip-legend::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 20px;
+    background: radial-gradient(circle, rgba(255, 183, 3, 0.45) 0%, rgba(255, 0, 85, 0.15) 50%, transparent 75%);
+    animation: legendVipPulse 2s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.pass-avatar-wrapper.is-vip-legend .pass-avatar-img {
+    border-radius: 13px;
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    object-fit: cover;
+    object-position: center 25%;
+}
+
+/* Mahkota VIP mengambang di pojok atas */
+.pass-avatar-wrapper.is-vip-legend::after {
+    content: "👑";
+    position: absolute;
+    top: -12px;
+    right: -9px;
+    font-size: 17px;
+    z-index: 4;
+    filter: drop-shadow(0 0 6px #FFD700) drop-shadow(0 0 2px #FF0055);
+    animation: legendCrownFloat 2.2s ease-in-out infinite;
+}
+
+/* Pita Badge VIP di bawah avatar */
+.pass-avatar-wrapper.is-vip-legend .pass-vip-badge {
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 900;
+    color: #fff;
+    background: linear-gradient(135deg, #FF0055, #FFB703);
+    padding: 2px 7px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 12px rgba(255, 183, 3, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+    z-index: 5;
+    animation: vipBadgeBounce 2.5s ease-in-out infinite;
+}
+
+/* Varian Ultra Rare Avatar */
+.pass-avatar-wrapper.is-avatar-ur {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+    padding: 2.5px;
+    background: linear-gradient(135deg, #7209B7, #FFD166);
+    box-shadow: 0 0 15px rgba(114, 9, 183, 0.75), 0 0 5px rgba(255, 209, 102, 0.6);
+    overflow: visible !important;
+}
+
+.pass-avatar-wrapper.is-avatar-ur .pass-vip-badge {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7.5px;
+    font-weight: 900;
+    color: #fff;
+    background: linear-gradient(135deg, #7209B7, #FFD166);
+    padding: 1.5px 6px;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 8px rgba(114, 9, 183, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    z-index: 5;
+}
+
+/* Varian Rare Avatar */
+.pass-avatar-wrapper.is-avatar-rare {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+    padding: 2.5px;
+    background: linear-gradient(135deg, #00B4D8, #00F5D4);
+    box-shadow: 0 0 12px rgba(0, 245, 212, 0.6);
+    overflow: visible !important;
+}
+
+.pass-avatar-wrapper.is-avatar-rare .pass-vip-badge {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7.5px;
+    font-weight: 900;
+    color: #001219;
+    background: linear-gradient(135deg, #00B4D8, #00F5D4);
+    padding: 1.5px 6px;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 245, 212, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    z-index: 5;
+}
+
+/* Animasi Inti VIP Lagend */
+@keyframes legendVipRingRotate {
+    0% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+    50% { background-position: 100% 50%; filter: hue-rotate(20deg); }
+    100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+}
+
+@keyframes legendVipPulse {
+    0% { transform: scale(0.95); opacity: 0.45; }
+    100% { transform: scale(1.15); opacity: 0.95; }
+}
+
+@keyframes legendCrownFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+@keyframes vipBadgeBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-2px); }
+}
+
+@keyframes vipTagPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 183, 3, 0.6), 0 0 4px rgba(255, 0, 85, 0.7); }
+    50% { box-shadow: 0 0 18px rgba(255, 0, 85, 0.9), 0 0 8px #FFD700; }
+}
+
+/* Keyframes Animasi Pelangi Halus Tanpa Berputar */
+@keyframes topRainbowGlow {
+    0% {
+        filter: hue-rotate(0deg);
+        box-shadow: 0 0 10px rgba(255, 0, 85, 0.75), 0 0 18px rgba(0, 212, 255, 0.55), 0 0 4px #FFEE00;
+    }
+    50% {
+        filter: hue-rotate(30deg);
+        box-shadow: 0 0 16px rgba(255, 183, 3, 0.95), 0 0 28px rgba(255, 0, 85, 0.8), 0 0 8px #00D4FF;
+    }
+    100% {
+        filter: hue-rotate(0deg);
+        box-shadow: 0 0 10px rgba(255, 0, 85, 0.75), 0 0 18px rgba(0, 212, 255, 0.55), 0 0 4px #FFEE00;
+    }
+}
+
+@keyframes topRainbowSpin {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+    100% {
+        filter: hue-rotate(360deg);
+    }
+}
+
+@keyframes topCrownFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+@keyframes topPillRainbowBorder {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+/* ==========================================================================
+   18. FITUR KIRIM & TERIMA FOTO CARD (GIFT & TRANSFER SYSTEM)
+   ========================================================================== */
+
+/* Inspect Dialog Gift Button */
+.inspect-action-btn.is-gift-btn {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(52, 211, 153, 0.45) !important;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35) !important;
+    font-size: 11.5px;
+    padding: 10px 14px;
+}
+
+.inspect-action-btn.is-gift-btn:hover {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.55), 0 0 15px rgba(52, 211, 153, 0.35) !important;
+    transform: translateY(-2px) scale(1.02);
+}
+
+/* Album Action Toolbar */
+.album-action-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 10px 0 14px;
+    flex-wrap: wrap;
+}
+
+.album-toolbar-btn {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+}
+
+.album-toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.album-toolbar-btn.is-gift-primary {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.25));
+    border-color: rgba(52, 211, 153, 0.4);
+    color: #34d399;
+}
+
+.album-toolbar-btn.is-gift-primary:hover {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.45));
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+}
+
+.gift-badge-counter {
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 1px 6px;
+    border-radius: 999px;
+    animation: giftBadgePulse 2s infinite ease-in-out;
+}
+
+@keyframes giftBadgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); box-shadow: 0 0 8px rgba(239, 68, 68, 0.8); }
+}
+
+/* Dialog Kirim Kartu */
+.send-card-dialog {
+    max-width: 480px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: linear-gradient(160deg, #131b2e 0%, #0a0e1a 100%);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(16, 185, 129, 0.18);
+    position: relative;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.send-card-header {
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+.send-card-kicker {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: #34d399;
+    text-transform: uppercase;
+    display: block;
+}
+
+.send-card-header h2 {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 4px 0 6px;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.send-card-header h2 span {
+    font-size: 0.95rem;
+    color: var(--japan-gold, #d4af37);
+    font-weight: 600;
+}
+
+.send-card-header p {
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Strip Preview Kartu */
+.send-card-preview-strip {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+}
+
+.send-card-thumb-wrap {
+    width: 48px;
+    height: 68px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.send-card-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.send-card-thumb-meta {
+    flex: 1;
+    text-align: left;
+}
+
+.send-card-rarity-pill {
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffd700;
+}
+
+.send-card-thumb-title {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 2px 0;
+}
+
+.send-card-thumb-serial {
+    font-size: 11px;
+    color: var(--japan-gold, #d4af37);
+    font-weight: 700;
+    font-family: monospace;
+}
+
+/* Tabs Opsi Pengiriman */
+.send-tabs-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.send-tab-btn {
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.send-tab-btn.is-active {
+    background: rgba(52, 211, 153, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+.send-tab-pane {
+    display: none;
+    text-align: left;
+}
+
+.send-tab-pane.is-active {
+    display: block;
+}
+
+.send-form-group {
+    margin-bottom: 14px;
+}
+
+.send-form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+}
+
+.send-card-input, .send-card-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #ffffff;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.send-card-input:focus, .send-card-textarea:focus {
+    border-color: #34d399;
+}
+
+.send-card-select {
+    cursor: pointer;
+}
+
+.send-card-textarea {
+    resize: none;
+    height: 65px;
+}
+
+.send-submit-btn {
+    width: 100%;
+    padding: 11px;
+    font-weight: 800;
+    font-size: 12px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+}
+
+.btn-emerald:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
+
+.gift-code-desc {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0 0 12px;
+}
+
+.gift-code-result-box {
+    background: rgba(212, 175, 55, 0.08);
+    border: 1px dashed rgba(212, 175, 55, 0.45);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.gift-code-kicker {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: var(--japan-gold, #d4af37);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.gift-code-display {
+    font-family: monospace;
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #FFD700;
+    letter-spacing: 2px;
+    margin: 6px 0 10px;
+}
+
+.send-card-footnote {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.send-card-footnote p {
+    font-size: 10.5px;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0;
+    line-height: 1.4;
+    text-align: left;
+}
+
+/* Celebration Dialog Terima Hadiah */
+.gift-received-dialog {
+    border-color: rgba(52, 211, 153, 0.5) !important;
+    box-shadow: 0 0 50px rgba(16, 185, 129, 0.3) !important;
+}
+
+.gift-received-from {
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    margin: 4px 0 0;
+}
+
+.gift-message-bubble {
+    background: rgba(255, 255, 255, 0.06);
+    border-left: 3px solid #10b981;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px auto 16px;
+    max-width: 320px;
+    font-style: italic;
+    color: #e2e8f0;
+    font-size: 12px;
+    text-align: left;
+}
+
+/* Dialog Redeem Code */
+.redeem-dialog-box {
+    max-width: 420px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: linear-gradient(160deg, #131b2e 0%, #0a0e1a 100%);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 30px rgba(212, 175, 55, 0.15);
+}
+
+.redeem-input-wrap {
+    margin-top: 14px;
+}
+
+.redeem-code-input {
+    text-align: center;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
 }

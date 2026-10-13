@@ -3,13 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>Pesan | Trinity 日本語</title>
+    <title>Pesan | Nihongo Fournity 日本語</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/pesan.css">
+    <link rel="stylesheet" href="../css/kaiwa.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        if (!localStorage.getItem("nihongoChatUser")) {
-            localStorage.setItem("nihongoChatUser", "Gakusei_" + Math.floor(1000 + Math.random() * 9000));
-        }
+        // Bersihkan deteksi sesi akun sistem lama (Iqbal, Fasya, Rifki, Umaedi tanpa Firebase Auth)
+        (function() {
+            const authUid = localStorage.getItem("nihongoChatUid");
+            const legacyUsers = ["umaedi", "iqbal", "rifki", "fasya"];
+            const rawUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase();
+            if (!authUid && (legacyUsers.includes(rawUser) || rawUser.startsWith("gakusei_"))) {
+                localStorage.removeItem("nihongoChatUser");
+                localStorage.removeItem("fournity_user_avatar");
+                localStorage.removeItem("fournity_custom_avatar");
+            }
+        })();
     </script>
 </head>
 <body class="message-page ios-theme">
@@ -22,10 +34,19 @@
             <!-- iOS Top Navigation Bar -->
             <header class="ios-nav-bar">
                 <button type="button" id="switchUserBtn" class="ios-nav-link" title="Ganti Nama / Login Member" aria-label="Ganti Akun">
-                    👤 <span id="switchUserBtnLabel">Akun</span>
+                    <svg class="ios-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;margin-right:2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span id="switchUserBtnLabel">Akun</span>
                 </button>
-                <div class="ios-nav-center-title">Pesan</div>
-                <a href="../index.html" class="ios-nav-link ios-done-link" title="Kembali ke Dashboard">Selesai</a>
+                <div class="ios-nav-center-title">Pesan Fournity</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button type="button" id="btnHeaderSwitchKaiwa" class="ios-nav-link" style="background:transparent; border:none; cursor:pointer; color: #30D158; font-weight: 700; display:inline-flex; align-items:center; gap:5px;" title="Buka Panggilan Kaiwa">
+                        <svg class="ios-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <span>Kaiwa</span>
+                    </button>
+                    <a href="../index.html" class="ios-nav-link ios-done-link" title="Kembali ke Dashboard">Selesai</a>
+                </div>
             </header>
 
             <!-- iOS Large Title Header -->
@@ -37,7 +58,12 @@
             <!-- iOS Search Bar Capsule -->
             <div class="ios-search-container">
                 <div class="ios-search-capsule">
-                    <span class="ios-search-glyph">🔍</span>
+                    <span class="ios-search-glyph">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 15px; height: 15px;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
                     <input type="text" id="roomFilterInput" class="ios-search-field" placeholder="Cari percakapan..." autocomplete="off">
                 </div>
             </div>
@@ -82,7 +108,26 @@
                     </div>
                 </div>
 
-                <!-- RUANGAN 3: TRINITY CORE (Ruangan Chat Privat Tim & Founder) -->
+                <!-- RUANGAN 3: KOTOBA SHIRITORI DOJO (Game Sambung Kata Jepang Interaktif) -->
+                <div id="roomCardShiritori" class="room-card ios-room-row" onclick="openRoom('shiritori')">
+                    <div class="room-avatar ios-room-avatar" style="background: linear-gradient(135deg, #30D158, #007A3D);">
+                        🎮
+                        <span class="status-indicator" style="background: #30D158;"></span>
+                    </div>
+                    <div class="room-info ios-room-content">
+                        <div class="room-title-row">
+                            <h3 class="ios-room-name">Shiritori Dojo <span class="ios-room-tag" style="color: #30D158;">しりとり</span></h3>
+                            <span class="room-time ios-room-time" id="timeShiritori">Tantangan</span>
+                        </div>
+                        <div class="room-desc-row">
+                            <p id="lastMsgShiritori" class="ios-room-snippet">Game sambung kata Jepang seru bersama Aoi Sensei & teman...</p>
+                            <span class="ios-ai-pill" style="background: rgba(48, 209, 88, 0.2); color: #30D158; border-color: rgba(48, 209, 88, 0.4);">GAME DOJO</span>
+                            <span class="ios-chevron-cell">›</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RUANGAN 4: NIHONGO FOURNITY CORE (Ruangan Chat Privat 4 Pilar Tim) -->
                 <div id="roomCardCore" class="room-card ios-room-row" onclick="openRoom('core')">
                     <div class="room-avatar ios-room-avatar" style="background: linear-gradient(135deg, #FF453A, #B71C1C);">
                         🛡️
@@ -90,11 +135,11 @@
                     </div>
                     <div class="room-info ios-room-content">
                         <div class="room-title-row">
-                            <h3 id="titleCore" class="ios-room-name">Trinity Core <span class="ios-room-tag">🔒 Tim</span></h3>
+                            <h3 id="titleCore" class="ios-room-name">Fournity Core <span class="ios-room-tag">🔒 4 Pilar</span></h3>
                             <span class="room-time ios-room-time" id="timeCore"></span>
                         </div>
                         <div class="room-desc-row">
-                            <p id="lastMsgCore" class="ios-room-snippet">Ruangan khusus komunikasi internal tim dev & founder...</p>
+                            <p id="lastMsgCore" class="ios-room-snippet">Markas privat 4 pilar Nihongo Fournity: Umaedi, Iqbal, Rifki, Fasya...</p>
                             <span id="badgeCore" class="room-badge ios-unread-dot" style="display: none;"></span>
                             <span class="ios-chevron-cell">›</span>
                         </div>
@@ -104,7 +149,186 @@
         </section>
 
         <!-- ================================================================ -->
-        <!-- 2. TAMPILAN DALAM ROOM (iOS iMESSAGE CONVERSATION SCREEN) -->
+        <!-- 2. TAMPILAN PANGGILAN KAIWA (iOS CONTACTS & PHONE LOBBY) -->
+        <!-- ================================================================ -->
+        <!-- ================================================================ -->
+        <!-- 2. TAMPILAN PANGGILAN KAIWA & FAVORIT (iOS PHONE & CONTACTS LOBBY) -->
+        <!-- ================================================================ -->
+        <section id="kaiwaLobbyView" class="chat-list-panel ios-message-list ios-kaiwa-panel" style="display: none;">
+            <!-- iOS Top Navigation Bar -->
+            <header class="ios-nav-bar">
+                <a href="../index.html" class="ios-nav-link" id="btnBackToHomeFromKaiwa" title="Kembali ke Dashboard">
+                    <svg class="ios-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <div class="ios-nav-center-title" id="kaiwaNavCenterTitle">Panggilan Kaiwa</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="ios-badge-live">LIVE</span>
+                    <a href="../index.html" class="ios-nav-link ios-done-link" title="Kembali ke Dashboard">Selesai</a>
+                </div>
+            </header>
+
+            <!-- iOS Large Title Header -->
+            <div class="ios-large-header">
+                <h1 class="ios-large-title" id="kaiwaLobbyTitle">Panggilan</h1>
+                <span class="ios-user-badge" id="kaiwaUserBadge">日本語会話</span>
+            </div>
+
+            <!-- iOS Search Bar Capsule -->
+            <div class="ios-search-container">
+                <div class="ios-search-capsule">
+                    <span class="ios-search-glyph">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 15px; height: 15px;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" id="contactSearchInput" class="ios-search-field ios-search-input" placeholder="Cari kontak, kota, topik..." autocomplete="off">
+                    <button type="button" id="btnClearSearch" class="ios-search-clear-btn" style="display: none;" aria-label="Hapus Pencarian">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 14px; height: 14px;"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="chat-list-container ios-panel-scroll-content">
+                <!-- "Kartu Pengguna Saya" (My Card) -->
+                <div class="ios-my-card-box">
+                    <div class="ios-my-card-avatar">
+                        <svg class="ios-svg-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div class="ios-my-card-meta">
+                        <div class="ios-my-card-title">Kartu Pengguna Saya</div>
+                        <div class="ios-my-card-sub">Siap Melatih Percakapan (日本語会話)</div>
+                    </div>
+                </div>
+
+                <!-- Hero FaceTime / Panggilan Acak Banner -->
+                <div class="ios-random-facetime-card" id="btnTriggerRandomCall" role="button" tabindex="0">
+                    <div class="facetime-icon-circle">
+                        <svg class="speed-dial-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"></circle>
+                            <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"></circle>
+                            <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+                            <circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"></circle>
+                            <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"></circle>
+                        </svg>
+                    </div>
+                    <div class="facetime-card-text">
+                        <div class="facetime-card-title">Panggilan Acak (Random Call)</div>
+                        <div class="facetime-card-desc">Hubungi teman bicara secara spontan tanpa memilih</div>
+                    </div>
+                    <button type="button" class="btn-facetime-call-pill">
+                        <svg class="ios-btn-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                        <span>Acak</span>
+                    </button>
+                </div>
+
+                <!-- Filter Segmented Control iOS -->
+                <div class="ios-segmented-bar" role="tablist">
+                    <button type="button" class="kaiwa-tab-btn is-active" data-filter="all">Semua</button>
+                    <button type="button" class="kaiwa-tab-btn" data-filter="cewek">Mahasiswi</button>
+                    <button type="button" class="kaiwa-tab-btn" data-filter="kafe">Kafe</button>
+                    <button type="button" class="kaiwa-tab-btn" data-filter="travel">Wisata</button>
+                </div>
+
+                <!-- Inset Grouped Contacts Container -->
+                <section class="ios-contacts-grouped-list" id="contactsGrid" aria-label="Daftar Kontak"></section>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- 3. TAMPILAN STATUS (iOS STATUS & STORIES SCREEN) -->
+        <!-- ================================================================ -->
+        <section id="statusView" class="chat-list-panel ios-message-list ios-status-panel" style="display: none;">
+            <!-- iOS Top Navigation Bar -->
+            <header class="ios-nav-bar">
+                <a href="../index.html" class="ios-nav-link" id="btnBackToHomeFromStatus" title="Kembali ke Dashboard">
+                    <svg class="ios-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <div class="ios-nav-center-title">Status Cerita</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="ios-badge-live">LIVE</span>
+                    <a href="../index.html" class="ios-nav-link ios-done-link" title="Kembali ke Dashboard">Selesai</a>
+                </div>
+            </header>
+
+            <!-- iOS Large Title Header -->
+            <div class="ios-large-header">
+                <h1 class="ios-large-title">Status</h1>
+                <span class="ios-user-badge">Pembaruan</span>
+            </div>
+
+            <!-- iOS Search Bar Capsule -->
+            <div class="ios-search-container">
+                <div class="ios-search-capsule">
+                    <span class="ios-search-glyph">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 15px; height: 15px;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" id="statusFilterInput" class="ios-search-field ios-search-input" placeholder="Cari status teman & tutor..." autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="chat-list-container ios-panel-scroll-content">
+                <!-- Status Saya (My Status) -->
+                <div class="ios-status-section">
+                    <div class="ios-inset-grouped-card">
+                        <div class="ios-status-my-row" id="myStatusRow">
+                            <div class="status-avatar-wrapper is-my-status">
+                                <img src="../gambar/icon.png" alt="Status Saya" class="status-avatar-img" id="myStatusAvatar">
+                                <span class="status-add-badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="status-info-col">
+                                <div class="status-title-row">
+                                    <strong class="status-title-name">Status Saya</strong>
+                                </div>
+                                <p class="status-subtitle-text" id="myStatusSubtext">Ketuk untuk menambah pembaruan cerita</p>
+                            </div>
+                            <div class="status-action-btns">
+                                <button type="button" class="btn-status-quick-tool" id="btnStatusCamera" title="Kamera" aria-label="Kamera">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                        <circle cx="12" cy="13" r="4"></circle>
+                                    </svg>
+                                </button>
+                                <button type="button" class="btn-status-quick-tool" id="btnStatusPencil" title="Tulis Cerita" aria-label="Tulis Cerita">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pembaruan Terkini (Recent Updates) -->
+                <div class="ios-status-section">
+                    <div class="ios-section-header-title">PEMBARUAN TERKINI</div>
+                    <div class="ios-inset-grouped-card" id="recentStatusList"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- 4. TAMPILAN DALAM ROOM (iOS iMESSAGE CONVERSATION SCREEN) -->
         <!-- ================================================================ -->
         <section id="chatRoomView" class="chat-panel group-chat ios-chat-screen" style="display: none;">
             
@@ -124,17 +348,115 @@
                     <div class="ios-contact-text-box">
                         <h1 id="roomTitle" class="ios-contact-title">Ruang Obrolan</h1>
                         <span class="ios-contact-sub"><i class="online-dot"></i> <span id="onlineCountText">iMessage</span></span>
-                        <p class="section-label" id="roomLabel" style="display: none;">TRINITY COMMUNITY</p>
+                        <p class="section-label" id="roomLabel" style="display: none;">NIHONGO FOURNITY</p>
                     </div>
                 </div>
 
-                <!-- Right: Action Buttons -->
+                <!-- Right: Action Buttons (Call Button + Titik Tiga Kebab Menu) -->
                 <div class="chat-header-actions ios-header-actions">
-                    <button type="button" id="clearSenseiBtn" class="header-action-btn ios-action-btn" title="Bersihkan Database Chat AI Sensei" aria-label="Bersihkan Chat AI" style="display: none; color: #FF758C;">🧹</button>
-                    <button type="button" id="toggleSearchBtn" class="header-action-btn ios-action-btn" title="Cari Pesan" aria-label="Cari Pesan">🔍</button>
-                    <button type="button" id="ttsRecentBtn" class="header-action-btn ios-action-btn" title="Dengarkan Pesan Terakhir" aria-label="Audio TTS">🔊</button>
+                    <button type="button" id="btnQuickCallSensei" class="header-action-btn ios-action-btn" title="Panggilan Kaiwa Live" aria-label="Panggilan Kaiwa Live" style="color: #30D158; display: none;">
+                        <svg class="ios-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                    </button>
+                    <button type="button" id="chatMoreMenuBtn" class="header-action-btn ios-action-btn chat-more-kebab-btn" title="Menu Opsi Obrolan" aria-label="Menu Opsi Obrolan" aria-haspopup="true" aria-expanded="false">
+                        <span class="kebab-dot-icon">⋮</span>
+                    </button>
                 </div>
             </header>
+
+            <!-- DROPDOWN POPOVER MENU TITIK TIGA -->
+            <div id="chatMoreDropdown" class="chat-more-dropdown ios-dropdown-popover" style="display: none;" role="menu">
+                <!-- Bagian 1: Kustomisasi Fitur Baru -->
+                <div class="dropdown-group">
+                    <div class="dropdown-group-header">KUSTOMISASI CHAT</div>
+                    <button type="button" class="dropdown-menu-item" id="openWallpaperModalBtn" role="menuitem">
+                        <span class="menu-item-icon" style="background: rgba(10, 132, 255, 0.15); color: #0A84FF;">🖼️</span>
+                        <div class="menu-item-info">
+                            <strong>Ganti Background Chat</strong>
+                            <small>Gambar foto, preset estetik Jepang / URL</small>
+                        </div>
+                        <span class="menu-item-arrow">›</span>
+                    </button>
+                    <button type="button" class="dropdown-menu-item" id="openCardAvatarModalBtn" role="menuitem">
+                        <span class="menu-item-icon" style="background: rgba(255, 183, 3, 0.15); color: #FFB703;">👑</span>
+                        <div class="menu-item-info">
+                            <strong>Foto Profil & Efek VIP Lagend</strong>
+                            <small>Pilih dari koleksi Foto Card untuk avatar</small>
+                        </div>
+                        <span class="menu-item-arrow">›</span>
+                    </button>
+                    <button type="button" class="dropdown-menu-item" id="openSoundModalBtn" role="menuitem">
+                        <span class="menu-item-icon" style="background: rgba(255, 159, 10, 0.15); color: #FF9F0A;">🔔</span>
+                        <div class="menu-item-info">
+                            <strong>Pengaturan Suara Notifikasi</strong>
+                            <small>Pilih nada pesan masuk & suara kirim</small>
+                        </div>
+                        <span class="menu-item-arrow">›</span>
+                    </button>
+                </div>
+
+                <div class="dropdown-menu-divider"></div>
+
+                <!-- Bagian 2: Fitur Ruangan Chat -->
+                <div class="dropdown-group">
+                    <div class="dropdown-group-header">FITUR RUANGAN</div>
+                    <button type="button" class="dropdown-menu-item" id="toggleSearchBtn" role="menuitem">
+                        <span class="menu-item-icon" style="background: rgba(50, 215, 75, 0.15); color: #32D74B;">🔍</span>
+                        <div class="menu-item-info">
+                            <strong>Cari Pesan</strong>
+                            <small>Cari kata dalam obrolan ruangan ini</small>
+                        </div>
+                    </button>
+                    <button type="button" class="dropdown-menu-item" id="ttsRecentBtn" role="menuitem">
+                        <span class="menu-item-icon" style="background: rgba(191, 90, 242, 0.15); color: #BF5AF2;">🔊</span>
+                        <div class="menu-item-info">
+                            <strong>Dengarkan Pesan Terakhir</strong>
+                            <small>Putar audio TTS pembaca pesan</small>
+                        </div>
+                    </button>
+                    <button type="button" class="dropdown-menu-item" id="zenAudioBtn" role="menuitem">
+                        <span class="menu-item-icon" style="background: rgba(100, 210, 255, 0.15); color: #64D2FF;">🎐</span>
+                        <div class="menu-item-info">
+                            <strong>Musik Zen Relaksasi</strong>
+                            <small>Lonceng Fuurin, bambu & hujan Tokyo</small>
+                        </div>
+                    </button>
+                    <button type="button" class="dropdown-menu-item" id="speechCoachBtn" role="menuitem">
+                        <span class="menu-item-icon" style="background: rgba(255, 69, 58, 0.15); color: #FF453A;">🎙️</span>
+                        <div class="menu-item-info">
+                            <strong>Pelatih Pelafalan AI</strong>
+                            <small>Latihan intonasi aksen bahasa Jepang</small>
+                        </div>
+                    </button>
+                    <button type="button" class="dropdown-menu-item is-danger" id="clearSenseiBtn" role="menuitem" style="display: none;">
+                        <span class="menu-item-icon" style="background: rgba(255, 55, 95, 0.15); color: #FF375F;">🧹</span>
+                        <div class="menu-item-info">
+                            <strong>Bersihkan Chat AI Sensei</strong>
+                            <small>Hapus memori obrolan Aoi Sensei</small>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SHIRITORI GAME INTERACTIVE BANNER (Muncul di Shiritori Dojo) -->
+            <div id="shiritoriGameBar" class="shiritori-game-bar ios-shiritori-bar" style="display: none;">
+                <div class="shiritori-bar-left">
+                    <span class="shiritori-badge-pill">しりとり DOJO</span>
+                    <div class="shiritori-target-box">
+                        <span class="shiritori-target-label">Target Huruf:</span>
+                        <strong id="shiritoriTargetKana" class="shiritori-target-char">さ (SA)</strong>
+                    </div>
+                </div>
+                <div class="shiritori-bar-center">
+                    <span id="shiritoriStreakText" class="shiritori-streak-pill">🔥 Rantai: <strong>0</strong> Kata</span>
+                    <span id="shiritoriLastWordInfo" class="shiritori-last-word">Mulai dengan huruf di kiri!</span>
+                </div>
+                <div class="shiritori-bar-actions">
+                    <button type="button" id="shiritoriHintBtn" class="shiritori-btn-tool" title="Bantuan Kata (Hint)" aria-label="Bantuan Kata">💡 Bantuan</button>
+                    <button type="button" id="shiritoriResetBtn" class="shiritori-btn-tool is-ghost" title="Reset Putaran Shiritori" aria-label="Ulang Game">🔄 Ulang</button>
+                </div>
+            </div>
 
             <!-- PINNED MESSAGE BAR -->
             <div id="pinnedMessageBar" class="pinned-message-bar ios-pinned-bar" style="display: none;">
@@ -156,15 +478,21 @@
                 </div>
             </div>
             
-            <!-- DAFTAR MEMBER (Hanya muncul di Trinity Core) -->
+            <!-- DAFTAR MEMBER (Hanya muncul di Fournity Core) -->
             <div id="coreMemberAvatarList" class="group-members ios-group-members" aria-label="Member grup">
-                <div class="member-avatar"><img src="../gambar/umaedi.png" alt="U" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='U';"></div>
-                <div class="member-avatar"><img src="../gambar/iqbal.png" alt="I" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='I';"></div>
-                <div class="member-avatar"><img src="../gambar/rifki.png" alt="R" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='R';"></div>
-                <div class="member-avatar"><img src="../gambar/fasya.png" alt="F" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='F';"></div>
-                <span class="member-count">Umaedi, Iqbal, Rifki, Fasya</span>
+                <div class="member-avatar" title="Umaedi - Founder & Dev"><img src="../gambar/umaedi.png" alt="U" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='U';"></div>
+                <div class="member-avatar" title="Iqbal - Curriculum Sensei"><img src="../gambar/iqbal.png" alt="I" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='I';"></div>
+                <div class="member-avatar" title="Rifki - Specialist"><img src="../gambar/rifki.png" alt="R" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='R';"></div>
+                <div class="member-avatar" title="Fasya - Community Lead"><img src="../gambar/fasya.png" alt="F" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentNode.innerHTML='F';"></div>
+                <span class="member-count">Umaedi, Iqbal, Rifki, Fasya (4 Pilar Fournity)</span>
             </div>
             
+            <!-- WALLPAPER BACKGROUND LAYER (Untuk Kustomisasi Latar Gambar) -->
+            <div id="chatWallpaperLayer" class="chat-wallpaper-layer">
+                <div class="chat-wallpaper-image-node" id="chatWallpaperImgNode"></div>
+                <div class="chat-wallpaper-overlay-node" id="chatWallpaperOverlayNode"></div>
+            </div>
+
             <!-- AREA KONTEN PESAN (BUBBLES CONTAINER) -->
             <div class="chat-box ios-bubbles-container" id="chatBox">
                 <div class="chat-day ios-chat-day">HARI INI</div>
@@ -214,13 +542,77 @@
                         <small style="display:block; color:var(--muted); font-size:10px;">Latihan pelafalan suara</small>
                     </div>
                 </button>
-                <button type="button" id="attachStickerBtn" class="attachment-item ios-sheet-item">
-                    <span class="attach-icon" style="background: #FF9F0A;">🌸</span>
+                <button type="button" id="attachHankoBtn" class="attachment-item ios-sheet-item">
+                    <span class="attach-icon" style="background: #FF375F;">💮</span>
                     <div>
-                        <strong>Stiker Bahasa Jepang</strong>
-                        <small style="display:block; color:var(--muted); font-size:10px;">Frasa cepat & kanji</small>
+                        <strong>Stempel Hanko Fournity</strong>
+                        <small style="display:block; color:var(--muted); font-size:10px;">Cap stempel khas Jepang</small>
                     </div>
                 </button>
+                <button type="button" id="attachCoachBtn" class="attachment-item ios-sheet-item">
+                    <span class="attach-icon" style="background: #BF5AF2;">🎙️</span>
+                    <div>
+                        <strong>Pelatih Pelafalan AI</strong>
+                        <small style="display:block; color:var(--muted); font-size:10px;">Tes akurasi aksen Jepang</small>
+                    </div>
+                </button>
+            </div>
+
+            <!-- DRAWER ALAT PEMBANTU FOURNITY (FURIGANA, HANKO, FLASHCARD) -->
+            <div id="fournityToolsDrawer" class="fournity-tools-drawer ios-tools-drawer" style="display: none;">
+                <div class="tools-drawer-header">
+                    <div class="tools-drawer-tabs">
+                        <button type="button" class="tool-tab-btn is-active" data-tool="furigana">⛩️ Furigana & Kamus</button>
+                        <button type="button" class="tool-tab-btn" data-tool="hanko">💮 Stempel Hanko</button>
+                        <button type="button" class="tool-tab-btn" data-tool="flashcard">🎲 Tantangan Mini</button>
+                    </div>
+                    <button type="button" id="closeToolsDrawerBtn" class="tools-drawer-close">✕</button>
+                </div>
+
+                <!-- Tab 1: Furigana & Romaji Converter -->
+                <div id="toolPaneFurigana" class="tool-pane is-active">
+                    <div class="furigana-input-box">
+                        <input type="text" id="furiganaInput" placeholder="Ketik kata/kalimat Jepang, Romaji, atau Indonesia..." autocomplete="off">
+                        <button type="button" id="convertFuriganaBtn" class="tool-action-btn">Terjemahkan & Urai</button>
+                    </div>
+                    <div id="furiganaResultBox" class="furigana-result-box" style="display: none;">
+                        <div class="furigana-ruby-display" id="furiganaRubyDisplay"></div>
+                        <div class="furigana-romaji-display" id="furiganaRomajiDisplay"></div>
+                        <div class="furigana-arti-display" id="furiganaArtiDisplay"></div>
+                        <div class="furigana-btn-row">
+                            <button type="button" id="copyFuriganaBtn" class="btn-tool-mini">📋 Salin</button>
+                            <button type="button" id="listenFuriganaBtn" class="btn-tool-mini">🔊 Dengarkan</button>
+                            <button type="button" id="insertFuriganaBtn" class="btn-tool-mini is-primary">✉️ Masukkan ke Chat</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Stempel Hanko Digital -->
+                <div id="toolPaneHanko" class="tool-pane" style="display: none;">
+                    <div class="hanko-grid" id="hankoGrid">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Tab 3: Tantangan Kotoba Mini -->
+                <div id="toolPaneFlashcard" class="tool-pane" style="display: none;">
+                    <div class="mini-challenge-box" id="miniChallengeBox">
+                        <p style="font-size: 11.5px; color: #8E99A8; margin-bottom: 8px;">Kirimkan kartu kuis mini ke obrolan untuk menguji ingatan sesama teman belajar!</p>
+                        <div class="challenge-preview-card" id="challengePreviewCard">
+                            <span class="challenge-tag">TANTANGAN KOTOBA</span>
+                            <h4 id="chCardQuestion">Apa arti dari 「いただきます」 (Itadakimasu)?</h4>
+                            <div class="challenge-card-options" id="chCardOptions">
+                                <span>A. Selamat makan</span>
+                                <span>B. Selamat tinggal</span>
+                                <span>C. Terima kasih</span>
+                            </div>
+                        </div>
+                        <div class="challenge-actions-row">
+                            <button type="button" id="randomizeChallengeBtn" class="btn-tool-mini">🎲 Acak Soal Baru</button>
+                            <button type="button" id="sendChallengeToChatBtn" class="btn-tool-mini is-primary">🚀 Kirim Kuis ke Chat</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- TABBED EMOJI & STICKER DRAWER -->
@@ -239,13 +631,14 @@
             <div class="chat-input-area ios-input-bar" id="chatInputArea">
                 <!-- Circular Plus (+) Attachment Button -->
                 <button class="chat-tool-btn ios-plus-btn" id="attachBtn" type="button" title="Lampiran media" aria-label="Lampirkan Media">＋</button>
+                <button class="chat-tool-btn ios-tools-quick-btn" id="fournityToolsBtn" type="button" title="Alat Pembantu Fournity (Furigana, Hanko, Kamus)" aria-label="Alat Fournity">⛩️</button>
                 <button class="chat-emoji chat-tool-btn ios-emoji-btn" id="chatEmojiBtn" type="button" title="Emoji & Stiker" aria-label="Pilih emoji">☺</button>
                 
                 <input type="file" id="chatImageUpload" accept="image/*" style="display: none;">
                 
                 <!-- Input Capsule -->
                 <div class="chat-input-wrapper ios-input-capsule">
-                    <textarea id="chatInput" rows="1" placeholder="iMessage..." autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send"></textarea>
+                    <textarea id="chatInput" rows="1" placeholder="iMessage Fournity..." autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send"></textarea>
                 </div>
                 
                 <!-- Voice Memo Mic Button -->
@@ -255,6 +648,483 @@
                 <button id="sendBtn" class="ios-send-bubble-btn" type="button" aria-label="Kirim pesan" title="Kirim Pesan">↑</button>
             </div>
         </section>
+
+        <!-- MODAL PELATIH PELAFALAN AI (SPEECH COACH) -->
+        <div id="speechCoachModal" class="speech-coach-overlay ios-alert-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="speechCoachTitle">
+            <div class="speech-coach-box ios-alert-box">
+                <div class="coach-top-header">
+                    <div class="coach-title-group">
+                        <span class="coach-icon-pill">🎙️</span>
+                        <div>
+                            <h3 id="speechCoachTitle" class="coach-title">Pelatih Pelafalan AI</h3>
+                            <span class="coach-sub">Japanese Accent & Pronunciation Coach</span>
+                        </div>
+                    </div>
+                    <button type="button" id="closeSpeechCoachBtn" class="coach-close-btn">✕</button>
+                </div>
+
+                <div class="coach-category-selector">
+                    <button type="button" class="coach-cat-btn is-active" data-cat="greetings">🌸 Salam Harian</button>
+                    <button type="button" class="coach-cat-btn" data-cat="n5">📚 Kalimat N5</button>
+                    <button type="button" class="coach-cat-btn" data-cat="anime">⚡ Anime & Keren</button>
+                </div>
+
+                <div class="coach-card-target">
+                    <div class="coach-target-japanese" id="coachTargetJp">こんにちは！ (Konnichiwa!)</div>
+                    <div class="coach-target-romaji" id="coachTargetRomaji">Konnichiwa!</div>
+                    <div class="coach-target-meaning" id="coachTargetMeaning">Halo / Selamat siang</div>
+                    <button type="button" id="coachListenNativeBtn" class="coach-btn-native">🔊 Dengarkan Suara Native</button>
+                </div>
+
+                <div class="coach-recorder-area">
+                    <button type="button" id="coachMicRecordBtn" class="coach-mic-large-btn" title="Ketuk untuk mulai bicara">
+                        <span class="coach-mic-symbol">🎤</span>
+                        <span id="coachRecordStateText">Ketuk untuk Bicara</span>
+                    </button>
+                    <p id="coachTranscribedText" class="coach-transcribed-preview">Suaramu akan terdeteksi di sini...</p>
+                </div>
+
+                <div id="coachResultSection" class="coach-result-section" style="display: none;">
+                    <div class="coach-score-container">
+                        <div class="coach-score-circle">
+                            <span id="coachScoreNum">0</span><small>%</small>
+                        </div>
+                        <div class="coach-score-feedback">
+                            <h4 id="coachScoreLabel">Sangat Fasih!</h4>
+                            <p id="coachScoreComment">Pelafalanmu sangat mirip native speaker Tokyo!</p>
+                        </div>
+                    </div>
+                    <div class="coach-result-actions">
+                        <button type="button" id="coachShareChatBtn" class="coach-btn-primary">📤 Bagikan Skor ke Chat (+30 XP)</button>
+                        <button type="button" id="coachNextPhraseBtn" class="coach-btn-secondary">🎲 Frasa Berikutnya</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ZEN AMBIENT SOUNDSCAPES -->
+        <div id="zenAudioModal" class="zen-audio-overlay ios-alert-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="zenModalTitle">
+            <div class="zen-audio-box ios-alert-box">
+                <div class="zen-top-header">
+                    <div class="zen-title-group">
+                        <span style="font-size: 22px;">🎐</span>
+                        <div>
+                            <h3 id="zenModalTitle" class="zen-title">Zen Study Soundscapes</h3>
+                            <span class="zen-sub">Audio Relaksasi & Konsentrasi Belajar Jepang</span>
+                        </div>
+                    </div>
+                    <button type="button" id="closeZenModalBtn" class="coach-close-btn">✕</button>
+                </div>
+
+                <div class="zen-tracks-grid">
+                    <button type="button" class="zen-track-card is-active" data-sound="fuurin">
+                        <span class="zen-track-icon">🎐</span>
+                        <strong>風鈴 (Fuurin)</strong>
+                        <small>Lonceng Angin Kaca Musim Panas Kuil Jepang</small>
+                    </button>
+                    <button type="button" class="zen-track-card" data-sound="shishi">
+                        <span class="zen-track-icon">🎋</span>
+                        <strong>鹿威し (Shishi-odoshi)</strong>
+                        <small>Air Gemericik & Ketukan Bambu Taman Zen</small>
+                    </button>
+                    <button type="button" class="zen-track-card" data-sound="rain">
+                        <span class="zen-track-icon">🌧️</span>
+                        <strong>東京の雨 (Tokyo Rain)</strong>
+                        <small>Hujan Lembut & Nada Hangat Lo-Fi</small>
+                    </button>
+                </div>
+
+                <div class="zen-controls-row">
+                    <button type="button" id="toggleZenPlayBtn" class="zen-play-master-btn">▶ Putar Zen Audio</button>
+                    <label class="zen-sfx-toggle">
+                        <input type="checkbox" id="chatSfxToggle" checked>
+                        <span>Efek Suara Chat (Kirim / Terima)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL GANTI BACKGROUND PESAN DENGAN GAMBAR -->
+        <div id="chatWallpaperModal" class="chat-custom-modal-overlay ios-alert-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="wallpaperModalTitle">
+            <div class="chat-custom-modal-box ios-alert-box wallpaper-modal-box">
+                <div class="custom-modal-header">
+                    <div class="custom-modal-title-wrap">
+                        <span class="custom-modal-icon">🖼️</span>
+                        <div>
+                            <h3 id="wallpaperModalTitle" class="custom-modal-title">Ganti Background Chat</h3>
+                            <span class="custom-modal-sub">Kustomisasi wallpaper obrolan dengan gambar estetik</span>
+                        </div>
+                    </div>
+                    <button type="button" id="closeWallpaperModalBtn" class="coach-close-btn" aria-label="Tutup">✕</button>
+                </div>
+
+                <div class="custom-modal-body">
+                    <!-- Pratinjau Miniatur Live -->
+                    <div class="wallpaper-live-preview-wrap">
+                        <div class="wallpaper-preview-screen" id="wallpaperPreviewScreen">
+                            <div class="preview-wallpaper-bg" id="previewWallpaperBg"></div>
+                            <div class="preview-wallpaper-tint" id="previewWallpaperTint"></div>
+                            <div class="preview-chat-content">
+                                <div class="preview-bubble preview-bubble-incoming">
+                                    <span>Konnichiwa! 🌸 Bagaimana tampilan wallpaper barumu?</span>
+                                    <small>10:00</small>
+                                </div>
+                                <div class="preview-bubble preview-bubble-outgoing">
+                                    <span>Keren banget! Sangat nyaman dibaca ✨</span>
+                                    <small>10:01 ✓✓</small>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="preview-hint">Pratinjau tampilan gelembung pesan di atas background</span>
+                    </div>
+
+                    <!-- Pilihan Unggah & URL -->
+                    <div class="wallpaper-source-options">
+                        <div class="wallpaper-upload-card">
+                            <input type="file" id="customWallpaperFileInput" accept="image/*" style="display: none;">
+                            <button type="button" id="triggerWallpaperUploadBtn" class="wallpaper-upload-btn">
+                                <span class="upload-btn-icon">📁</span>
+                                <div class="upload-btn-text">
+                                    <strong>Pilih Foto dari Galeri / Komputer</strong>
+                                    <small>Mendukung format JPG, PNG, WEBP</small>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div class="wallpaper-url-row">
+                            <input type="url" id="wallpaperUrlInput" placeholder="Atau masukkan tautan URL gambar (https://...)" class="wallpaper-url-field">
+                            <button type="button" id="applyWallpaperUrlBtn" class="wallpaper-url-btn">Gunakan URL</button>
+                        </div>
+                    </div>
+
+                    <!-- Koleksi Foto Card Milik Saya -->
+                    <div class="wallpaper-presets-section" id="wallpaperFotocardSection">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h4 class="presets-section-title" style="margin: 0;">🎴 Koleksi Foto Card Milik Saya</h4>
+                            <span id="wallpaperFotocardCount" style="font-size: 11px; color: var(--ios-gold); font-weight: 700;">0 Kartu</span>
+                        </div>
+                        <div class="wallpaper-presets-grid" id="wallpaperFotocardGrid">
+                            <!-- Injected dynamically via chat.js -->
+                        </div>
+                    </div>
+
+                    <!-- Preset Wallpaper Estetik Jepang -->
+                    <div class="wallpaper-presets-section">
+                        <h4 class="presets-section-title">Koleksi Estetik Jepang</h4>
+                        <div class="wallpaper-presets-grid">
+                            <button type="button" class="wallpaper-preset-card is-active" data-wp="default">
+                                <div class="preset-thumb-preview preset-thumb-default"></div>
+                                <span class="preset-name">Default Deep</span>
+                            </button>
+                            <button type="button" class="wallpaper-preset-card" data-wp="sakura">
+                                <div class="preset-thumb-preview" style="background-image: url('../gambar/wallpaper/wp_sakura_fuji.jpg');"></div>
+                                <span class="preset-name">🌸 Sakura Dusk</span>
+                            </button>
+                            <button type="button" class="wallpaper-preset-card" data-wp="tokyo">
+                                <div class="preset-thumb-preview" style="background-image: url('../gambar/wallpaper/wp_tokyo_night.jpg');"></div>
+                                <span class="preset-name">🌃 Tokyo Neon</span>
+                            </button>
+                            <button type="button" class="wallpaper-preset-card" data-wp="kyoto">
+                                <div class="preset-thumb-preview" style="background-image: url('../gambar/wallpaper/wp_kyoto_temple.jpg');"></div>
+                                <span class="preset-name">🎋 Kyoto Temple</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Pengaturan Filter / Kejernihan Teks -->
+                    <div class="wallpaper-adjustments-card">
+                        <div class="adjustment-slider-item">
+                            <div class="slider-label-row">
+                                <span>Kegelapan Lapisan (Agar teks terbaca jelas)</span>
+                                <strong id="wallpaperOverlayValText">45%</strong>
+                            </div>
+                            <input type="range" id="wallpaperOverlaySlider" min="0" max="85" value="45" step="5" class="custom-range-slider">
+                        </div>
+                        <div class="adjustment-slider-item">
+                            <div class="slider-label-row">
+                                <span>Efek Blur Background</span>
+                                <strong id="wallpaperBlurValText">0px</strong>
+                            </div>
+                            <input type="range" id="wallpaperBlurSlider" min="0" max="10" value="0" step="1" class="custom-range-slider">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-modal-footer">
+                    <button type="button" id="resetWallpaperBtn" class="btn-tool-mini is-ghost">🔄 Reset ke Default</button>
+                    <button type="button" id="saveWallpaperBtn" class="btn-tool-mini is-primary">✓ Terapkan Background</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL PENGATURAN SUARA NOTIFIKASI PESAN & KIRIM -->
+        <div id="chatSoundSettingsModal" class="chat-custom-modal-overlay ios-alert-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="soundModalTitle">
+            <div class="chat-custom-modal-box ios-alert-box sound-modal-box">
+                <div class="custom-modal-header">
+                    <div class="custom-modal-title-wrap">
+                        <span class="custom-modal-icon">🔔</span>
+                        <div>
+                            <h3 id="soundModalTitle" class="custom-modal-title">Pengaturan Suara Chat</h3>
+                            <span class="custom-modal-sub">Kustomisasi nada pesan masuk & suara kirim</span>
+                        </div>
+                    </div>
+                    <button type="button" id="closeSoundModalBtn" class="coach-close-btn" aria-label="Tutup">✕</button>
+                </div>
+
+                <!-- Tab Navigasi Kategori Suara -->
+                <div class="sound-modal-tabs">
+                    <button type="button" class="sound-tab-btn is-active" data-sound-tab="receive" id="tabSoundReceive">
+                        <span>📥</span> Pesan Masuk (Notifikasi)
+                    </button>
+                    <button type="button" class="sound-tab-btn" data-sound-tab="send" id="tabSoundSend">
+                        <span>📤</span> Pesan Terkirim
+                    </button>
+                </div>
+
+                <div class="custom-modal-body">
+                    <!-- PANEL 1: SUARA NOTIFIKASI PESAN MASUK -->
+                    <div id="soundTabPaneReceive" class="sound-tab-pane is-active">
+                        <div class="sound-toggle-row">
+                            <div class="toggle-info">
+                                <strong>Aktifkan Suara Pesan Masuk</strong>
+                                <small>Mainkan efek suara saat menerima pesan baru di chat</small>
+                            </div>
+                            <label class="ios-switch">
+                                <input type="checkbox" id="receiveSoundToggle" checked>
+                                <span class="ios-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="sound-options-list" id="receiveSoundList">
+                            <!-- Card Nada 1 -->
+                            <div class="sound-option-card is-selected" data-sound-id="chime_duo">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>🎵 Chime Dua Nada (Default)</strong>
+                                    <small>Nada cerah khas Fournity (1200Hz + 1500Hz)</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="receive" data-preview-id="chime_duo" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada 2 -->
+                            <div class="sound-option-card" data-sound-id="ios_ding">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>📱 iOS Minimal Ding</strong>
+                                    <small>Denting minimalis elegan bel kristal</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="receive" data-preview-id="ios_ding" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada 3 -->
+                            <div class="sound-option-card" data-sound-id="sakura_harp">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>🌸 Sakura Koto (Harmoni Jepang)</strong>
+                                    <small>Arpeggio pentatonik petikan senar tradisional Jepang</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="receive" data-preview-id="sakura_harp" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada 4 -->
+                            <div class="sound-option-card" data-sound-id="suzu_bell">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>⛩️ Suzu Lonceng Kuil Shinto</strong>
+                                    <small>Genta perunggu resonan yang menenangkan</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="receive" data-preview-id="suzu_bell" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada 5 -->
+                            <div class="sound-option-card" data-sound-id="retro_coin">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>🎮 8-Bit Retro Coin</strong>
+                                    <small>Koleksi koin game arkade klasik Jepang</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="receive" data-preview-id="retro_coin" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada 6 -->
+                            <div class="sound-option-card" data-sound-id="water_drop">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>💧 Water Droplet (Tetes Air)</strong>
+                                    <small>Sentakan lembut tetesan air jernih</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="receive" data-preview-id="water_drop" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada 7 -->
+                            <div class="sound-option-card" data-sound-id="marimba">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>🔔 Crystal Marimba</strong>
+                                    <small>Akord marimba hangat dan jernih</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="receive" data-preview-id="marimba" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 2: SUARA KIRIM PESAN -->
+                    <div id="soundTabPaneSend" class="sound-tab-pane" style="display: none;">
+                        <div class="sound-toggle-row">
+                            <div class="toggle-info">
+                                <strong>Aktifkan Suara Pesan Terkirim</strong>
+                                <small>Mainkan umpan balik audio saat Anda mengirim pesan</small>
+                            </div>
+                            <label class="ios-switch">
+                                <input type="checkbox" id="sendSoundToggle" checked>
+                                <span class="ios-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="sound-options-list" id="sendSoundList">
+                            <!-- Card Nada Kirim 1 -->
+                            <div class="sound-option-card is-selected" data-sound-id="swoosh">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>💨 Swoosh Udara (Default)</strong>
+                                    <small>Sapuan desiran udara naik yang cepat</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="send" data-preview-id="swoosh" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada Kirim 2 -->
+                            <div class="sound-option-card" data-sound-id="bubble_pop">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>🫧 Bubble Pop (iOS Style)</strong>
+                                    <small>Letupan gelembung renyah dan lembut</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="send" data-preview-id="bubble_pop" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada Kirim 3 -->
+                            <div class="sound-option-card" data-sound-id="bamboo_knock">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>🎋 Bamboo Tap (Shishi-odoshi)</strong>
+                                    <small>Ketukan kayu bambu alami dan berbobot</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="send" data-preview-id="bamboo_knock" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada Kirim 4 -->
+                            <div class="sound-option-card" data-sound-id="cyber_pip">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>⚡ Cyber Laser Pop</strong>
+                                    <small>Pip synthesizer futuristik cepat</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="send" data-preview-id="cyber_pip" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada Kirim 5 -->
+                            <div class="sound-option-card" data-sound-id="soft_pluck">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>🎶 Soft Pluck</strong>
+                                    <small>Petikan nada hangat melodi santai</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="send" data-preview-id="soft_pluck" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+
+                            <!-- Card Nada Kirim 6 -->
+                            <div class="sound-option-card" data-sound-id="mute">
+                                <div class="sound-radio-indicator">✓</div>
+                                <div class="sound-card-info">
+                                    <strong>🔇 Tanpa Suara (Hening)</strong>
+                                    <small>Kirim pesan tanpa suara efek</small>
+                                </div>
+                                <button type="button" class="test-sound-btn" data-preview-type="send" data-preview-id="mute" title="Dengarkan Contoh">▶ Tes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-modal-footer">
+                    <button type="button" id="closeSoundModalDoneBtn" class="btn-tool-mini is-primary" style="width: 100%; justify-content: center; padding: 10px 16px;">Selesai</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL PILIH FOTO PROFIL DARI KARTU KOLEKSI (VIP LAGEND) -->
+        <div id="cardAvatarModal" class="chat-custom-modal-overlay ios-alert-overlay" style="display: none; z-index: 10008;" role="dialog" aria-modal="true" aria-labelledby="cardAvatarModalTitle">
+            <div class="chat-custom-modal-box ios-alert-box wallpaper-modal-box" style="max-width: 440px;">
+                <div class="custom-modal-header">
+                    <div class="custom-modal-title-wrap">
+                        <span class="custom-modal-icon">👑</span>
+                        <div>
+                            <h3 id="cardAvatarModalTitle" class="custom-modal-title">Foto Profil & Efek VIP Lagend</h3>
+                            <span class="custom-modal-sub">Gunakan Foto Card sebagai avatar obrolan & aktifkan efek spesial</span>
+                        </div>
+                    </div>
+                    <button type="button" id="closeCardAvatarModalBtn" class="coach-close-btn" aria-label="Tutup">✕</button>
+                </div>
+
+                <div class="custom-modal-body" style="padding: 16px;">
+                    <!-- Pratinjau Avatar Aktif -->
+                    <div class="avatar-modal-current-wrap" style="display: flex; align-items: center; gap: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 12px 14px; margin-bottom: 16px;">
+                        <div id="modalAvatarPreviewWrapper" class="pass-avatar-wrapper" style="width: 52px; height: 52px;">
+                            <img id="modalAvatarPreviewImg" src="../gambar/icon.png" alt="Avatar" class="pass-avatar-img" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 800; font-size: 13px; color: #fff;" id="modalAvatarUserName">Pengguna</div>
+                            <div style="font-size: 11px; color: var(--ios-gold); margin-top: 2px;" id="modalAvatarStatusText">Status: Standar</div>
+                            <div style="font-size: 9.5px; color: var(--ios-system-gray); margin-top: 2px;">Kartu Lagend akan menampilkan efek mahkota emas & aura menyala di chat!</div>
+                        </div>
+                        <button type="button" id="resetCardAvatarBtn" class="btn-tool-mini is-ghost" style="padding: 7px 12px; font-size: 11px; border-radius: 10px; color: #FF6584; border: 1px solid rgba(255,101,132,0.4); display: flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap; font-weight: 700;" title="Kembalikan foto profil ke default">
+                            🔄 Default
+                        </button>
+                    </div>
+
+                    <!-- Grid Kartu Koleksi -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-weight: 700; font-size: 12px; color: #fff;">Pilih dari Koleksi Kartumu:</span>
+                        <span id="modalAvatarCardCount" style="font-size: 11px; color: #FFD166; font-weight: 700;">0 Kartu</span>
+                    </div>
+
+                    <div id="modalAvatarCardGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; padding: 4px;">
+                        <!-- Injected dynamically via chat.js -->
+                    </div>
+                </div>
+
+                <div class="custom-modal-footer">
+                    <button type="button" id="closeCardAvatarDoneBtn" class="btn-tool-mini is-primary" style="width: 100%; justify-content: center; padding: 10px 16px;">Selesai</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL PRATINJAU SEBELUM KIRIM FOTO -->
+        <div id="photoSendPreviewModal" class="chat-custom-modal-overlay ios-alert-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="photoPreviewTitle">
+            <div class="chat-custom-modal-box ios-alert-box photo-preview-modal-box">
+                <div class="custom-modal-header">
+                    <div class="custom-modal-title-wrap">
+                        <span class="custom-modal-icon">📷</span>
+                        <div>
+                            <h3 id="photoPreviewTitle" class="custom-modal-title">Kirim Foto</h3>
+                            <span class="custom-modal-sub">Pratinjau foto sebelum dikirim ke ruang chat</span>
+                        </div>
+                    </div>
+                    <button type="button" id="cancelPhotoPreviewBtn" class="coach-close-btn" aria-label="Batal">✕</button>
+                </div>
+                <div class="custom-modal-body photo-preview-body">
+                    <div class="photo-preview-image-wrap">
+                        <img id="photoPreviewImg" src="" alt="Pratinjau Foto">
+                    </div>
+                    <div class="photo-preview-caption-wrap">
+                        <input type="text" id="photoCaptionInput" class="ios-search-field photo-caption-field" placeholder="Tambah keterangan pesan / kanji (opsional)..." autocomplete="off">
+                    </div>
+                </div>
+                <div class="custom-modal-footer">
+                    <button type="button" id="abortPhotoSendBtn" class="btn-tool-mini is-ghost">Batal</button>
+                    <button type="button" id="confirmPhotoSendBtn" class="btn-tool-mini is-primary">📤 Kirim Foto</button>
+                </div>
+            </div>
+        </div>
 
         <!-- LIGHTBOX VIEWER FOTO -->
         <div id="imageLightboxOverlay" class="image-lightbox-overlay" style="display: none;">
@@ -302,10 +1172,10 @@
                     <span class="denied-lock-badge">🔒</span>
                 </div>
                 <h3 id="deniedModalTitle" class="denied-title" style="font-family: -apple-system, system-ui, sans-serif;">Akses Ditolak</h3>
-                <p class="denied-subtitle" style="color: #FF453A;">TRINITY CORE • KHUSUS TIM PENGEMBANG</p>
+                <p class="denied-subtitle" style="color: #FF453A;">NIHONGO FOURNITY CORE • KHUSUS 4 PILAR TIM</p>
                 <div class="denied-desc">
                     <p>Mohon maaf, Anda <strong>tidak diperbolehkan masuk</strong> ke ruangan ini.</p>
-                    <p class="denied-desc-sub">Ruang obrolan privat ini dibatasi secara ketat hanya untuk <strong>Founders & Tim Pengembang (Developers)</strong> Nihongo Trinity. Silakan berdiskusi di <strong>Public Lounge</strong> atau belajar bersama <strong>Aoi Sensei</strong>.</p>
+                    <p class="denied-desc-sub">Ruang obrolan privat ini dibatasi secara ketat hanya untuk <strong>4 Pilar Tim Pengembang (Founders)</strong> Nihongo Fournity (Umaedi, Iqbal, Rifki, Fasya). Silakan berdiskusi di <strong>Public Lounge</strong>, bermain di <strong>Shiritori Dojo</strong>, atau belajar bersama <strong>Aoi Sensei</strong>.</p>
                 </div>
                 <div class="denied-actions">
                     <button type="button" id="closeDeniedModalBtn" class="denied-btn-primary" style="background: #0A84FF; border-radius: 12px; font-weight: 700;">Saya Mengerti</button>
@@ -318,7 +1188,7 @@
             <div class="ios-banner-header">
                 <div class="ios-banner-app-icon"><span>⛩️</span></div>
                 <div class="ios-banner-meta">
-                    <span class="ios-banner-app-name">TRINITY BROADCAST</span>
+                    <span class="ios-banner-app-name">FOURNITY BROADCAST</span>
                     <span class="ios-banner-dev-badge" id="alertSenderBadge">👨‍💻 Dev: <strong id="alertSenderName">Umaedi</strong></span>
                 </div>
                 <span class="ios-banner-time">Baru Saja</span>
@@ -335,8 +1205,207 @@
 
     </main>
 
+    <!-- ==========================================================================
+         SIMULASI 1: LAYAR BERDERING iOS (OUTGOING CALLING SCREEN - 6 DETIK)
+         ========================================================================== -->
+    <div id="callingOverlayModal" class="calling-overlay-modal" style="display: none;" role="dialog" aria-modal="true" aria-label="Memanggil">
+        <div class="calling-center-content">
+            <div class="calling-avatar-ripple-box">
+                <span class="calling-ripple"></span>
+                <span class="calling-ripple r2"></span>
+                <span class="calling-ripple r3"></span>
+                <img id="callingAvatarImg" src="" alt="Lawan Bicara" class="calling-avatar-img">
+            </div>
+
+            <h2 class="calling-target-name" id="callingTargetName">Sakura-chan</h2>
+            <div class="calling-target-jp" id="callingTargetJp">さくら · 渋谷</div>
+            <div class="calling-status-text" id="callingStatusText">
+                <svg class="ios-svg-icon spin-slow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                </svg>
+                <span>Berdering... (呼び出し中)</span>
+            </div>
+        </div>
+
+        <div class="calling-bottom-bar">
+            <button type="button" class="btn-cancel-call" id="btnCancelCalling" aria-label="Batalkan Panggilan">
+                <svg class="ios-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <span class="cancel-call-label">Batalkan</span>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         SIMULASI 2: LAYAR PANGGILAN TERHUBUNG iOS (IN-CALL CONNECTED SCREEN - REALISTIS)
+         ========================================================================== -->
+    <div id="connectedCallOverlay" class="connected-call-overlay" style="display: none;" role="dialog" aria-modal="true" aria-label="Panggilan Aktif">
+        <div class="call-viewport-wrapper">
+            
+            <!-- POSISI DETIK HIJAU DI PALING ATAS LAYAR -->
+            <div class="top-call-timer-pill" id="callTimerDisplay">
+                <span class="timer-green-dot"></span>
+                <span id="callDurationText">00:00</span>
+            </div>
+
+            <!-- Header: Foto Profil Lawan Bicara (Ukuran Besar) & Nama -->
+            <div class="call-header-info">
+                <div class="call-header-avatar-wrap">
+                    <img id="connectedAvatarImg" src="" alt="Avatar" class="call-header-avatar">
+                    <span class="call-header-live-badge"></span>
+                </div>
+                <h3 class="call-header-name" id="connectedCallerName">Sakura-chan</h3>
+            </div>
+
+            <!-- AREA VIDEO HORIZONTAL (MP4 PLAYER + MINIMALIST FALLBACK) -->
+            <div class="kaiwa-video-stage">
+                <video id="kaiwaVideoElement" class="kaiwa-video-element" playsinline loop autoplay muted></video>
+
+                <div class="video-fallback-studio" id="videoFallbackStudio" style="display: none;">
+                    <div class="studio-avatar-box">
+                        <img id="studioAvatarImg" src="" alt="Lawan Bicara" class="studio-avatar-img">
+                    </div>
+                    <div class="studio-wave-equalizer">
+                        <span class="studio-eq-bar"></span>
+                        <span class="studio-eq-bar"></span>
+                        <span class="studio-eq-bar"></span>
+                        <span class="studio-eq-bar"></span>
+                        <span class="studio-eq-bar"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOMBOL KONTROL PANGGILAN iOS (REAL SVG ICONS - PINNED DI PALING BAWAH) -->
+            <div class="ios-call-controls-dock">
+                <!-- Kiri: Logo Speaker untuk Membisukan Suara Video -->
+                <div class="call-control-item">
+                    <button type="button" class="call-control-btn btn-speaker-control" id="btnKaiwaSpeakerMute" aria-label="Speaker / Mute">
+                        <span id="speakerIconSlot">
+                            <svg class="ios-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon>
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                            </svg>
+                        </span>
+                    </button>
+                    <span class="call-control-label" id="labelSpeakerMute">Speaker</span>
+                </div>
+
+                <!-- Tengah: Tombol Akhiri Panggilan Berwarna Merah iOS -->
+                <div class="call-control-item">
+                    <button type="button" class="call-control-btn btn-end-call-main" id="btnKaiwaEndCall" aria-label="Akhiri Panggilan">
+                        <svg class="ios-svg-icon end-call-svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 9c-3.15 0-6.07 1.09-8.41 2.92-.72.56-.84 1.58-.29 2.3l1.32 1.76c.45.6 1.3.74 1.93.31 1.63-1.12 3.51-1.89 5.45-1.89s3.82.77 5.45 1.89c.63.43 1.48.29 1.93-.31l1.32-1.76c.55-.72.43-1.74-.29-2.3C18.07 10.09 15.15 9 12 9z"/>
+                        </svg>
+                    </button>
+                    <span class="call-control-label" style="color: #ff6961;">Akhiri</span>
+                </div>
+
+                <!-- Kanan: Tombol Volume / Audio Adjust -->
+                <div class="call-control-item">
+                    <button type="button" class="call-control-btn btn-volume-control" id="btnKaiwaVolumeControl" aria-label="Volume">
+                        <svg class="ios-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="21" x2="4" y2="14"></line>
+                            <line x1="4" y1="10" x2="4" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12" y2="3"></line>
+                            <line x1="20" y1="21" x2="20" y2="16"></line>
+                            <line x1="20" y1="12" x2="20" y2="3"></line>
+                            <line x1="1" y1="14" x2="7" y2="14"></line>
+                            <line x1="9" y1="8" x2="15" y2="8"></line>
+                            <line x1="17" y1="16" x2="23" y2="16"></line>
+                        </svg>
+                    </button>
+                    <span class="call-control-label" id="labelVolumeControl">Volume</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         SIMULASI 3: STORY VIEWER MODAL iOS (FULLSCREEN STORY PLAYER)
+         ========================================================================== -->
+    <div id="statusStoryModal" class="status-story-modal" style="display: none;" role="dialog" aria-modal="true" aria-label="Lihat Status">
+        <div>
+            <!-- Top Progress Indicator -->
+            <div class="story-progress-bar-wrap">
+                <div class="story-progress-segment">
+                    <div class="story-progress-fill" id="storyProgressFill"></div>
+                </div>
+            </div>
+
+            <!-- Story Header -->
+            <div class="story-modal-header">
+                <div class="story-header-author">
+                    <img id="storyAuthorImg" src="" alt="Author" class="story-author-img">
+                    <div>
+                        <div class="story-author-name" id="storyAuthorName">Sakura-chan</div>
+                        <div class="story-author-time" id="storyAuthorTime">15 menit yang lalu</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-story" id="btnCloseStory" aria-label="Tutup Cerita">✕</button>
+            </div>
+        </div>
+
+        <!-- Story Stage Backdrop & Card -->
+        <div class="story-modal-stage">
+            <img id="storyBackdropMedia" src="" alt="Story Media" class="story-backdrop-media">
+            <div class="story-caption-card">
+                <div class="story-caption-jp" id="storyCaptionJp"></div>
+                <div class="story-caption-romaji" id="storyCaptionRomaji"></div>
+                <div class="story-caption-id" id="storyCaptionId"></div>
+            </div>
+        </div>
+
+        <!-- Story Bottom Reply Bar -->
+        <div class="story-modal-bottom-bar">
+            <input type="text" class="story-reply-input" id="storyReplyInput" placeholder="Balas cerita..." autocomplete="off">
+            <button type="button" class="btn-story-reaction" id="btnStoryReaction" aria-label="Suka Status" title="Suka Status">
+                <svg viewBox="0 0 24 24" fill="#FF2D55" stroke="#FF2D55" stroke-width="1.5" style="width: 20px; height: 20px;">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         iOS BOTTOM PHONE TAB BAR (NAVIGASI RESMI APLIKASI KOMUNIKASI iOS)
+         ========================================================================== -->
+    <nav class="ios-bottom-phone-bar" id="mainIosTabBar" aria-label="Navigasi Bawah">
+        <button type="button" class="ios-phone-tab-btn" id="tabNavFavorites">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span>Favorit</span>
+        </button>
+        <button type="button" class="ios-phone-tab-btn" id="tabNavContacts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+            <span>Panggilan</span>
+        </button>
+        <!-- Panggilan Acak diganti menjadi Status! -->
+        <button type="button" class="ios-phone-tab-btn" id="tabNavStatus">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" stroke-dasharray="4 2"></circle>
+                <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
+            </svg>
+            <span>Status</span>
+        </button>
+        <button type="button" class="ios-phone-tab-btn is-active" id="tabNavChats">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Pesan</span>
+        </button>
+    </nav>
+
     <script src="../script.js"></script>
     <script type="module" src="../admin.js"></script>
     <script type="module" src="../chat.js"></script>
+    <script src="kaiwa.js"></script>
 </body>
 </html>

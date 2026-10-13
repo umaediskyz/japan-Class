@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Trinity | Kuis & Refleks Dojo</title>
+    <title>Nihongo Fournity | Kuis & Refleks Dojo</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../css/kuis.css">
 </head>
@@ -139,8 +139,16 @@
                 currentStreak += 1;
                 bestScore = Math.max(bestScore, currentScore);
                 localStorage.setItem("nihongoBestScore", bestScore);
+                try {
+                    const todayStr = new Date().toISOString().slice(0, 10);
+                    const actKey = `fournity_activity_${todayStr}`;
+                    let act = JSON.parse(localStorage.getItem(actKey) || '{"kana":0,"kotoba":0,"radar":0,"kanji":0,"chat":0,"checkin":0}');
+                    act.radar = (act.radar || 0) + 1;
+                    localStorage.setItem(actKey, JSON.stringify(act));
+                } catch(e) {}
                 updateQuizStats();
                 window.dispatchEvent(new CustomEvent('updateLeaderboard', { detail: bestScore }));
+                window.dispatchEvent(new Event('storage'));
                 playChime('success');
                 if (feedbackText) {
                     feedbackText.innerText = "SEMPURNA! 正解 ⚡";

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- Primary Meta Tags -->
+    <title>Nihongo Fournity | Game Multiplayer Arena (マルチプレイヤー)</title>
+    <meta name="title" content="Nihongo Fournity | Game Multiplayer Arena (マルチプレイヤー)">
+    <meta name="description" content="Pusat game multiplayer bahasa Jepang real-time: Kana Speed Battle, duel Kanji Showdown, Jankenpon Royale, Kotoba Shiritori, dan Reflex Dojo online bersama teman!">
+    <meta name="theme-color" content="#080b11">
+    <link rel="icon" type="image/png" href="../gambar/icon.png">
+
+    <!-- Fonts & Core Styles -->
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../css/multiplayer.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="main-page">
+
+    <!-- Sakura Falling Particles Canvas -->
+    <canvas id="sakuraCanvas"></canvas>
+
+    <!-- App Shell Container -->
+    <main class="mp-page-shell">
+
+        <!-- ==========================================================================
+             TOP STATUS BAR
+             ========================================================================== -->
+        <header class="mp-top-bar">
+            <a href="hiburan.html" class="mp-back-btn" id="btnBackToHiburan">
+                <span aria-hidden="true">←</span> Hiburan
+            </a>
+
+            <div class="mp-status-pills">
+                <div class="mp-live-pill" title="Pemain online di jaringan Fournity">
+                    <span class="mp-live-dot"></span>
+                    <span id="liveOnlineCount">1 Online</span>
+                </div>
+                <div class="mp-user-chip" id="userProfileChip">
+                    <img src="../gambar/icon.png" alt="Avatar" class="mp-user-chip-avatar" id="myChipAvatar">
+                    <span id="myChipName">Gakusei</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ==========================================================================
+             VIEW 1: LOBBY ARENA (MATCHMAKING & ROOM LIST)
+             ========================================================================== -->
+        <section id="viewLobby" class="mp-view-section">
+            
+            <!-- BAGIAN PALING ATAS: GABUNG KODE & ROOM MENUNGGU LAWAN -->
+            <div class="mp-top-join-section" aria-label="Akses Cepat Room & Lawan">
+                
+                <!-- Card 1: Gabung Room dengan Kode -->
+                <div class="mp-quick-join-card">
+                    <div class="mp-top-card-head">
+                        <h3><span>🔑</span> Gabung dengan Kode</h3>
+                        <span class="mp-top-card-badge mp-badge-cyan">4-Digit PIN</span>
+                    </div>
+                    <p style="color: #94A3B8; font-size: 12px; margin: 0 0 12px;">Punya kode dari teman? Masukkan untuk langsung bertanding:</p>
+                    <div class="mp-join-row">
+                        <input type="text" id="inputRoomCode" class="mp-input-text mp-join-input" maxlength="4" placeholder="Misal: 7482" autocomplete="off">
+                        <button type="button" class="mp-btn-join" id="btnJoinByCode">Gabung Room →</button>
+                    </div>
+                </div>
+
+                <!-- Card 2: Room Menunggu Lawan (Lobby Live) -->
+                <div class="mp-live-rooms-card">
+                    <div class="mp-top-card-head">
+                        <h3><span>📡</span> Room Menunggu Lawan</h3>
+                        <span class="mp-top-card-badge mp-badge-red">Live Lobby</span>
+                    </div>
+                    <div class="mp-top-room-scroll mp-room-list" id="publicRoomList">
+                        <div class="mp-room-empty">
+                            <span>📡 Memindai room publik yang menunggu lawan...</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Hero Battle Banner (Pusat Permainan) -->
+            <div class="mp-hero-banner">
+                <div class="mp-hero-badge" id="mpHeroBadge">⚡ REAL-TIME MULTIPLAYER ARENA</div>
+                <h1 class="mp-hero-title" id="mpHeroTitle">Multiplayer <span>Game Arena (対戦)</span></h1>
+                <p class="mp-hero-desc" id="mpHeroDesc">
+                    Pilih permainan di bawah untuk membuka <strong>pengaturan custom room</strong> (atur max pemain, kategori soal, ronde &amp; waktu), tanding cepat online, atau latihan duel lawan AI Sensei!
+                </p>
+            </div>
+
+            <!-- GAME SELECTOR HUB (5 MULTIPLAYER GAMES) -->
+            <div class="mp-game-select-section" aria-label="Pilihan Permainan Multiplayer">
+                <div class="mp-section-title-row">
+                    <h3>🎮 Pilih Permainan Multiplayer</h3>
+                    <span class="mp-game-count-badge">Klik Game untuk Setting</span>
+                </div>
+
+                <div class="mp-game-grid-hub" id="gameGridHub">
+                    <!-- Game 1: Kana Speed -->
+                    <button type="button" class="mp-game-card is-active" data-gametype="kana" onclick="window.openGameSetupModal ? window.openGameSetupModal('kana') : null">
+                        <span class="mp-game-badge badge-popular">Populer</span>
+                        <div class="mp-game-icon-box icon-kana">⚡</div>
+                        <div class="mp-game-card-body">
+                            <span class="mp-game-jp">カナスピード</span>
+                            <h4>Kana Speed</h4>
+                            <p>Tebak kilat Romaji Hiragana &amp; Katakana 1v1</p>
+                        </div>
+                    </button>
+
+                    <!-- Game 2: Kanji Showdown -->
+                    <button type="button" class="mp-game-card" data-gametype="kanji" onclick="window.openGameSetupModal ? window.openGameSetupModal('kanji') : null">
+                        <span class="mp-game-badge badge-duel">N5 - N4</span>
+                        <div class="mp-game-icon-box icon-kanji">🀄</div>
+                        <div class="mp-game-card-body">
+                            <span class="mp-game-jp">漢字ストライク</span>
+                            <h4>Kanji Showdown</h4>
+                            <p>Duel tebak arti &amp; makna Kanji esensial</p>
+                        </div>
+                    </button>
+
+                    <!-- Game 3: Jankenpon Royale -->
+                    <button type="button" class="mp-game-card" data-gametype="janken" onclick="window.openGameSetupModal ? window.openGameSetupModal('janken') : null">
+                        <span class="mp-game-badge badge-fun">Royale 1v1</span>
+                        <div class="mp-game-icon-box icon-janken">🤜</div>
+                        <div class="mp-game-card-body">
+                            <span class="mp-game-jp">じゃんけん対決</span>
+                            <h4>Jankenpon Royale</h4>
+                            <p>Adu suit Batu-Gunting-Kertas Jepang seru</p>
+                        </div>
+                    </button>
+
+                    <!-- Game 4: Kotoba Shiritori -->
+                    <button type="button" class="mp-game-card" data-gametype="shiritori" onclick="window.openGameSetupModal ? window.openGameSetupModal('shiritori') : null">
+                        <span class="mp-game-badge badge-intel">Kata Kilat</span>
+                        <div class="mp-game-icon-box icon-shiritori">🗣️</div>
+                        <div class="mp-game-card-body">
+                            <span class="mp-game-jp">しりとり対戦</span>
+                            <h4>Kotoba Shiritori</h4>
+                            <p>Estafet sambung huruf akhir kata kosakata</p>
+                        </div>
+                    </button>
+
+                    <!-- Game 5: Reflex Dojo -->
+                    <button type="button" class="mp-game-card" data-gametype="dojo" onclick="window.openGameSetupModal ? window.openGameSetupModal('dojo') : null">
+                        <span class="mp-game-badge badge-reflex">Refleks 0.5s</span>
+                        <div class="mp-game-icon-box icon-dojo">🥋</div>
+                        <div class="mp-game-card-body">
+                            <span class="mp-game-jp">早押し道場</span>
+                            <h4>Reflex Dojo</h4>
+                            <p>Reaksi tangkis &amp; serang kilat aba-aba ninja</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ==========================================================================
+             VIEW 2: WAITING ROOM / LOBBY MATCH
+             ========================================================================== -->
+        <section id="viewWaiting" class="mp-view-section" style="display: none;">
+            <div class="mp-waiting-card">
+                
+                <span class="mp-hero-badge" id="waitingRoomModeBadge">HIRAGANA · 10 SOAL</span>
+                <h2 style="color: #fff; font-size: 1.5rem; margin: 10px 0 8px;">Lobby Pertandingan</h2>
+                <p style="color: #94A3B8; font-size: 13px; margin: 0 0 16px;">Bagikan kode room ini kepada temanmu untuk bertarung!</p>
+
+                <!-- Room Code Box -->
+                <div class="mp-room-code-badge">
+                    <span>KODE ROOM: <strong id="waitingRoomCode" style="font-size: 18px; color: #fff;">----</strong></span>
+                    <button type="button" class="mp-room-copy-btn" id="btnCopyRoomLink" title="Salin Tautan / Kode Room">📋 Salin</button>
+                </div>
+
+                <!-- 1v1 / Multi-Player Versus Display -->
+                <div class="mp-vs-stage" id="waitingVsStage">
+                    <!-- Player 1 (Me) -->
+                    <div class="mp-player-slot is-ready" id="p1Slot">
+                        <img src="../gambar/icon.png" alt="Avatar Player 1" class="mp-player-slot-avatar" id="p1Avatar">
+                        <span class="mp-player-slot-name" id="p1Name">Kamu</span>
+                        <span class="mp-player-slot-status status-ready" id="p1Status">✓ Siap Bertarung</span>
+                    </div>
+
+                    <!-- VS Circle -->
+                    <div class="mp-vs-circle" id="waitingVsCircle">VS</div>
+
+                    <!-- Player 2 (Enemy) -->
+                    <div class="mp-player-slot" id="p2Slot">
+                        <img src="../gambar/icon.png" alt="Avatar Player 2" class="mp-player-slot-avatar" id="p2Avatar" style="border-color: #64748B; opacity: 0.7;">
+                        <span class="mp-player-slot-name" id="p2Name" style="color: #94A3B8;">Menunggu Lawan...</span>
+                        <span class="mp-player-slot-status status-waiting" id="p2Status">⏳ Menunggu...</span>
+                    </div>
+                </div>
+
+                <!-- Waiting Action Buttons -->
+                <div class="mp-waiting-actions">
+                    <button type="button" class="mp-btn-start" id="btnStartGame" disabled>
+                        ⚔️ MULAI PERTANDINGAN
+                    </button>
+                    <button type="button" class="mp-btn-cancel" id="btnLeaveRoom">
+                        ✕ Tinggalkan Room
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             VIEW 3: BATTLE ARENA (LIVE SPEED RACE)
+             ========================================================================== -->
+        <section id="viewBattle" class="mp-view-section" style="display: none;">
+            <div class="mp-battle-stage">
+                
+                <!-- Live Race Track Card (Balapan Avatar) -->
+                <div class="mp-race-track-card" id="battleRaceTrackCard">
+                    <!-- My Lane -->
+                    <div class="mp-lane">
+                        <div class="mp-lane-user">
+                            <img src="../gambar/icon.png" alt="Me" class="mp-lane-avatar" id="battleMyAvatar">
+                            <span class="mp-lane-name" id="battleMyName">Kamu</span>
+                        </div>
+                        <div class="mp-lane-track">
+                            <div class="mp-lane-fill" id="battleMyProgress" style="width: 0%;"></div>
+                        </div>
+                        <div class="mp-lane-score" id="battleMyScore">0 PTS</div>
+                    </div>
+
+                    <!-- Enemy Lane -->
+                    <div class="mp-lane">
+                        <div class="mp-lane-user">
+                            <img src="../gambar/icon.png" alt="Enemy" class="mp-lane-avatar lane-enemy" id="battleEnemyAvatar">
+                            <span class="mp-lane-name" id="battleEnemyName">Lawan</span>
+                        </div>
+                        <div class="mp-lane-track">
+                            <div class="mp-lane-fill lane-fill-enemy" id="battleEnemyProgress" style="width: 0%;"></div>
+                        </div>
+                        <div class="mp-lane-score" id="battleEnemyScore">0 PTS</div>
+                    </div>
+                </div>
+
+                <!-- Battle Question Flashcard -->
+                <div class="mp-flashcard-box" id="battleFlashcardBox">
+                    
+                    <!-- Round Header & Timer -->
+                    <div class="mp-round-indicator">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span class="mp-round-tag" id="battleGameBadge" style="background: rgba(0, 245, 212, 0.15); border-color: var(--mp-accent-cyan); color: var(--mp-accent-cyan);">⚡ KANA SPEED</span>
+                            <span class="mp-round-tag" id="battleRoundText">Ronde 1 / 10</span>
+                        </div>
+                        <div class="mp-timer-digit">
+                            <span>⏱️</span>
+                            <span id="battleTimerText">05.0s</span>
+                        </div>
+                    </div>
+
+                    <!-- Timer Bar Track -->
+                    <div class="mp-timer-bar-track">
+                        <div class="mp-timer-bar-fill" id="battleTimerBar" style="width: 100%;"></div>
+                    </div>
+
+                    <!-- Jankenpon Hand Clash Animation Box (Visible in Janken Mode) -->
+                    <div class="janken-clash-box" id="jankenClashBox">
+                        <span class="janken-hand-clash" id="jankenMyHand">✊</span>
+                        <span style="font-weight: 800; color: var(--mp-gold); font-size: 15px;">VS</span>
+                        <span class="janken-hand-clash" id="jankenEnemyHand">✌️</span>
+                    </div>
+
+                    <!-- Giant Target (Kana/Kanji/Prompt) -->
+                    <div class="mp-target-kana" id="battleTargetKana">あ</div>
+                    <div class="mp-target-hint" id="battleTargetHint">Tebak cara baca Romaji yang benar:</div>
+
+                    <!-- 4 Options Grid -->
+                    <div class="mp-options-grid" id="battleOptionsGrid">
+                        <button type="button" class="mp-option-btn" data-opt="a">a</button>
+                        <button type="button" class="mp-option-btn" data-opt="i">i</button>
+                        <button type="button" class="mp-option-btn" data-opt="u">u</button>
+                        <button type="button" class="mp-option-btn" data-opt="e">e</button>
+                    </div>
+
+                    <!-- Floating Reaction Container -->
+                    <div id="floatingReactionBox" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden;"></div>
+                </div>
+
+                <!-- Floating Live Emote Reaction Dock -->
+                <div class="mp-emote-dock">
+                    <button type="button" class="mp-emote-btn" data-emote="🔥" title="Semangat!">🔥</button>
+                    <button type="button" class="mp-emote-btn" data-emote="⚡" title="Cepat!">⚡</button>
+                    <button type="button" class="mp-emote-btn" data-emote="😱" title="Kaget!">😱</button>
+                    <button type="button" class="mp-emote-btn" data-emote="👏" title="Hebat!">👏</button>
+                    <button type="button" class="mp-emote-btn" data-emote="👑" title="Juara!">👑</button>
+                    <button type="button" class="mp-emote-btn" data-emote="😭" title="Gawat!">😭</button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             VIEW 4: VICTORY PODIUM / GAME OVER
+             ========================================================================== -->
+        <section id="viewPodium" class="mp-view-section" style="display: none;">
+            <div class="mp-podium-card">
+                
+                <div class="mp-crown-trophy" id="podiumIcon">👑</div>
+                <h2 class="mp-podium-title" id="podiumTitle">KEMENANGAN TELAK!</h2>
+                <p class="mp-podium-sub" id="podiumSub">Kamu menyelesaikan seluruh ronde dengan kecepatan luar biasa!</p>
+
+                <!-- Comparison Grid -->
+                <div class="mp-stats-compare">
+                    <!-- My Stat Card -->
+                    <div class="mp-player-stat-card winner" id="podiumMyCard">
+                        <img src="../gambar/icon.png" alt="My Stat" class="mp-stat-avatar" id="podiumMyAvatar">
+                        <strong style="color: #fff; font-size: 14px;" id="podiumMyName">Kamu</strong>
+                        <div class="mp-stat-score-total" id="podiumMyScore">1,240</div>
+                        <div class="mp-stat-meta-row">
+                            <span id="podiumMyCorrect">🎯 10 / 10 Benar</span>
+                            <span id="podiumMyAvgSpeed">⚡ Rata-rata: 1.1s</span>
+                            <span id="podiumMyStreak">🔥 Max Streak: 10</span>
+                        </div>
+                    </div>
+
+                    <!-- Enemy Stat Card -->
+                    <div class="mp-player-stat-card" id="podiumEnemyCard">
+                        <img src="../gambar/icon.png" alt="Enemy Stat" class="mp-stat-avatar" id="podiumEnemyAvatar">
+                        <strong style="color: #fff; font-size: 14px;" id="podiumEnemyName">Lawan</strong>
+                        <div class="mp-stat-score-total" id="podiumEnemyScore">850</div>
+                        <div class="mp-stat-meta-row">
+                            <span id="podiumEnemyCorrect">🎯 7 / 10 Benar</span>
+                            <span id="podiumEnemyAvgSpeed">⚡ Rata-rata: 1.8s</span>
+                            <span id="podiumEnemyStreak">🔥 Max Streak: 5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exp Gain Pill -->
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 209, 102, 0.15); border: 1px solid var(--mp-gold); color: var(--mp-gold); padding: 8px 18px; border-radius: 999px; font-weight: 800; font-size: 13px; margin: 10px 0;">
+                    <span>⭐ Reward XP Diperoleh:</span>
+                    <strong id="podiumExpGained">+120 XP</strong>
+                </div>
+
+                <!-- Podium Action Buttons -->
+                <div class="mp-podium-actions">
+                    <button type="button" class="mp-btn-rematch" id="btnRematch">
+                        🔄 Tanding Lagi (Rematch)
+                    </button>
+                    <button type="button" class="mp-btn-leave" id="btnPodiumLobby">
+                        🚪 Kembali ke Lobby
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             POPUP MODAL: SETTING CUSTOM GAME & ATUR MAX PEMAIN
+             ========================================================================== -->
+        <div id="gameSetupOverlay" class="mp-modal-overlay" aria-hidden="true">
+            <div class="mp-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalGameTitle">
+                
+                <!-- Modal Header -->
+                <div class="mp-modal-header">
+                    <div class="mp-modal-game-info">
+                        <div class="mp-modal-game-icon icon-kana" id="modalGameIcon">⚡</div>
+                        <div>
+                            <span class="mp-game-jp" id="modalGameJp">カナスピード</span>
+                            <h3 style="margin: 0; color: #fff; font-size: 1.15rem; font-weight: 800;" id="modalGameTitle">Kana Speed Battle</h3>
+                            <span class="mp-top-card-badge mp-badge-cyan" id="modalGameBadge">Populer</span>
+                        </div>
+                    </div>
+                    <button type="button" class="mp-modal-close-btn" id="btnCloseGameSetup" aria-label="Tutup Dialog">✕</button>
+                </div>
+
+                <p style="color: #94A3B8; font-size: 12.5px; line-height: 1.5; margin: 0 0 16px;" id="modalGameDesc">
+                    Adu kecepatan tebak Romaji Hiragana &amp; Katakana 1v1 secara live!
+                </p>
+
+                <!-- Quick Action Buttons -->
+                <div class="mp-modal-quick-actions">
+                    <button type="button" class="mp-modal-quick-btn btn-modal-match" id="modalBtnQuickMatch">
+                        <span>⚡ Tanding Cepat (Online)</span>
+                    </button>
+                    <button type="button" class="mp-modal-quick-btn btn-modal-bot" id="modalBtnPlayBot">
+                        <span>🤖 Lawan AI Sensei</span>
+                    </button>
+                </div>
+
+                <div class="mp-modal-divider">Atur Room Kustom</div>
+
+                <!-- Custom Setting 1: Kapasitas Max Pemain -->
+                <div class="mp-custom-setting-row">
+                    <div class="mp-setting-label">
+                        <span>👥 Kapasitas Max Pemain</span>
+                        <span style="color: var(--mp-accent-cyan); font-size: 11px;" id="valMaxPlayers">2 Pemain (1v1 Duel)</span>
+                    </div>
+                    <div class="mp-setting-options-wrap" id="modalMaxPlayersSelectorGroup">
+                        <button type="button" class="mp-setting-option-btn is-active" data-max="2">2 Pemain (1v1)</button>
+                        <button type="button" class="mp-setting-option-btn" data-max="3">3 Pemain</button>
+                        <button type="button" class="mp-setting-option-btn" data-max="4">4 Pemain (Party)</button>
+                    </div>
+                </div>
+
+                <!-- Custom Setting 2: Kategori / Tingkat -->
+                <div class="mp-custom-setting-row">
+                    <div class="mp-setting-label">
+                        <span id="lblModalCategory">🎯 Kategori Soal / Mode</span>
+                        <span style="color: var(--mp-gold); font-size: 11px;" id="valCategory">Hiragana</span>
+                    </div>
+                    <div class="mp-setting-options-wrap" id="modalModeSelectorGroup">
+                        <!-- Injected dynamically based on selected game -->
+                    </div>
+                </div>
+
+                <!-- Custom Setting 3: Jumlah Ronde -->
+                <div class="mp-custom-setting-row">
+                    <div class="mp-setting-label">
+                        <span>⏱️ Jumlah Ronde</span>
+                        <span style="color: #fff; font-size: 11px;" id="valRounds">10 Soal</span>
+                    </div>
+                    <div class="mp-setting-options-wrap" id="modalRoundsSelectorGroup">
+                        <button type="button" class="mp-setting-option-btn" data-rounds="5">5 Ronde</button>
+                        <button type="button" class="mp-setting-option-btn is-active" data-rounds="10">10 Ronde</button>
+                        <button type="button" class="mp-setting-option-btn" data-rounds="15">15 Ronde</button>
+                        <button type="button" class="mp-setting-option-btn" data-rounds="20">20 Ronde</button>
+                    </div>
+                </div>
+
+                <!-- Custom Setting 4: Batas Waktu per Soal -->
+                <div class="mp-custom-setting-row">
+                    <div class="mp-setting-label">
+                        <span>⚡ Batas Waktu Tiap Soal</span>
+                        <span style="color: #fff; font-size: 11px;" id="valTimer">5.0 Detik</span>
+                    </div>
+                    <div class="mp-setting-options-wrap" id="modalTimerSelectorGroup">
+                        <button type="button" class="mp-setting-option-btn" data-timer="3">3s (Kilat)</button>
+                        <button type="button" class="mp-setting-option-btn is-active" data-timer="5">5s (Normal)</button>
+                        <button type="button" class="mp-setting-option-btn" data-timer="8">8s (Santai)</button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="button" class="mp-modal-submit-btn" id="modalBtnCreateRoom">
+                    <span>➕ Buat Room &amp; Buka Lobby Pertandingan</span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==========================================================================
+         FLOATING DOCK NAVIGASI BAWAH MODERN
+         ========================================================================== -->
+    <nav class="main-bottom-nav" aria-label="Navigasi utama">
+        <a class="main-bottom-item" href="../index.html" aria-label="Beranda">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 10.5 12 3l9 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </span>
+            <span>Home</span>
+        </a>
+        <a class="main-bottom-item is-active" href="hiburan.html" aria-label="Hiburan">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/>
+                </svg>
+            </span>
+            <span>Hiburan</span>
+        </a>
+        <a class="main-bottom-item main-bottom-message" href="pesan.html" aria-label="Buka obrolan pesan grup">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                    <circle cx="8.5" cy="12" r="1.2" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="1.2" fill="currentColor"/>
+                    <circle cx="15.5" cy="12" r="1.2" fill="currentColor"/>
+                </svg>
+                <span id="msgBadge" class="msg-badge" style="display: none;">0</span>
+            </span>
+            <span class="main-bottom-label">Pesan</span>
+        </a>
+        <a class="main-bottom-item" href="jadwal.html" aria-label="Jadwal">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="4" rx="3"/>
+                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                    <circle cx="12" cy="15" r="2"/>
+                </svg>
+            </span>
+            <span>Jadwal</span>
+        </a>
+        <a class="main-bottom-item" href="info.html" aria-label="Info">
+            <span class="main-bottom-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+            </span>
+            <span>Info</span>
+        </a>
+    </nav>
+
+    <!-- Global Framework Scripts -->
+    <script type="module" src="../admin.js"></script>
+    <script src="../script.js"></script>
+    <!-- Standalone Multiplayer UI Controller (Universal file:// & http:// support) -->
+    <script src="../multiplayer-ui.js"></script>
+    <!-- Multiplayer Realtime Logic Engine -->
+    <script type="module" src="../multiplayer.js"></script>
+</body>
+</html>
+

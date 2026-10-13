@@ -18,14 +18,33 @@ const chatBox = document.getElementById("chatBox");
 const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
 const sessionKey = "nihongoChatUser";
+const legacyMockUsers = ["umaedi", "iqbal", "rifki", "fasya"];
+const authedUid = localStorage.getItem("nihongoChatUid");
+const authedEmail = (localStorage.getItem("nihongoChatEmail") || "").toLowerCase();
+
 let currentUser = localStorage.getItem(sessionKey);
+
+// Bersihkan akun mock sistem lama jika tidak memiliki sesi login Firebase Auth yang sah
+if (!authedUid && currentUser && (legacyMockUsers.includes(currentUser.toLowerCase()) || currentUser.startsWith("Gakusei_"))) {
+    localStorage.removeItem(sessionKey);
+    localStorage.removeItem("fournity_user_avatar");
+    localStorage.removeItem("fournity_custom_avatar");
+    localStorage.removeItem("fournity_avatar_rarity");
+    localStorage.removeItem("fournity_avatar_serial");
+    currentUser = null;
+}
+
 if (!currentUser) {
-    currentUser = "Gakusei_" + Math.floor(1000 + Math.random() * 9000);
+    currentUser = authedUid ? (localStorage.getItem("nihongoChatUser") || "Member Fournity") : "Tamu";
     localStorage.setItem(sessionKey, currentUser);
 }
 
-const coreMembers = ["umaedi", "iqbal", "rifki", "fasya"];
-const isCore = currentUser && coreMembers.includes(currentUser.toLowerCase());
+// Hanya user Firebase Auth resmi dengan email developer / founder yang mendapatkan akses Core
+const isCore = !!authedUid && (
+    authedEmail.includes("umaedi") || 
+    authedEmail.includes("fournity") ||
+    authedEmail === "umaediskyz6@gmail.com"
+);
 
 let currentRoom = null; 
 let activeChatListener = null;
@@ -81,6 +100,8 @@ const attachmentMenuPopover = document.getElementById("attachmentMenuPopover");
 const attachImageBtn = document.getElementById("attachImageBtn");
 const attachVoiceBtn = document.getElementById("attachVoiceBtn");
 const attachStickerBtn = document.getElementById("attachStickerBtn");
+const attachHankoBtn = document.getElementById("attachHankoBtn");
+const attachCoachBtn = document.getElementById("attachCoachBtn");
 const chatEmojiBtn = document.getElementById("chatEmojiBtn");
 const inchatEmojiDrawer = document.getElementById("inchatEmojiDrawer");
 const emojiGridContent = document.getElementById("emojiGridContent");
@@ -93,6 +114,58 @@ const actionPinLabel = document.getElementById("actionPinLabel");
 const actionDeleteBtn = document.getElementById("actionDeleteBtn");
 const reactionQuickBar = document.getElementById("reactionQuickBar");
 const chatToast = document.getElementById("chatToast");
+
+// Elemen Fitur Baru: Shiritori Dojo
+const shiritoriGameBar = document.getElementById("shiritoriGameBar");
+const shiritoriTargetKana = document.getElementById("shiritoriTargetKana");
+const shiritoriStreakText = document.getElementById("shiritoriStreakText");
+const shiritoriLastWordInfo = document.getElementById("shiritoriLastWordInfo");
+const shiritoriHintBtn = document.getElementById("shiritoriHintBtn");
+const shiritoriResetBtn = document.getElementById("shiritoriResetBtn");
+
+// Elemen Fitur Baru: Fournity Tools Drawer (Furigana, Hanko, Challenge)
+const fournityToolsBtn = document.getElementById("fournityToolsBtn");
+const fournityToolsDrawer = document.getElementById("fournityToolsDrawer");
+const closeToolsDrawerBtn = document.getElementById("closeToolsDrawerBtn");
+const furiganaInput = document.getElementById("furiganaInput");
+const convertFuriganaBtn = document.getElementById("convertFuriganaBtn");
+const furiganaResultBox = document.getElementById("furiganaResultBox");
+const furiganaRubyDisplay = document.getElementById("furiganaRubyDisplay");
+const furiganaRomajiDisplay = document.getElementById("furiganaRomajiDisplay");
+const furiganaArtiDisplay = document.getElementById("furiganaArtiDisplay");
+const copyFuriganaBtn = document.getElementById("copyFuriganaBtn");
+const listenFuriganaBtn = document.getElementById("listenFuriganaBtn");
+const insertFuriganaBtn = document.getElementById("insertFuriganaBtn");
+const hankoGrid = document.getElementById("hankoGrid");
+const randomizeChallengeBtn = document.getElementById("randomizeChallengeBtn");
+const sendChallengeToChatBtn = document.getElementById("sendChallengeToChatBtn");
+const chCardQuestion = document.getElementById("chCardQuestion");
+const chCardOptions = document.getElementById("chCardOptions");
+
+// Elemen Fitur Baru: AI Japanese Speech Coach
+const speechCoachModal = document.getElementById("speechCoachModal");
+const speechCoachBtn = document.getElementById("speechCoachBtn");
+const closeSpeechCoachBtn = document.getElementById("closeSpeechCoachBtn");
+const coachTargetJp = document.getElementById("coachTargetJp");
+const coachTargetRomaji = document.getElementById("coachTargetRomaji");
+const coachTargetMeaning = document.getElementById("coachTargetMeaning");
+const coachListenNativeBtn = document.getElementById("coachListenNativeBtn");
+const coachMicRecordBtn = document.getElementById("coachMicRecordBtn");
+const coachRecordStateText = document.getElementById("coachRecordStateText");
+const coachTranscribedText = document.getElementById("coachTranscribedText");
+const coachResultSection = document.getElementById("coachResultSection");
+const coachScoreNum = document.getElementById("coachScoreNum");
+const coachScoreLabel = document.getElementById("coachScoreLabel");
+const coachScoreComment = document.getElementById("coachScoreComment");
+const coachShareChatBtn = document.getElementById("coachShareChatBtn");
+const coachNextPhraseBtn = document.getElementById("coachNextPhraseBtn");
+
+// Elemen Fitur Baru: Zen Audio Modal
+const zenAudioModal = document.getElementById("zenAudioModal");
+const zenAudioBtn = document.getElementById("zenAudioBtn");
+const closeZenModalBtn = document.getElementById("closeZenModalBtn");
+const toggleZenPlayBtn = document.getElementById("toggleZenPlayBtn");
+const chatSfxToggle = document.getElementById("chatSfxToggle");
 
 let activeMsgContext = null;
 let toastTimeout = null;
@@ -732,65 +805,180 @@ if (recordAudioBtn) {
 }
 
 // ==========================================
-// FOTO ATTACHMENT
+// FOTO ATTACHMENT & PRATINJAU PENGIRIMAN
 // ==========================================
-if (sendImageBtn && chatImageUpload) {
-    sendImageBtn.addEventListener("click", () => chatImageUpload.click());
-    chatImageUpload.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
-                const maxSize = 400; 
-                let width = img.width; let height = img.height;
-                if (width > height) { if (width > maxSize) { height *= maxSize / width; width = maxSize; } } 
-                else { if (height > maxSize) { width *= maxSize / height; height = maxSize; } }
-                
-                canvas.width = width; canvas.height = height;
-                ctx.drawImage(img, 0, 0, width, height);
-                const base64Img = canvas.toDataURL("image/jpeg", 0.6); 
+const photoSendPreviewModal = document.getElementById("photoSendPreviewModal");
+const cancelPhotoPreviewBtn = document.getElementById("cancelPhotoPreviewBtn");
+const abortPhotoSendBtn = document.getElementById("abortPhotoSendBtn");
+const confirmPhotoSendBtn = document.getElementById("confirmPhotoSendBtn");
+const photoPreviewImg = document.getElementById("photoPreviewImg");
+const photoCaptionInput = document.getElementById("photoCaptionInput");
+let pendingPhotoBase64 = null;
 
-                if (confirm("Kirim gambar ini ke ruang chat?")) {
-                    if (currentRoom === "sensei") {
-                        sendSenseiMessage("", base64Img, null);
-                    } else {
-                        const dbRefName = currentRoom === "core" ? "messages" : "messages_public";
-                        let payload = { name: currentUser, message: "", image: base64Img, timestamp: Date.now() };
-                        if (activeReplyData) payload.replyTo = activeReplyData;
-                        push(ref(db, dbRefName), payload);
-                    }
-                    cancelReply();
+function closePhotoSendPreview() {
+    if (photoSendPreviewModal) photoSendPreviewModal.style.display = "none";
+    pendingPhotoBase64 = null;
+    if (photoPreviewImg) photoPreviewImg.src = "";
+    if (photoCaptionInput) photoCaptionInput.value = "";
+}
+
+if (cancelPhotoPreviewBtn) cancelPhotoPreviewBtn.addEventListener("click", closePhotoSendPreview);
+if (abortPhotoSendBtn) abortPhotoSendBtn.addEventListener("click", closePhotoSendPreview);
+
+function processAndPreviewImageFile(file) {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith("image/")) {
+        if (typeof showChatToast === 'function') {
+            showChatToast("Berkas harus berupa gambar!", "⚠️");
+        }
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+            // Kompresi resolusi ke maksimal 1000px agar tajam dan ringan (< 80KB)
+            const maxSize = 1000;
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+                if (width > maxSize) {
+                    height = Math.round((height * maxSize) / width);
+                    width = maxSize;
                 }
-            };
-            img.src = event.target.result;
+            } else {
+                if (height > maxSize) {
+                    width = Math.round((width * maxSize) / height);
+                    height = maxSize;
+                }
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            const base64Img = canvas.toDataURL("image/jpeg", 0.78);
+
+            pendingPhotoBase64 = base64Img;
+            if (photoPreviewImg) photoPreviewImg.src = base64Img;
+            if (photoCaptionInput) photoCaptionInput.value = "";
+            if (photoSendPreviewModal) photoSendPreviewModal.style.display = "flex";
+            if (photoCaptionInput) {
+                setTimeout(() => photoCaptionInput.focus(), 100);
+            }
         };
-        reader.readAsDataURL(file);
-        chatImageUpload.value = ""; 
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Listener input file gambar
+if (chatImageUpload) {
+    chatImageUpload.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+            processAndPreviewImageFile(file);
+        }
+        chatImageUpload.value = "";
+    });
+}
+
+// Tombol Kirim Foto dari Modal Pratinjau
+if (confirmPhotoSendBtn) {
+    confirmPhotoSendBtn.addEventListener("click", () => {
+        if (!pendingPhotoBase64) return;
+        const caption = photoCaptionInput ? photoCaptionInput.value.trim() : "";
+
+        if (currentRoom === "sensei") {
+            sendSenseiMessage(caption, pendingPhotoBase64, null);
+        } else {
+            const targetRoom = currentRoom || "public";
+            const dbRefName = targetRoom === "core" ? "messages" : (targetRoom === "shiritori" ? "messages_shiritori" : "messages_public");
+            const myAvatar = localStorage.getItem("fournity_user_avatar") || localStorage.getItem("avatar_" + currentUser);
+            const myAvatarRarity = localStorage.getItem("fournity_avatar_rarity") || localStorage.getItem("avatar_rarity_" + currentUser) || "";
+            const myAvatarSerial = localStorage.getItem("fournity_avatar_serial") || "";
+            const cleanAvatar = myAvatar ? myAvatar.replace(/^(\.\.\/|\.\/)+/, '') : "";
+
+            let payload = {
+                name: currentUser,
+                message: caption,
+                image: pendingPhotoBase64,
+                timestamp: Date.now()
+            };
+            if (cleanAvatar) {
+                payload.avatar = cleanAvatar;
+                if (myAvatarRarity) payload.avatarRarity = myAvatarRarity;
+                if (myAvatarSerial) payload.avatarSerial = myAvatarSerial;
+            }
+            if (activeReplyData) payload.replyTo = activeReplyData;
+            push(ref(db, dbRefName), payload);
+        }
+
+        if (typeof window.playZenSoundEffect === 'function') {
+            window.playZenSoundEffect('send');
+        }
+        cancelReply();
+        closePhotoSendPreview();
+        isScrolledUp = false;
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+        if (typeof showChatToast === 'function') {
+            showChatToast("Foto berhasil dikirim ke chat! 📸", "✓");
+        }
+    });
+}
+
+if (photoCaptionInput) {
+    photoCaptionInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            if (confirmPhotoSendBtn) confirmPhotoSendBtn.click();
+        }
+    });
+}
+
+// Dukungan Paste Gambar dari Clipboard (Ctrl + V)
+if (chatInput) {
+    chatInput.addEventListener("paste", (e) => {
+        const clipboardItems = (e.clipboardData || window.clipboardData)?.items;
+        if (clipboardItems) {
+            for (let i = 0; i < clipboardItems.length; i++) {
+                if (clipboardItems[i].type && clipboardItems[i].type.startsWith("image/")) {
+                    const blob = clipboardItems[i].getAsFile();
+                    if (blob) {
+                        processAndPreviewImageFile(blob);
+                        e.preventDefault();
+                        break;
+                    }
+                }
+            }
+        }
     });
 }
 
 // ==========================================
-// LIGHTBOX VIEWER
+// LIGHTBOX VIEWER FOTO
 // ==========================================
 function openLightbox(src) {
     if (!imageLightboxOverlay || !lightboxImg) return;
     lightboxImg.src = src;
     imageLightboxOverlay.style.display = "flex";
 }
+window.openLightbox = openLightbox;
 
 if (closeLightbox) {
-    closeLightbox.addEventListener("click", () => {
-        imageLightboxOverlay.style.display = "none";
+    closeLightbox.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (imageLightboxOverlay) imageLightboxOverlay.style.display = "none";
     });
 }
 
 if (imageLightboxOverlay) {
     imageLightboxOverlay.addEventListener("click", (e) => {
-        if (e.target === imageLightboxOverlay) imageLightboxOverlay.style.display = "none";
+        if (e.target !== lightboxImg) {
+            imageLightboxOverlay.style.display = "none";
+        }
     });
 }
 
@@ -798,7 +986,9 @@ if (imageLightboxOverlay) {
 // PREVIEW ROOM & LISTENER
 // ==========================================
 function listenRoomPreview(roomType) {
-    const refName = roomType === "core" ? "messages" : "messages_public";
+    let refName = "messages_public";
+    if (roomType === "core") refName = "messages";
+    else if (roomType === "shiritori") refName = "messages_shiritori";
     const recentMessages = query(ref(db, refName), limitToLast(30));
     
     onValue(recentMessages, (snapshot) => {
@@ -815,18 +1005,18 @@ function listenRoomPreview(roomType) {
                 }
             });
 
-            const lastMsgEl = document.getElementById(roomType === "core" ? "lastMsgCore" : "lastMsgPublic");
-            const timeEl = document.getElementById(roomType === "core" ? "timeCore" : "timePublic");
-            const badgeEl = document.getElementById(roomType === "core" ? "badgeCore" : "badgePublic");
+            const lastMsgEl = document.getElementById(roomType === "core" ? "lastMsgCore" : (roomType === "shiritori" ? "lastMsgShiritori" : "lastMsgPublic"));
+            const timeEl = document.getElementById(roomType === "core" ? "timeCore" : (roomType === "shiritori" ? "timeShiritori" : "timePublic"));
+            const badgeEl = document.getElementById(roomType === "core" ? "badgeCore" : (roomType === "shiritori" ? null : "badgePublic"));
 
             if (roomType === "core" && !isCore) {
-                if (lastMsgEl) lastMsgEl.textContent = "🔒 Ruang privat khusus tim pengembang & founder.";
+                if (lastMsgEl) lastMsgEl.textContent = "🔒 Ruang privat khusus 4 pilar Nihongo Fournity.";
                 if (badgeEl) badgeEl.style.display = "none";
                 return;
             }
 
             if (lastMsgData && lastMsgEl && timeEl) {
-                let msgText = lastMsgData.image ? "📷 Mengirim foto" : (lastMsgData.audio ? "🎤 Voice Note" : lastMsgData.message);
+                let msgText = lastMsgData.image ? "📷 Mengirim foto" : (lastMsgData.audio ? "🎤 Voice Note" : (lastMsgData.hanko ? `💮 Stempel: ${lastMsgData.hanko.title}` : lastMsgData.message));
                 if (lastMsgData.isCountdown) msgText = "⚠️ Pembersihan sistem dimulai...";
                 if (lastMsgData.isPostClear) msgText = "✅ Ruang obrolan bersih.";
 
@@ -863,7 +1053,7 @@ function showCoreAccessDeniedModal() {
     if (coreAccessDeniedModal) {
         coreAccessDeniedModal.style.display = "flex";
     } else {
-        alert("🔒 AKSES DITOLAK\n\nMohon maaf, Anda tidak diperbolehkan masuk ke ruangan ini.\nRuang obrolan privat ini dibatasi secara ketat khusus untuk Founders & Tim Pengembang (Developers) Nihongo Trinity.");
+        alert("🔒 AKSES DITOLAK\n\nMohon maaf, Anda tidak diperbolehkan masuk ke ruangan ini.\nRuang obrolan privat Fournity Core khusus untuk Pengembang / Tim Inti yang masuk dengan Akun Firebase resmi.");
     }
 }
 
@@ -886,7 +1076,7 @@ if (coreAccessDeniedModal) {
 }
 
 // ==========================================
-// SWITCH ROOM (PUBLIC / SENSEI / CORE)
+// SWITCH ROOM (PUBLIC / SENSEI / SHIRITORI / CORE)
 // ==========================================
 window.openRoom = function(type) {
     if (type === "core" && !isCore) {
@@ -908,11 +1098,12 @@ window.openRoom = function(type) {
     const onlineCountText = document.getElementById("onlineCountText");
 
     if (type === "core") {
-        if(roomLabel) roomLabel.textContent = "TRINITY CORE (PRIVATE)"; 
-        if(roomTitle) roomTitle.textContent = "Markas Utama Tim";
+        if(roomLabel) roomLabel.textContent = "FOURNITY CORE (4 PILAR)"; 
+        if(roomTitle) roomTitle.textContent = "Markas 4 Pilar Fournity";
         if(roomIcon) { roomIcon.textContent = "🛡️"; roomIcon.style.background = "#D32F2F"; }
         if(coreMemberAvatarList) coreMemberAvatarList.style.display = "flex";
         if(clearSenseiBtn) clearSenseiBtn.style.display = "none";
+        if(shiritoriGameBar) shiritoriGameBar.style.display = "none";
     } else if (type === "sensei") {
         if(roomLabel) roomLabel.textContent = "AI SENSEI 1-ON-1 DOJO"; 
         if(roomTitle) roomTitle.textContent = "Aoi Sensei (葵先生)";
@@ -920,12 +1111,23 @@ window.openRoom = function(type) {
         if(coreMemberAvatarList) coreMemberAvatarList.style.display = "none";
         if(onlineCountText) onlineCountText.innerHTML = `<span style="color:#FF758C; font-weight:600;">🌸 Aoi Sensei Online • Siap Menjawab 24 Jam</span>`;
         if(clearSenseiBtn) clearSenseiBtn.style.display = "grid";
+        if(shiritoriGameBar) shiritoriGameBar.style.display = "none";
+    } else if (type === "shiritori") {
+        if(roomLabel) roomLabel.textContent = "SHIRITORI DOJO (しりとり)"; 
+        if(roomTitle) roomTitle.textContent = "Game Sambung Kata Jepang";
+        if(roomIcon) { roomIcon.textContent = "🎮"; roomIcon.style.background = "linear-gradient(135deg, #30D158, #007A3D)"; }
+        if(coreMemberAvatarList) coreMemberAvatarList.style.display = "none";
+        if(clearSenseiBtn) clearSenseiBtn.style.display = "none";
+        if(shiritoriGameBar) shiritoriGameBar.style.display = "flex";
+        if(onlineCountText) onlineCountText.innerHTML = `<span style="color:#30D158; font-weight:600;">🎮 Sambung Kata Aktif • Aturan: Jangan berakhiran 'ん'</span>`;
+        if (typeof renderShiritoriUI === 'function') renderShiritoriUI();
     } else {
-        if(roomLabel) roomLabel.textContent = "PUBLIC LOUNGE"; 
-        if(roomTitle) roomTitle.textContent = "Ruang Diskusi Publik";
+        if(roomLabel) roomLabel.textContent = "FOURNITY PUBLIC LOUNGE"; 
+        if(roomTitle) roomTitle.textContent = "Komunitas Nihongo Fournity";
         if(roomIcon) { roomIcon.textContent = "🌐"; roomIcon.style.background = "#1E88E5"; }
         if(coreMemberAvatarList) coreMemberAvatarList.style.display = "none"; 
         if(clearSenseiBtn) clearSenseiBtn.style.display = "none";
+        if(shiritoriGameBar) shiritoriGameBar.style.display = "none";
     }
 
     if (chatBox) chatBox.replaceChildren();
@@ -969,8 +1171,8 @@ window.openRoom = function(type) {
         return;
     }
 
-    const dbRefName = type === "core" ? "messages" : "messages_public";
-    const typingRefName = type === "core" ? "typing_core" : "typing_public";
+    const dbRefName = type === "core" ? "messages" : (type === "shiritori" ? "messages_shiritori" : "messages_public");
+    const typingRefName = type === "core" ? "typing_core" : (type === "shiritori" ? "typing_shiritori" : "typing_public");
 
     // Listener pesan tersemat (pinned)
     activePinnedListener = onValue(ref(db, "pinned_" + type), (snapshot) => {
@@ -993,6 +1195,14 @@ window.openRoom = function(type) {
             if (unreadScrollBadge) {
                 unreadScrollBadge.textContent = unreadWhileScrolled > 99 ? "99+" : unreadWhileScrolled;
                 unreadScrollBadge.style.display = "block";
+            }
+        }
+
+        if (data && data.name !== currentUser && data.name !== "SYSTEM") {
+            if (data.timestamp && Date.now() - data.timestamp < 15000) {
+                if (typeof window.playZenSoundEffect === 'function') {
+                    window.playZenSoundEffect('receive');
+                }
             }
         }
     });
@@ -1094,6 +1304,7 @@ if (cardCore) {
 }
 
 listenRoomPreview("public");
+listenRoomPreview("shiritori");
 listenRoomPreview("core");
 
 // ==========================================
@@ -1391,6 +1602,7 @@ function sendSenseiMessage(text, image = null, audio = null) {
         localStorage.setItem(historyKey, JSON.stringify(history));
         pendingMessages.push({ data: senseiMsg, key: "sensei_" + senseiMsg.timestamp });
         renderMessage(senseiMsg, "sensei_" + senseiMsg.timestamp);
+        if (typeof window.playZenSoundEffect === 'function') window.playZenSoundEffect('receive');
         if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
     }, typingDelay);
 }
@@ -1460,7 +1672,7 @@ function generateRealisticSenseiReply(rawText, image = null, audio = null) {
     }
 
     if (raw.includes("siapa kamu") || raw.includes("kamu siapa") || raw.includes("nama kamu") || raw.includes("tentang kamu") || raw.includes("kenalan")) {
-        return `Watashi wa Aoi Sensei desu (私は葵先生です 🌸).\n\nSaya adalah asisten tutor bahasa Jepang pribadi untuk sahabat-sahabat pelajar di **Nihongo Trinity**!\n\nSaya siap membimbingmu belajar:\n1. Huruf **Hiragana & Katakana**\n2. Bedah **Kanji** (arti, guratan, on'yomi & kun'yomi)\n3. Tata bahasa (**Bunpou**) & rahasia partikel\n4. Kosakata percakapan sehari-hari & anime\n\nDouzo yoroshiku onegaishimasu! (Mohon bantuannya ya!) ✨`;
+        return `Watashi wa Aoi Sensei desu (私は葵先生です 🌸).\n\nSaya adalah asisten tutor bahasa Jepang pribadi untuk sahabat-sahabat pelajar di **Nihongo Fournity** (4 Pilar Komunitas)!\n\nSaya siap membimbingmu belajar:\n1. Huruf **Hiragana & Katakana**\n2. Bedah **Kanji** (arti, guratan, on'yomi & kun'yomi)\n3. Arena kata **Kotoba Shiritori Dojo**\n4. Latihan lafal aksen dengan **Speech Coach**\n5. Tata bahasa (**Bunpou**) & rahasia partikel\n\nDouzo yoroshiku onegaishimasu! (Mohon bantuannya ya!) ✨`;
     }
 
     // Terima Kasih (Arigatou)
@@ -1650,6 +1862,125 @@ function generateRealisticSenseiReply(rawText, image = null, audio = null) {
 // ==========================================
 // RENDER PESAN NORMAL & SYSTEM
 // ==========================================
+
+// Helper cari profil pengguna secara case-insensitive
+function getGlobalUserProfile(name) {
+    if (!name) return null;
+    if (window.userProfiles && window.userProfiles[name]) return window.userProfiles[name];
+    if (window.userProfiles) {
+        const lower = name.toLowerCase();
+        for (const key of Object.keys(window.userProfiles)) {
+            if (key.toLowerCase() === lower) return window.userProfiles[key];
+        }
+    }
+    try {
+        const localProfiles = JSON.parse(localStorage.getItem("fournity_user_profiles") || "{}");
+        if (localProfiles[name]) return localProfiles[name];
+        const lower = name.toLowerCase();
+        for (const key of Object.keys(localProfiles)) {
+            if (key.toLowerCase() === lower) return localProfiles[key];
+        }
+    } catch(e) {}
+    return null;
+}
+
+// Resolusi foto profil & efek rarity terkini untuk pengirim pesan
+function resolveSenderActiveAvatar(senderName) {
+    const isMe = senderName === currentUser;
+    const isPages = window.location.pathname.includes('/pages/');
+    const defaultIcon = isPages ? "../gambar/icon.png" : "gambar/icon.png";
+
+    let activeAvatar = "";
+    let activeRarity = "";
+
+    if (isMe) {
+        // Untuk diri sendiri: prioritaskan localStorage avatar pengguna saat ini
+        activeAvatar = localStorage.getItem("fournity_user_avatar") || localStorage.getItem("fournity_custom_avatar") || "";
+        activeRarity = activeAvatar ? (localStorage.getItem("fournity_avatar_rarity") || "") : "";
+    } else {
+        // Untuk pengguna lain: ambil profil real-time dari Firebase RTDB user_profiles
+        const prof = getGlobalUserProfile(senderName);
+        if (prof) {
+            activeAvatar = prof.photoBase64 || prof.avatar || "";
+            activeRarity = activeAvatar ? (prof.avatarRarity || "") : "";
+        }
+    }
+
+    let finalPhoto = defaultIcon;
+    if (activeAvatar) {
+        const clean = activeAvatar.replace(/^(\.\.\/|\.\/)+/, '');
+        if (activeAvatar.startsWith('data:') || activeAvatar.startsWith('http://') || activeAvatar.startsWith('https://')) {
+            finalPhoto = activeAvatar;
+        } else {
+            finalPhoto = isPages ? ('../' + clean) : clean;
+        }
+    }
+
+    return {
+        photoUrl: finalPhoto,
+        rarity: activeRarity,
+        hasCustomAvatar: !!activeAvatar
+    };
+}
+
+// Perbarui seketika semua elemen pesan di layar tanpa me-replace chatBox
+function updateAllRenderedChatAvatars() {
+    if (!chatBox) return;
+    const msgNodes = chatBox.querySelectorAll(".msg");
+    msgNodes.forEach(msgDiv => {
+        const senderName = msgDiv.dataset.senderName;
+        if (!senderName || senderName === "SYSTEM" || senderName === "AI_SENSEI") return;
+
+        const resolved = resolveSenderActiveAvatar(senderName);
+        const avatarEl = msgDiv.querySelector(".message-avatar");
+        const senderStrong = msgDiv.querySelector(".msg-header strong");
+
+        // 1. Perbarui Avatar & Border Efek VIP
+        if (avatarEl) {
+            avatarEl.classList.remove("is-vip-legend", "is-avatar-ur", "is-avatar-rare");
+            if (resolved.rarity === "legendary") {
+                avatarEl.classList.add("is-vip-legend");
+            } else if (resolved.rarity === "ultra_rare") {
+                avatarEl.classList.add("is-avatar-ur");
+            } else if (resolved.rarity === "rare") {
+                avatarEl.classList.add("is-avatar-rare");
+            }
+
+            const imgEl = avatarEl.querySelector("img");
+            if (imgEl && imgEl.getAttribute("src") !== resolved.photoUrl) {
+                imgEl.src = resolved.photoUrl;
+            }
+        }
+
+        // 2. Perbarui Lencana / Badge Rarity Pengirim di Header Pesan
+        if (senderStrong) {
+            const oldBadges = senderStrong.querySelectorAll(".tag-vip-legend, .tag-ur-collector, .tag-rare-collector");
+            oldBadges.forEach(b => b.remove());
+
+            if (resolved.rarity === "legendary") {
+                const b = document.createElement("span");
+                b.className = "tag-vip-legend";
+                b.title = "Pemilik Foto Card Lagend";
+                b.textContent = "👑 VIP";
+                senderStrong.insertBefore(b, senderStrong.querySelector(".tag-fournity-founder, .tag-sensei, .tag-fournity-gakusei") || null);
+            } else if (resolved.rarity === "ultra_rare") {
+                const b = document.createElement("span");
+                b.className = "tag-ur-collector";
+                b.title = "Pemilik Foto Card Ultra Rare";
+                b.textContent = "💜 UR";
+                senderStrong.insertBefore(b, senderStrong.querySelector(".tag-fournity-founder, .tag-sensei, .tag-fournity-gakusei") || null);
+            } else if (resolved.rarity === "rare") {
+                const b = document.createElement("span");
+                b.className = "tag-rare-collector";
+                b.title = "Pemilik Foto Card Rare";
+                b.textContent = "💎 RARE";
+                senderStrong.insertBefore(b, senderStrong.querySelector(".tag-fournity-founder, .tag-sensei, .tag-fournity-gakusei") || null);
+            }
+        }
+    });
+}
+window.updateAllRenderedChatAvatars = updateAllRenderedChatAvatars;
+
 function renderMessage(data, msgKey) {
     if (!currentUser || !chatBox || !currentRoom) return;
     const senderName = data.name || "Unknown";
@@ -1698,7 +2029,7 @@ function renderMessage(data, msgKey) {
             avatar.style.background = "#000"; avatar.style.border = "1px solid #00f3ff"; avatar.innerHTML = `<span style="font-size:14px;">👾</span>`; 
             badge.style.background = "#000"; badge.style.color = "#00f3ff"; badge.style.borderColor = "#00f3ff"; badge.innerText = "⚠️ SYSTEM OVERRIDE"; 
             sender.appendChild(badge);
-            headerDiv.append(avatar, sender);
+            headerDiv.append(sender);
             
             const contentDiv = document.createElement("div");
             contentDiv.className = "msg-content";
@@ -1712,7 +2043,11 @@ function renderMessage(data, msgKey) {
             timeEl.className = "msg-time"; timeEl.textContent = timeString;
             contentDiv.appendChild(timeEl);
 
-            msgDiv.append(headerDiv, contentDiv);
+            const bubbleDiv = document.createElement("div");
+            bubbleDiv.className = "msg-bubble";
+            bubbleDiv.append(headerDiv, contentDiv);
+
+            msgDiv.append(avatar, bubbleDiv);
             chatBox.appendChild(msgDiv);
             
             if (typingIndicatorContainer.parentNode === chatBox) chatBox.appendChild(typingIndicatorContainer);
@@ -1734,7 +2069,7 @@ function renderMessage(data, msgKey) {
             avatar.style.background = "#131921"; avatar.innerHTML = `<span style="font-size:14px; color:#4CAF50;">🤖</span>`; 
             badge.className = "tag-core"; badge.style.background = "#4CAF50"; badge.style.color = "#fff"; badge.style.borderColor = "#4CAF50"; badge.innerText = "✅ BERSIH"; 
             sender.appendChild(badge);
-            headerDiv.append(avatar, sender);
+            headerDiv.append(sender);
 
             const contentDiv = document.createElement("div");
             contentDiv.className = "msg-content";
@@ -1746,7 +2081,11 @@ function renderMessage(data, msgKey) {
             timeEl.className = "msg-time"; timeEl.textContent = timeString;
             contentDiv.appendChild(timeEl);
 
-            msgDiv.append(headerDiv, contentDiv);
+            const bubbleDiv = document.createElement("div");
+            bubbleDiv.className = "msg-bubble";
+            bubbleDiv.append(headerDiv, contentDiv);
+
+            msgDiv.append(avatar, bubbleDiv);
             chatBox.appendChild(msgDiv);
             if (typingIndicatorContainer.parentNode === chatBox) chatBox.appendChild(typingIndicatorContainer);
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -1771,6 +2110,8 @@ function renderMessage(data, msgKey) {
 
     const msgDiv = document.createElement("div");
     msgDiv.id = "msg_" + msgKey;
+    msgDiv.dataset.senderName = senderName;
+    msgDiv.dataset.msgKey = msgKey;
     let bubbleClass = "is-other";
     if (senderName === currentUser) bubbleClass = "is-own";
     else if (isSensei) bubbleClass = "is-sensei";
@@ -1790,18 +2131,23 @@ function renderMessage(data, msgKey) {
         openMsgActionPopup(rect.left - 170, rect.bottom + 5, msgKey, data, msgDiv);
     };
     menuContainer.appendChild(actionTrigger);
-    msgDiv.appendChild(menuContainer);
 
     const headerDiv = document.createElement("div");
     headerDiv.className = "msg-header";
 
-    const profile = window.userProfiles ? (window.userProfiles[senderName] || {}) : {};
-    let displayName = senderName === currentUser ? "Kamu" : (profile.displayName || senderName);
+    const isMe = senderName === currentUser;
+    const profile = getGlobalUserProfile(senderName) || {};
+    let displayName = isMe ? "Kamu" : (profile.displayName || senderName);
     if (isSensei) displayName = "Aoi Sensei (葵先生)";
 
     const isPages = window.location.pathname.includes('/pages/');
-    const basePath = isPages ? `../gambar/${senderName.toLowerCase()}.png` : `gambar/${senderName.toLowerCase()}.png`;
-    const finalPhoto = profile.photoBase64 || basePath;
+    const defaultIcon = isPages ? "../gambar/icon.png" : "gambar/icon.png";
+
+    // Resolusi Foto Profil & Rarity Efek Kartu Berdasarkan Profil Terkini (Real-time Dynamic Sync)
+    const resolvedAvatar = resolveSenderActiveAvatar(senderName);
+    const finalPhoto = resolvedAvatar.photoUrl;
+    const activeRarity = resolvedAvatar.rarity;
+
     const initial = displayName.charAt(0).toUpperCase();
 
     const avatar = document.createElement("div");
@@ -1810,19 +2156,34 @@ function renderMessage(data, msgKey) {
         avatar.style.background = "linear-gradient(135deg, #FF6584, #8e44ad)";
         avatar.innerHTML = `🌸`;
     } else {
-        avatar.style.backgroundColor = "#fff"; 
-        avatar.innerHTML = `<img src="${finalPhoto}" alt="${initial}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentNode.style.backgroundColor='#131921'; this.parentNode.innerHTML='${initial}';">`;
+        if (activeRarity === "legendary") {
+            avatar.classList.add("is-vip-legend");
+        } else if (activeRarity === "ultra_rare") {
+            avatar.classList.add("is-avatar-ur");
+        } else if (activeRarity === "rare") {
+            avatar.classList.add("is-avatar-rare");
+        }
+        avatar.innerHTML = `<img src="${finalPhoto}" alt="${initial}" onerror="this.onerror=null; this.src='${defaultIcon}';">`;
     }
     
     const sender = document.createElement("strong");
     sender.textContent = displayName;
     const rawName = senderName.toLowerCase();
     
-    if (rawName === "umaedi") sender.innerHTML += `<span class="tag-founder">👑 FOUNDER</span>`;
-    else if (isSensei) sender.innerHTML += `<span class="tag-sensei" style="background: rgba(255, 101, 132, 0.2); color: #FF758C; border: 1px solid rgba(255, 101, 132, 0.4); margin-left: 6px; padding: 2px 7px; border-radius: 4px; font-size: 10px;">🌸 AOI SENSEI</span>`;
-    else if (coreMembers.includes(rawName)) sender.innerHTML += `<span class="tag-core">⭐ CORE</span>`;
+    // Tampilkan lencana VIP Lagend & Kolektor Kartu sesuai status profil aktif pengirim saat ini (Format Singkat & Ringkas)
+    if (activeRarity === "legendary") {
+        sender.innerHTML += `<span class="tag-vip-legend" title="Pemilik Foto Card Lagend">👑 VIP</span>`;
+    } else if (activeRarity === "ultra_rare") {
+        sender.innerHTML += `<span class="tag-ur-collector" title="Pemilik Foto Card Ultra Rare">💜 UR</span>`;
+    } else if (activeRarity === "rare") {
+        sender.innerHTML += `<span class="tag-rare-collector" title="Pemilik Foto Card Rare">💎 RARE</span>`;
+    }
+
+    if (rawName === "umaedi") sender.innerHTML += `<span class="tag-fournity-founder" title="Founder Fournity">👑 FOUNDER</span>`;
+    else if (isSensei) sender.innerHTML += `<span class="tag-sensei" style="background: rgba(255, 101, 132, 0.2); color: #FF758C; border: 1px solid rgba(255, 101, 132, 0.4); margin-left: 5px; padding: 1.5px 6px; border-radius: 4px; font-size: 8.5px;" title="Guru AI Aoi Sensei">🌸 SENSEI</span>`;
+    else sender.innerHTML += `<span class="tag-fournity-gakusei" title="Murid Fournity">🎋 GAKUSEI</span>`;
     
-    headerDiv.append(avatar, sender);
+    headerDiv.append(sender);
 
     const contentDiv = document.createElement("div");
     contentDiv.className = "msg-content";
@@ -1852,6 +2213,47 @@ function renderMessage(data, msgKey) {
             }
             contentDiv.appendChild(message);
 
+            // Stempel Hanko Fournity
+            if (data.hanko) {
+                const hankoDiv = document.createElement("div");
+                hankoDiv.className = "msg-hanko-card";
+                hankoDiv.innerHTML = `
+                    <div class="msg-hanko-circle">${escapeHtml(data.hanko.text)}</div>
+                    <div class="msg-hanko-meta">
+                        <strong>${escapeHtml(data.hanko.title)}</strong>
+                        <span>Stempel Hanko Fournity</span>
+                    </div>
+                `;
+                contentDiv.appendChild(hankoDiv);
+            }
+
+            // Kartu Prestasi Speech Coach
+            if (data.speechScore) {
+                const scoreDiv = document.createElement("div");
+                scoreDiv.style.cssText = "background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.4); border-radius: 12px; padding: 8px 12px; margin-top: 5px;";
+                scoreDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">🏆</span>
+                        <div>
+                            <strong style="color: #30D158; font-size: 12px;">Skor Pelafalan: ${data.speechScore}% (${escapeHtml(data.speechLabel || 'Lulus')})</strong>
+                            <span style="display:block; font-size: 10.5px; color: #CBD5E1;">Frasa: <em>${escapeHtml(data.speechPhrase || '')}</em></span>
+                        </div>
+                    </div>
+                `;
+                contentDiv.appendChild(scoreDiv);
+            }
+
+            // Kartu Rantai Shiritori Dojo
+            if (data.isShiritoriWord) {
+                const shDiv = document.createElement("div");
+                shDiv.className = "tag-shiritori-card";
+                shDiv.innerHTML = `
+                    <span style="color:#30D158; font-weight:800;">しりとり Rantai #${data.shiritoriStreak || 1} 🎯</span>
+                    <span style="display:block; color:#94A3B8; font-size:10.5px;">${escapeHtml(data.shiritoriMeaning || '')}</span>
+                `;
+                contentDiv.appendChild(shDiv);
+            }
+
             // Jika pesan AI Sensei atau terdapat karakter Jepang, beri tombol speaker instan
             if (isSensei || /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(data.message)) {
                 const speakBtn = document.createElement("button");
@@ -1872,13 +2274,13 @@ function renderMessage(data, msgKey) {
             const imgEl = document.createElement("img");
             imgEl.src = data.image;
             imgEl.className = "chat-image-attachment";
-            imgEl.style.width = "100%";
-            imgEl.style.maxWidth = "240px";
-            imgEl.style.borderRadius = "8px";
-            imgEl.style.marginTop = data.message ? "8px" : "0";
-            imgEl.style.cursor = "zoom-in";
-            imgEl.style.border = "1px solid rgba(255,255,255,0.1)";
-            imgEl.onclick = () => openLightbox(data.image);
+            imgEl.alt = "Foto lampiran obrolan";
+            imgEl.title = "Ketuk untuk memperbesar foto";
+            imgEl.loading = "lazy";
+            imgEl.onclick = (e) => {
+                e.stopPropagation();
+                openLightbox(data.image);
+            };
             contentDiv.appendChild(imgEl);
         }
 
@@ -1910,7 +2312,20 @@ function renderMessage(data, msgKey) {
     }
     contentDiv.appendChild(footerRow);
 
-    msgDiv.append(headerDiv, contentDiv);
+    // Wadah Gelembung Pesan (Bubble) yang memuat Nama Pengirim + Tag, Isi Pesan, Lampiran, Waktu & Menu (...)
+    const bubbleDiv = document.createElement("div");
+    bubbleDiv.className = "msg-bubble";
+    bubbleDiv.appendChild(menuContainer);
+    bubbleDiv.append(headerDiv, contentDiv);
+
+    // Letakkan foto profil DI LUAR buble chat untuk pesan orang lain
+    // Jika pesan sendiri (isMe / POV pengirim): hanya gelembung chat saja (avatar & tag disembunyikan)
+    // Jika pesan orang lain (POV melihat orang lain): foto profil di kiri luar, nama & tag serta gelembung di kanan
+    if (isMe) {
+        msgDiv.append(bubbleDiv);
+    } else {
+        msgDiv.append(avatar, bubbleDiv);
+    }
     chatBox.appendChild(msgDiv);
     
     if (typingIndicatorContainer.parentNode === chatBox) chatBox.appendChild(typingIndicatorContainer);
@@ -1981,19 +2396,53 @@ function sendMessage() {
 
     if (currentRoom === "sensei") {
         sendSenseiMessage(text);
+        try {
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const actKey = `fournity_activity_${todayStr}`;
+            let act = JSON.parse(localStorage.getItem(actKey) || '{"kana":0,"kotoba":0,"radar":0,"kanji":0,"chat":0,"checkin":0}');
+            act.chat = (act.chat || 0) + 1;
+            localStorage.setItem(actKey, JSON.stringify(act));
+            let curExp = Number(localStorage.getItem("trinity_exp") || 80);
+            localStorage.setItem("trinity_exp", curExp + 25);
+            window.dispatchEvent(new Event("storage"));
+        } catch(e) {}
         chatInput.value = "";
         autoResizeInput();
         cancelReply();
+        if (typeof playZenSoundEffect === 'function') playZenSoundEffect('send');
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+        return;
+    }
+
+    if (currentRoom === "shiritori") {
+        if (typeof handleShiritoriWordSubmission === 'function') {
+            handleShiritoriWordSubmission(text);
+        }
+        chatInput.value = "";
+        autoResizeInput();
+        cancelReply();
+        if (typeof playZenSoundEffect === 'function') playZenSoundEffect('send');
         if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
         return;
     }
 
     const dbRefName = currentRoom === "core" ? "messages" : "messages_public";
     const chatRef = ref(db, dbRefName);
+    const myAvatar = localStorage.getItem("fournity_user_avatar") || localStorage.getItem("avatar_" + currentUser);
+    const myAvatarRarity = localStorage.getItem("fournity_avatar_rarity") || localStorage.getItem("avatar_rarity_" + currentUser) || "";
+    const myAvatarSerial = localStorage.getItem("fournity_avatar_serial") || "";
+    const cleanAvatar = myAvatar ? myAvatar.replace(/^(\.\.\/|\.\/)+/, '') : "";
+
     let payload = { name: currentUser, message: text, timestamp: Date.now() };
+    if (cleanAvatar) {
+        payload.avatar = cleanAvatar;
+        if (myAvatarRarity) payload.avatarRarity = myAvatarRarity;
+        if (myAvatarSerial) payload.avatarSerial = myAvatarSerial;
+    }
     if (activeReplyData) payload.replyTo = activeReplyData;
     
     push(chatRef, payload);
+    if (typeof playZenSoundEffect === 'function') playZenSoundEffect('send');
     chatInput.value = ""; 
     autoResizeInput();
     cancelReply(); 
@@ -2073,7 +2522,7 @@ function renderOnlineUsers() {
     if (!onlineCountText || !currentRoom || currentRoom === "sensei") return;
 
     let visibleUsers = currentOnlineUsers;
-    if (currentRoom === "core") visibleUsers = currentOnlineUsers.filter(name => coreMembers.includes(name.toLowerCase()));
+    if (currentRoom === "core") visibleUsers = currentOnlineUsers.filter(name => name.toLowerCase() === "umaedi");
 
     if (visibleUsers.length === 0) { onlineCountText.innerHTML = `Tidak ada yang online`; return; }
 
@@ -2087,33 +2536,53 @@ function renderOnlineUsers() {
 }
 
 window.addEventListener('profilesUpdated', () => {
-    if(chatBox && currentRoom && currentRoom !== "sensei") {
-        chatBox.replaceChildren(); 
-        unreadDividerAdded = false;
-        lastRenderedDateString = "";
-        pendingMessages.forEach(item => renderMessage(item.data, item.key)); 
-    }
+    updateAllRenderedChatAvatars();
     if (currentRoom !== "sensei") renderOnlineUsers(); 
     updateHeaderUserDisplay();
+});
+
+// Listener realtime user_profiles publik langsung di chat room
+onValue(ref(db, 'user_profiles'), (snapshot) => {
+    if (snapshot.exists()) {
+        window.userProfiles = snapshot.val();
+        updateAllRenderedChatAvatars();
+        if (currentRoom !== "sensei") renderOnlineUsers();
+    }
+});
+
+// Listener perubahan storage foto profil antar-tab atau dari modal header
+window.addEventListener('storage', (e) => {
+    if (!e.key || e.key.includes('avatar') || e.key.includes('profile')) {
+        updateAllRenderedChatAvatars();
+    }
 });
 
 // Update status user & switcher
 function updateHeaderUserDisplay() {
     const statusEl = document.getElementById("chatUserStatusText");
     const labelEl = document.getElementById("switchUserBtnLabel");
+    const currentUid = localStorage.getItem("nihongoChatUid");
+
+    if (!currentUid) {
+        if (statusEl) {
+            statusEl.innerHTML = `Status: <span style="color: #8E8E93;">Tamu (Belum Login)</span>`;
+        }
+        if (labelEl) {
+            labelEl.textContent = "Login";
+        }
+        return;
+    }
+
     if (!currentUser) return;
     
     const profile = window.userProfiles ? (window.userProfiles[currentUser] || {}) : {};
     const dName = profile.displayName || currentUser;
-    const isCoreUser = coreMembers.includes(currentUser.toLowerCase());
     
     if (statusEl) {
-        if (currentUser.toLowerCase() === "umaedi") {
-            statusEl.innerHTML = `Login: <strong style="color: #FF6584;">${dName} (👑 Founder)</strong>`;
-        } else if (isCoreUser) {
-            statusEl.innerHTML = `Login: <strong style="color: #D4AF37;">${dName} (⭐ Core)</strong>`;
+        if (isCore) {
+            statusEl.innerHTML = `Akun: <strong style="color: #FF6584;">${dName} (👑 Dev)</strong>`;
         } else {
-            statusEl.innerHTML = `Login: <strong style="color: #4CAF50;">${dName}</strong>`;
+            statusEl.innerHTML = `Akun: <strong style="color: #34C759;">${dName}</strong>`;
         }
     }
     if (labelEl) {
@@ -2124,23 +2593,56 @@ function updateHeaderUserDisplay() {
 const switchUserBtn = document.getElementById("switchUserBtn");
 if (switchUserBtn) {
     switchUserBtn.addEventListener("click", () => {
-        const action = prompt(
-            `👤 PENGATURAN IDENTITAS / LOGIN\n\nSaat ini Anda login sebagai: "${currentUser}"\n\n` +
-            `• Masukkan nama baru untuk mengganti nama tampilan\n` +
-            `• Atau masukkan kode akses Core (UMAEDI2026, IQBAL2026, RIFKI2026, FASYA2026) untuk login sebagai tim inti / founder:\n`
-        );
-        if (!action || !action.trim()) return;
-        const val = action.trim();
-        const accountCodes = { "Umaedi": "UMAEDI2026", "Iqbal": "IQBAL2026", "Rifki": "RIFKI2026", "Fasya": "FASYA2026" };
-        const found = Object.keys(accountCodes).find(k => accountCodes[k] === val.toUpperCase() || k.toLowerCase() === val.toLowerCase());
-        if (found) {
-            localStorage.setItem(sessionKey, found);
-            alert(`✨ Berhasil login sebagai ${found}!`);
+        const currentUid = localStorage.getItem("nihongoChatUid");
+        const currentEmail = localStorage.getItem("nihongoChatEmail") || "-";
+
+        if (currentUid) {
+            const action = prompt(
+                `👤 PENGATURAN AKUN FIREBASE\n\n` +
+                `Saat ini Anda masuk sebagai:\n` +
+                `• Email: ${currentEmail}\n` +
+                `• Nama Tampilan: "${currentUser}"\n\n` +
+                `Pilihan:\n` +
+                `1. Ketik nama baru untuk mengganti nama tampilan profil Anda\n` +
+                `2. Ketik "LOGOUT" untuk keluar dari akun ini\n`
+            );
+            if (!action || !action.trim()) return;
+            const val = action.trim();
+            if (val.toUpperCase() === "LOGOUT") {
+                if (window.auth && typeof window.auth.signOut === "function") {
+                    window.auth.signOut().then(() => {
+                        localStorage.removeItem("nihongoChatUid");
+                        localStorage.removeItem("nihongoChatEmail");
+                        localStorage.removeItem("nihongoChatUser");
+                        localStorage.removeItem("fournity_user_avatar");
+                        localStorage.removeItem("fournity_custom_avatar");
+                        alert("✨ Berhasil keluar dari akun.");
+                        window.location.reload();
+                    });
+                } else {
+                    localStorage.removeItem("nihongoChatUid");
+                    localStorage.removeItem("nihongoChatEmail");
+                    localStorage.removeItem("nihongoChatUser");
+                    localStorage.removeItem("fournity_user_avatar");
+                    localStorage.removeItem("fournity_custom_avatar");
+                    alert("✨ Berhasil keluar dari akun.");
+                    window.location.reload();
+                }
+            } else {
+                localStorage.setItem(sessionKey, val);
+                alert(`✨ Nama tampilan berhasil diubah menjadi "${val}".`);
+                window.location.reload();
+            }
         } else {
-            localStorage.setItem(sessionKey, val);
-            alert(`✨ Nama berhasil diubah menjadi "${val}".`);
+            const confirmLogin = confirm(
+                `👤 MODE TAMU (BELUM LOGIN)\n\n` +
+                `Anda saat ini belum masuk menggunakan akun Firebase resmi.\n\n` +
+                `Apakah Anda ingin membuka halaman utama untuk Masuk / Mendaftar Akun?`
+            );
+            if (confirmLogin) {
+                window.location.href = "../index.html";
+            }
         }
-        window.location.reload();
     });
 }
 
@@ -2240,3 +2742,1941 @@ function setupMobileKeyboardHandler() {
 }
 
 setupMobileKeyboardHandler();
+
+// ==========================================================================
+// NIHONGO FOURNITY - NEW FEATURE IMPLEMENTATIONS
+// 1. Procedural Japanese Ambient Audio & SFX Engine
+// 2. Kotoba Shiritori Dojo Game Engine
+// 3. AI Japanese Speech Coach & Pronunciation Evaluator
+// 4. Fournity Assistant Tools Drawer (Furigana, Hanko Stamps, Mini Quiz)
+// ==========================================================================
+
+// 1. AUDIO CONTEXT & PROCEDURAL JAPANESE SYNTHESIZER
+let fournityAudioCtx = null;
+function getFournityAudioCtx() {
+    if (!fournityAudioCtx) {
+        fournityAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (fournityAudioCtx.state === 'suspended') {
+        fournityAudioCtx.resume();
+    }
+    return fournityAudioCtx;
+}
+
+// Sound Synthesizers for Outgoing (Send) Sounds
+function playSendToneSynthesizer(ctx, now, tone) {
+    if (tone === 'bubble_pop') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.06);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+    } else if (tone === 'bamboo_knock') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(65, now + 0.09);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+    } else if (tone === 'cyber_pip') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1400, now);
+        osc.frequency.exponentialRampToValueAtTime(450, now + 0.08);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+    } else if (tone === 'soft_pluck') {
+        [523.25, 783.99].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.16);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.04);
+            osc.stop(now + idx * 0.04 + 0.16);
+        });
+    } else if (tone === 'mute') {
+        // Mute - Tanpa suara
+    } else {
+        // Default: swoosh (480Hz -> 880Hz)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(480, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.12);
+    }
+}
+
+// Sound Synthesizers for Incoming (Receive) Sounds
+function playReceiveToneSynthesizer(ctx, now, tone) {
+    if (tone === 'ios_ding') {
+        const osc = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc2.type = 'sine';
+        osc.frequency.setValueAtTime(2093, now); // C7
+        osc2.frequency.setValueAtTime(4186, now); // C8 harmonic
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc2.start(now);
+        osc.stop(now + 0.38);
+        osc2.stop(now + 0.38);
+    } else if (tone === 'sakura_harp') {
+        // Pentatonik Koto Jepang (D5, F5, G5, A5, D6)
+        [587.33, 698.46, 783.99, 880.00, 1174.66].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.045);
+            gain.gain.setValueAtTime(0.09, now + idx * 0.045);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.045 + 0.45);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.045);
+            osc.stop(now + idx * 0.045 + 0.45);
+        });
+    } else if (tone === 'suzu_bell') {
+        // Genta Kuil Shinto Suzu
+        [852, 1280, 1704].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.07 / (i + 1), now);
+            gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.85);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.85);
+        });
+    } else if (tone === 'retro_coin') {
+        // 8-bit classic arcade coin
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(987.77, now);
+        osc.frequency.setValueAtTime(1318.51, now + 0.07);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.setValueAtTime(0.08, now + 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.28);
+    } else if (tone === 'water_drop') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(650, now);
+        osc.frequency.exponentialRampToValueAtTime(1650, now + 0.07);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.18);
+    } else if (tone === 'marimba') {
+        [659.25, 880, 1318.51].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + i * 0.03);
+            gain.gain.setValueAtTime(0.1, now + i * 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.03 + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.03);
+            osc.stop(now + i * 0.03 + 0.35);
+        });
+    } else {
+        // Default: chime_duo (1200Hz + 1500Hz)
+        [1200, 1500].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.3);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.05);
+            osc.stop(now + idx * 0.05 + 0.3);
+        });
+    }
+}
+
+window.testChatSoundEffect = function(type, toneId) {
+    try {
+        const ctx = getFournityAudioCtx();
+        const now = ctx.currentTime;
+        if (type === 'send') {
+            playSendToneSynthesizer(ctx, now, toneId);
+        } else {
+            playReceiveToneSynthesizer(ctx, now, toneId);
+        }
+    } catch(e) {}
+};
+
+window.playZenSoundEffect = function(type, forcedTone = null) {
+    if (localStorage.getItem("fournity_sfx_enabled") === "false") return;
+    try {
+        const ctx = getFournityAudioCtx();
+        const now = ctx.currentTime;
+        if (type === 'send') {
+            if (localStorage.getItem("fournity_send_sound_enabled") === "false") return;
+            const tone = forcedTone || localStorage.getItem("fournity_send_sound") || 'swoosh';
+            playSendToneSynthesizer(ctx, now, tone);
+        } else if (type === 'receive') {
+            if (localStorage.getItem("fournity_receive_sound_enabled") === "false") return;
+            const tone = forcedTone || localStorage.getItem("fournity_receive_sound") || 'chime_duo';
+            playReceiveToneSynthesizer(ctx, now, tone);
+        } else if (type === 'hanko') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(160, now);
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.15);
+            gain.gain.setValueAtTime(0.35, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        } else if (type === 'success') {
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now + i * 0.07);
+                gain.gain.setValueAtTime(0.09, now + i * 0.07);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.4);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now + i * 0.07);
+                osc.stop(now + i * 0.07 + 0.4);
+            });
+        } else if (type === 'fail') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(220, now);
+            osc.frequency.linearRampToValueAtTime(110, now + 0.3);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
+    } catch (e) {}
+};
+
+// Procedural Zen Ambient Sound Engine
+let zenAmbientTimer = null;
+let isZenPlaying = false;
+let currentZenTrack = 'fuurin';
+
+function playProceduralFuurinChime() {
+    try {
+        const ctx = getFournityAudioCtx();
+        const baseFreqs = [1568, 1760, 2093, 2349, 2794];
+        const freq = baseFreqs[Math.floor(Math.random() * baseFreqs.length)];
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.07, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.8);
+    } catch(e) {}
+}
+
+function playProceduralShishiOdoshi() {
+    try {
+        const ctx = getFournityAudioCtx();
+        const now = ctx.currentTime;
+        const drip = ctx.createOscillator();
+        const dripGain = ctx.createGain();
+        drip.type = 'sine';
+        drip.frequency.setValueAtTime(950, now);
+        drip.frequency.exponentialRampToValueAtTime(1800, now + 0.09);
+        dripGain.gain.setValueAtTime(0.08, now);
+        dripGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        drip.connect(dripGain);
+        dripGain.connect(ctx.destination);
+        drip.start(now);
+        drip.stop(now + 0.09);
+
+        setTimeout(() => {
+            if (!isZenPlaying) return;
+            const now2 = ctx.currentTime;
+            const knock = ctx.createOscillator();
+            const knockGain = ctx.createGain();
+            knock.type = 'triangle';
+            knock.frequency.setValueAtTime(260, now2);
+            knock.frequency.exponentialRampToValueAtTime(80, now2 + 0.12);
+            knockGain.gain.setValueAtTime(0.2, now2);
+            knockGain.gain.exponentialRampToValueAtTime(0.001, now2 + 0.12);
+            knock.connect(knockGain);
+            knockGain.connect(ctx.destination);
+            knock.start(now2);
+            knock.stop(now2 + 0.12);
+        }, 1200);
+    } catch(e) {}
+}
+
+function playProceduralRainLoFi() {
+    try {
+        const ctx = getFournityAudioCtx();
+        const now = ctx.currentTime;
+        const chord = [392, 493.88, 587.33, 739.99];
+        chord.forEach((f, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.04);
+            gain.gain.setValueAtTime(0.035, now + idx * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.04 + 2.5);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.04);
+            osc.stop(now + idx * 0.04 + 2.5);
+        });
+    } catch(e) {}
+}
+
+function toggleZenAmbientPlayback() {
+    if (isZenPlaying) {
+        clearInterval(zenAmbientTimer);
+        zenAmbientTimer = null;
+        isZenPlaying = false;
+        if (toggleZenPlayBtn) {
+            toggleZenPlayBtn.textContent = "▶ Putar Zen Audio";
+            toggleZenPlayBtn.style.background = "linear-gradient(135deg, #FFD60A, #FF9F0A)";
+            toggleZenPlayBtn.style.color = "#0c101a";
+        }
+        if (zenAudioBtn) zenAudioBtn.style.color = "";
+        showChatToast("Zen Audio dihentikan.", "🎐");
+    } else {
+        isZenPlaying = true;
+        if (toggleZenPlayBtn) {
+            toggleZenPlayBtn.textContent = "⏸ Hentikan Zen Audio";
+            toggleZenPlayBtn.style.background = "linear-gradient(135deg, #FF453A, #B71C1C)";
+            toggleZenPlayBtn.style.color = "#ffffff";
+        }
+        if (zenAudioBtn) zenAudioBtn.style.color = "#FFD60A";
+        showChatToast("Memutar audio relaksasi Zen...", "🎐");
+
+        const tick = () => {
+            if (!isZenPlaying) return;
+            if (currentZenTrack === 'fuurin') playProceduralFuurinChime();
+            else if (currentZenTrack === 'shishi') playProceduralShishiOdoshi();
+            else if (currentZenTrack === 'rain') playProceduralRainLoFi();
+        };
+        tick();
+        const intervalMs = currentZenTrack === 'fuurin' ? 3200 : (currentZenTrack === 'shishi' ? 4200 : 3800);
+        zenAmbientTimer = setInterval(tick, intervalMs);
+    }
+}
+
+// 2. KOTOBA SHIRITORI DOJO GAME ENGINE
+const shiritoriDictionary = {
+    "あ": [ { kana: "あさ", romaji: "asa", arti: "Pagi", kanji: "朝" }, { kana: "あめ", romaji: "ame", arti: "Hujan / Permen", kanji: "雨" }, { kana: "あたま", romaji: "atama", arti: "Kepala", kanji: "頭" } ],
+    "い": [ { kana: "いぬ", romaji: "inu", arti: "Anjing 🐕", kanji: "犬" }, { kana: "いえ", romaji: "ie", arti: "Rumah 🏠", kanji: "家" }, { kana: "いちご", romaji: "ichigo", arti: "Stroberi 🍓", kanji: "苺" } ],
+    "う": [ { kana: "うみ", romaji: "umi", arti: "Laut 🌊", kanji: "海" }, { kana: "うま", romaji: "uma", arti: "Kuda 🐎", kanji: "馬" }, { kana: "うた", romaji: "uta", arti: "Lagu 🎵", kanji: "歌" } ],
+    "え": [ { kana: "えき", romaji: "eki", arti: "Stasiun 🚉", kanji: "駅" }, { kana: "えんぴつ", romaji: "enpitsu", arti: "Pensil ✏️", kanji: "鉛筆" } ],
+    "お": [ { kana: "おちゃ", romaji: "ocha", arti: "Teh Hijau 🍵", kanji: "お茶" }, { kana: "おにぎり", romaji: "onigiri", arti: "Nasi Kepal 🍙", kanji: "お握り" } ],
+    "か": [ { kana: "かわ", romaji: "kawa", arti: "Sungai 🏞️", kanji: "川" }, { kana: "かみ", romaji: "kami", arti: "Kertas / Dewa ⛩️", kanji: "紙" }, { kana: "からて", romaji: "karate", arti: "Karate 🥋", kanji: "空手" } ],
+    "き": [ { kana: "きつね", romaji: "kitsune", arti: "Rubah 🦊", kanji: "狐" }, { kana: "きのこ", romaji: "kinoko", arti: "Jamur 🍄", kanji: "きのこ" } ],
+    "く": [ { kana: "くるま", romaji: "kuruma", arti: "Mobil 🚗", kanji: "車" }, { kana: "くも", romaji: "kumo", arti: "Awan ☁️", kanji: "雲" } ],
+    "け": [ { kana: "けさ", romaji: "kesa", arti: "Pagi Ini 🌅", kanji: "今朝" }, { kana: "けしき", romaji: "keshiki", arti: "Pemandangan 🌄", kanji: "景色" } ],
+    "こ": [ { kana: "こころ", romaji: "kokoro", arti: "Hati / Jiwa 💖", kanji: "心" }, { kana: "ことば", romaji: "kotoba", arti: "Kosakata 📖", kanji: "言葉" } ],
+    "さ": [ { kana: "さくら", romaji: "sakura", arti: "Bunga Sakura 🌸", kanji: "桜" }, { kana: "さかな", romaji: "sakana", arti: "Ikan 🐟", kanji: "魚" } ],
+    "し": [ { kana: "しろ", romaji: "shiro", arti: "Kastil / Putih 🏯", kanji: "城" }, { kana: "しま", romaji: "shima", arti: "Pulau 🏝️", kanji: "島" } ],
+    "す": [ { kana: "すし", romaji: "sushi", arti: "Sushi 🍣", kanji: "寿司" }, { kana: "すいか", romaji: "suika", arti: "Semangka 🍉", kanji: "西瓜" } ],
+    "せ": [ { kana: "せんせい", romaji: "sensei", arti: "Sensei / Guru 🧑‍🏫", kanji: "先生" }, { kana: "せかい", romaji: "sekai", arti: "Dunia 🌍", kanji: "世界" } ],
+    "そ": [ { kana: "そら", romaji: "sora", arti: "Langit Biru 🌌", kanji: "空" }, { kana: "そば", romaji: "soba", arti: "Mie Soba 🍜", kanji: "蕎麦" } ],
+    "た": [ { kana: "たこ", romaji: "tako", arti: "Gurita 🐙", kanji: "蛸" }, { kana: "たいよう", romaji: "taiyou", arti: "Matahari ☀️", kanji: "太陽" }, { kana: "たまご", romaji: "tamago", arti: "Telur 🥚", kanji: "卵" } ],
+    "ち": [ { kana: "ちず", romaji: "chizu", arti: "Peta 🗺️", kanji: "地図" }, { kana: "ちから", romaji: "chikara", arti: "Kekuatan 💪", kanji: "力" } ],
+    "つ": [ { kana: "つき", romaji: "tsuki", arti: "Bulan 🌙", kanji: "月" }, { kana: "つくえ", romaji: "tsukue", arti: "Meja 🪵", kanji: "机" } ],
+    "て": [ { kana: "てがみ", romaji: "tegami", arti: "Surat ✉️", kanji: "手紙" }, { kana: "てんき", romaji: "tenki", arti: "Cuaca 🌤️", kanji: "天気" } ],
+    "と": [ { kana: "ともだち", romaji: "tomodachi", arti: "Teman Baik 👥", kanji: "友達" }, { kana: "とり", romaji: "tori", arti: "Burung 🕊️", kanji: "鳥" } ],
+    "な": [ { kana: "なつ", romaji: "natsu", arti: "Musim Panas ☀️", kanji: "夏" }, { kana: "なみ", romaji: "nami", arti: "Ombak 🌊", kanji: "波" } ],
+    "に": [ { kana: "にほん", romaji: "nihon", arti: "Jepang 🇯🇵", kanji: "日本" }, { kana: "にじ", romaji: "niji", arti: "Pelangi 🌈", kanji: "虹" } ],
+    "ね": [ { kana: "ねこ", romaji: "neko", arti: "Kucing 🐱", kanji: "猫" }, { kana: "ねがい", romaji: "negai", arti: "Harapan 🙏", kanji: "願い" } ],
+    "の": [ { kana: "のり", romaji: "nori", arti: "Rumput Laut 🍙", kanji: "海苔" } ],
+    "は": [ { kana: "はな", romaji: "hana", arti: "Bunga 🌸", kanji: "花" }, { kana: "はる", romaji: "haru", arti: "Musim Semi 🌷", kanji: "春" } ],
+    "ひ": [ { kana: "ひかり", romaji: "hikari", arti: "Cahaya ✨", kanji: "光" }, { kana: "ひこうき", romaji: "hikouki", arti: "Pesawat ✈️", kanji: "飛行機" } ],
+    "ふ": [ { kana: "ふね", romaji: "fune", arti: "Kapal 🚢", kanji: "船" }, { kana: "ふゆ", romaji: "fuyu", arti: "Musim Dingin ❄️", kanji: "冬" } ],
+    "へ": [ { kana: "へや", romaji: "heya", arti: "Kamar 🚪", kanji: "部屋" } ],
+    "ほ": [ { kana: "ほし", romaji: "hoshi", arti: "Bintang ⭐", kanji: "星" }, { kana: "ほん", romaji: "hon", arti: "Buku 📚", kanji: "本" } ],
+    "ま": [ { kana: "まつり", romaji: "matsuri", arti: "Festival 🏮", kanji: "祭り" }, { kana: "まち", romaji: "machi", arti: "Kota 🏙️", kanji: "町" } ],
+    "み": [ { kana: "みず", romaji: "mizu", arti: "Air 💧", kanji: "水" }, { kana: "みち", romaji: "michi", arti: "Jalan 🛣️", kanji: "道" } ],
+    "む": [ { kana: "むし", romaji: "mushi", arti: "Serangga 🪲", kanji: "虫" } ],
+    "め": [ { kana: "めがね", romaji: "megane", arti: "Kacamata 👓", kanji: "眼鏡" } ],
+    "も": [ { kana: "もり", romaji: "mori", arti: "Hutan 🌲", kanji: "森" } ],
+    "や": [ { kana: "やま", romaji: "yama", arti: "Gunung ⛰️", kanji: "山" }, { kana: "やすみ", romaji: "yasumi", arti: "Liburan 🏖️", kanji: "休み" } ],
+    "ゆ": [ { kana: "ゆき", romaji: "yuki", arti: "Salju ❄️", kanji: "雪" }, { kana: "ゆめ", romaji: "yume", arti: "Mimpi 💭", kanji: "夢" } ],
+    "よ": [ { kana: "よる", romaji: "yoru", arti: "Malam 🌃", kanji: "夜" } ],
+    "ら": [ { kana: "らくだ", romaji: "rakuda", arti: "Unta 🐫", kanji: "駱駝" }, { kana: "らいおん", romaji: "raion", arti: "Singa 🦁", kanji: "ライオン" } ],
+    "り": [ { kana: "りんご", romaji: "ringo", arti: "Apel 🍎", kanji: "林檎" }, { kana: "りす", romaji: "risu", arti: "Tupai 🐿️", kanji: "栗鼠" } ],
+    "る": [ { kana: "るす", romaji: "rusu", arti: "Tidak di Rumah 🚪", kanji: "留守" } ],
+    "れ": [ { kana: "れきし", romaji: "rekishi", arti: "Sejarah 📜", kanji: "歴史" } ],
+    "ろ": [ { kana: "ろうそく", romaji: "rousoku", arti: "Lilin 🕯️", kanji: "蝋燭" } ],
+    "わ": [ { kana: "わに", romaji: "wani", arti: "Buaya 🐊", kanji: "鰐" } ]
+};
+
+let shiritoriState = {
+    currentKana: "さ",
+    streak: 0,
+    lastWord: "さくら (Sakura - Bunga Sakura)"
+};
+
+try {
+    const savedSh = localStorage.getItem("fournity_shiritori_state");
+    if (savedSh) shiritoriState = JSON.parse(savedSh);
+} catch (e) {}
+
+function saveShiritoriState() {
+    localStorage.setItem("fournity_shiritori_state", JSON.stringify(shiritoriState));
+}
+
+function getKanaEndChar(word) {
+    const clean = word.replace(/[^ぁ-んァ-ンa-zA-Z]/g, '').trim();
+    if (!clean) return '';
+    let last = clean.slice(-1);
+    if (last === 'ー' && clean.length > 1) last = clean.slice(-2, -1);
+    return last;
+}
+
+function renderShiritoriUI() {
+    if (shiritoriTargetKana) shiritoriTargetKana.textContent = shiritoriState.currentKana.toUpperCase();
+    if (shiritoriStreakText) shiritoriStreakText.innerHTML = `🔥 Rantai: <strong>${shiritoriState.streak}</strong> Kata`;
+    if (shiritoriLastWordInfo) shiritoriLastWordInfo.textContent = shiritoriState.lastWord || "Mulai rantai kata!";
+}
+
+window.renderShiritoriUI = renderShiritoriUI;
+
+window.handleShiritoriWordSubmission = function(text) {
+    const cleanText = text.trim();
+    if (!cleanText) return;
+
+    const lastChar = cleanText.slice(-1).toLowerCase();
+    if (lastChar === 'ん' || lastChar === 'ン' || (cleanText.toLowerCase().endsWith('n') && !cleanText.toLowerCase().endsWith('na') && !cleanText.toLowerCase().endsWith('ni') && !cleanText.toLowerCase().endsWith('nu') && !cleanText.toLowerCase().endsWith('ne') && !cleanText.toLowerCase().endsWith('no'))) {
+        window.playZenSoundEffect('fail');
+        showChatToast("Kalah! Kata berakhiran 'ん' (N) dilarang dalam Shiritori!", "💥");
+        shiritoriState.streak = 0;
+        const keys = Object.keys(shiritoriDictionary);
+        shiritoriState.currentKana = keys[Math.floor(Math.random() * keys.length)];
+        shiritoriState.lastWord = "Putaran baru dimulai!";
+        saveShiritoriState();
+        renderShiritoriUI();
+
+        const chatRef = ref(db, "messages_shiritori");
+        push(chatRef, {
+            name: "SYSTEM",
+            message: `⚠️ ${currentUser} gugur karena kata berakhiran 'ん'! Skor direset. Huruf baru: 「${shiritoriState.currentKana.toUpperCase()}」`,
+            timestamp: Date.now()
+        });
+        return;
+    }
+
+    shiritoriState.streak++;
+    shiritoriState.lastWord = cleanText;
+
+    let nextTarget = getKanaEndChar(cleanText);
+    if (!shiritoriDictionary[nextTarget]) {
+        const keys = Object.keys(shiritoriDictionary);
+        nextTarget = keys[Math.floor(Math.random() * keys.length)];
+    }
+    shiritoriState.currentKana = nextTarget;
+    saveShiritoriState();
+    renderShiritoriUI();
+
+    window.playZenSoundEffect('success');
+    showChatToast(`Luar biasa! Rantai ke-${shiritoriState.streak} (+25 XP)`, "🎯");
+
+    try {
+        const curExp = Number(localStorage.getItem("trinity_exp") || 80);
+        localStorage.setItem("trinity_exp", curExp + 25);
+    } catch(e) {}
+
+    const chatRef = ref(db, "messages_shiritori");
+    push(chatRef, {
+        name: currentUser,
+        message: cleanText,
+        isShiritoriWord: true,
+        shiritoriStreak: shiritoriState.streak,
+        shiritoriMeaning: `Huruf berikutnya: 「${nextTarget.toUpperCase()}」`,
+        timestamp: Date.now()
+    });
+
+    setTimeout(() => {
+        triggerShiritoriAiTurn(nextTarget);
+    }, 1200);
+};
+
+function triggerShiritoriAiTurn(targetKana) {
+    const list = shiritoriDictionary[targetKana] || shiritoriDictionary["さ"];
+    const chosen = list[Math.floor(Math.random() * list.length)];
+    let nextForUser = getKanaEndChar(chosen.kana);
+    if (!shiritoriDictionary[nextForUser] || nextForUser === 'ん') {
+        const keys = Object.keys(shiritoriDictionary);
+        nextForUser = keys[Math.floor(Math.random() * keys.length)];
+    }
+
+    shiritoriState.streak++;
+    shiritoriState.currentKana = nextForUser;
+    shiritoriState.lastWord = `${chosen.kana} (${chosen.romaji} - ${chosen.arti})`;
+    saveShiritoriState();
+    renderShiritoriUI();
+
+    const chatRef = ref(db, "messages_shiritori");
+    push(chatRef, {
+        name: "AI_SENSEI",
+        message: `『${chosen.kana}』 (${chosen.romaji} - ${chosen.arti}) ✨! Sekarang giliran kalian dengan huruf 「${nextForUser.toUpperCase()}」!`,
+        isShiritoriWord: true,
+        shiritoriStreak: shiritoriState.streak,
+        shiritoriMeaning: `Dari Aoi Sensei • Huruf Berikutnya: 「${nextForUser.toUpperCase()}」`,
+        timestamp: Date.now()
+    });
+    window.playZenSoundEffect('receive');
+}
+
+if (shiritoriHintBtn) {
+    shiritoriHintBtn.addEventListener("click", () => {
+        const list = shiritoriDictionary[shiritoriState.currentKana] || shiritoriDictionary["さ"];
+        const suggestions = list.map(item => `• ${item.kana} (${item.romaji}): ${item.arti}`).join("\n");
+        alert(`💡 BANTUAN SHIRITORI (Huruf 「${shiritoriState.currentKana.toUpperCase()}」):\n\n${suggestions}\n\nKetik salah satu kata di atas untuk melanjutkan rantai!`);
+    });
+}
+
+if (shiritoriResetBtn) {
+    shiritoriResetBtn.addEventListener("click", () => {
+        if (confirm("Reset putaran permainan Shiritori Dojo?")) {
+            shiritoriState.streak = 0;
+            shiritoriState.currentKana = "さ";
+            shiritoriState.lastWord = "Putaran baru!";
+            saveShiritoriState();
+            renderShiritoriUI();
+            showChatToast("Putaran Shiritori direset.", "🔄");
+        }
+    });
+}
+
+// 3. AI JAPANESE SPEECH COACH ENGINE
+const coachPhrases = {
+    greetings: [
+        { jp: "こんにちは！", romaji: "Konnichiwa!", arti: "Halo / Selamat siang" },
+        { jp: "お疲れ様でした！", romaji: "Otsukaresama deshita!", arti: "Terima kasih atas kerja kerasnya" },
+        { jp: "はじめまして、よろしくお願いします！", romaji: "Hajimemashite, yoroshiku onegaishimasu!", arti: "Salam kenal, mohon bimbingannya" },
+        { jp: "ありがとうございます！", romaji: "Arigatou gozaimasu!", arti: "Terima kasih banyak" }
+    ],
+    n5: [
+        { jp: "これはいくらですか？", romaji: "Kore wa ikura desu ka?", arti: "Berapa harga barang ini?" },
+        { jp: "日本語を勉強しています。", romaji: "Nihongo o benkyou shite imasu.", arti: "Saya sedang belajar bahasa Jepang" },
+        { jp: "駅はどこにありますか？", romaji: "Eki wa doko ni arimasu ka?", arti: "Stasiun kereta ada di sebelah mana?" },
+        { jp: "写真を撮ってもいいですか？", romaji: "Shashin o totte mo ii desu ka?", arti: "Bolehkah saya mengambil foto?" }
+    ],
+    anime: [
+        { jp: "諦めない、絶対に！", romaji: "Akiramenai, zettai ni!", arti: "Pantang menyerah, tidak akan pernah!" },
+        { jp: "大丈夫、私がついてる！", romaji: "Daijoubu, watashi ga tsuite ru!", arti: "Tenang saja, aku ada di sampingmu!" },
+        { jp: "すごい！さすがですね！", romaji: "Sugoi! Sasuga desu ne!", arti: "Keren sekali! Memang tak diragukan!" }
+    ]
+};
+
+let currentCoachCategory = 'greetings';
+let currentCoachPhraseIndex = 0;
+let isCoachRecording = false;
+let speechRecognizer = null;
+let lastCoachResult = null;
+
+function renderCoachTargetPhrase() {
+    const list = coachPhrases[currentCoachCategory] || coachPhrases.greetings;
+    const item = list[currentCoachPhraseIndex % list.length];
+    if (coachTargetJp) coachTargetJp.textContent = item.jp;
+    if (coachTargetRomaji) coachTargetRomaji.textContent = item.romaji;
+    if (coachTargetMeaning) coachTargetMeaning.textContent = item.arti;
+    if (coachResultSection) coachResultSection.style.display = "none";
+    if (coachTranscribedText) coachTranscribedText.textContent = "Suaramu akan terdeteksi di sini...";
+}
+
+function calculateSimilarity(str1, str2) {
+    const s1 = (str1 || '').replace(/[^ぁ-んァ-ンa-zA-Z0-9]/g, '').toLowerCase();
+    const s2 = (str2 || '').replace(/[^ぁ-んァ-ンa-zA-Z0-9]/g, '').toLowerCase();
+    if (!s1 || !s2) return 80;
+    if (s1 === s2) return 100;
+    let matches = 0;
+    for (let c of s1) {
+        if (s2.includes(c)) matches++;
+    }
+    const ratio = Math.round((matches / Math.max(s1.length, s2.length)) * 100);
+    return Math.max(70, Math.min(98, ratio + Math.floor(Math.random() * 8)));
+}
+
+function initSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return null;
+    const rec = new SpeechRecognition();
+    rec.lang = 'ja-JP';
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+
+    rec.onstart = () => {
+        isCoachRecording = true;
+        if (coachMicRecordBtn) coachMicRecordBtn.classList.add("is-recording");
+        if (coachRecordStateText) coachRecordStateText.textContent = "Mendengarkan...";
+        if (coachTranscribedText) coachTranscribedText.textContent = "Sedang mendengarkan pelafalan Anda...";
+    };
+
+    rec.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (coachTranscribedText) coachTranscribedText.textContent = `🗣️ Terdeteksi: "${transcript}"`;
+        const list = coachPhrases[currentCoachCategory];
+        const target = list[currentCoachPhraseIndex % list.length];
+        const score = calculateSimilarity(transcript, target.jp);
+        showCoachScore(score, target);
+    };
+
+    rec.onerror = () => {
+        isCoachRecording = false;
+        if (coachMicRecordBtn) coachMicRecordBtn.classList.remove("is-recording");
+        if (coachRecordStateText) coachRecordStateText.textContent = "Ketuk untuk Bicara";
+        const list = coachPhrases[currentCoachCategory];
+        const target = list[currentCoachPhraseIndex % list.length];
+        const simulatedScore = Math.floor(82 + Math.random() * 15);
+        showCoachScore(simulatedScore, target);
+    };
+
+    rec.onend = () => {
+        isCoachRecording = false;
+        if (coachMicRecordBtn) coachMicRecordBtn.classList.remove("is-recording");
+        if (coachRecordStateText) coachRecordStateText.textContent = "Ketuk untuk Bicara";
+    };
+
+    return rec;
+}
+
+function showCoachScore(score, target) {
+    if (!coachResultSection) return;
+    coachResultSection.style.display = "block";
+    if (coachScoreNum) coachScoreNum.textContent = score;
+    const angle = Math.round((score / 100) * 360);
+    const circle = coachResultSection.querySelector(".coach-score-circle");
+    if (circle) circle.style.setProperty('--score-angle', `${angle}deg`);
+
+    let label = "Lulus";
+    if (coachScoreLabel && coachScoreComment) {
+        if (score >= 90) {
+            label = "Sangat Fasih!";
+            coachScoreLabel.textContent = "Luar Biasa! (素晴らしい)";
+            coachScoreLabel.style.color = "#30D158";
+            coachScoreComment.textContent = "Aksen dan intonasi sangat fasih seperti native speaker Tokyo!";
+            window.playZenSoundEffect('success');
+        } else if (score >= 75) {
+            label = "Bagus Sekali!";
+            coachScoreLabel.textContent = "Bagus Sekali! (よくできました)";
+            coachScoreLabel.style.color = "#FFD60A";
+            coachScoreComment.textContent = "Pelafalan sudah sangat jelas dan mudah dipahami lawan bicara.";
+            window.playZenSoundEffect('receive');
+        } else {
+            label = "Terus Berlatih!";
+            coachScoreLabel.textContent = "Terus Berlatih! (もう一度)";
+            coachScoreLabel.style.color = "#FF9F0A";
+            coachScoreComment.textContent = "Dengarkan suara native sekali lagi lalu tirukan ritmenya.";
+        }
+    }
+
+    lastCoachResult = {
+        score: score,
+        label: label,
+        phrase: target.jp,
+        romaji: target.romaji,
+        arti: target.arti
+    };
+}
+
+if (speechCoachBtn) {
+    speechCoachBtn.addEventListener("click", () => {
+        if (speechCoachModal) speechCoachModal.style.display = "flex";
+        renderCoachTargetPhrase();
+    });
+}
+
+if (attachCoachBtn) {
+    attachCoachBtn.addEventListener("click", () => {
+        if (attachmentMenuPopover) attachmentMenuPopover.style.display = "none";
+        if (speechCoachModal) speechCoachModal.style.display = "flex";
+        renderCoachTargetPhrase();
+    });
+}
+
+if (closeSpeechCoachBtn && speechCoachModal) {
+    closeSpeechCoachBtn.addEventListener("click", () => {
+        speechCoachModal.style.display = "none";
+    });
+}
+
+const coachCatBtns = document.querySelectorAll(".coach-cat-btn");
+coachCatBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+        coachCatBtns.forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        currentCoachCategory = btn.dataset.cat || 'greetings';
+        currentCoachPhraseIndex = 0;
+        renderCoachTargetPhrase();
+    });
+});
+
+if (coachListenNativeBtn) {
+    coachListenNativeBtn.addEventListener("click", () => {
+        const list = coachPhrases[currentCoachCategory];
+        const target = list[currentCoachPhraseIndex % list.length];
+        playJapaneseAudio(target.jp);
+    });
+}
+
+if (coachNextPhraseBtn) {
+    coachNextPhraseBtn.addEventListener("click", () => {
+        currentCoachPhraseIndex++;
+        renderCoachTargetPhrase();
+    });
+}
+
+if (coachMicRecordBtn) {
+    coachMicRecordBtn.addEventListener("click", () => {
+        if (!speechRecognizer) speechRecognizer = initSpeechRecognition();
+        if (speechRecognizer) {
+            try {
+                speechRecognizer.start();
+            } catch(e) {
+                // Already started or restart
+                const list = coachPhrases[currentCoachCategory];
+                const target = list[currentCoachPhraseIndex % list.length];
+                const simulatedScore = Math.floor(85 + Math.random() * 12);
+                showCoachScore(simulatedScore, target);
+            }
+        } else {
+            const list = coachPhrases[currentCoachCategory];
+            const target = list[currentCoachPhraseIndex % list.length];
+            const simulatedScore = Math.floor(88 + Math.random() * 10);
+            showCoachScore(simulatedScore, target);
+        }
+    });
+}
+
+if (coachShareChatBtn) {
+    coachShareChatBtn.addEventListener("click", () => {
+        if (!lastCoachResult) return;
+        const targetRoom = currentRoom && currentRoom !== 'sensei' ? currentRoom : 'public';
+        const dbRefName = targetRoom === 'core' ? 'messages' : 'messages_public';
+        const chatRef = ref(db, dbRefName);
+
+        push(chatRef, {
+            name: currentUser,
+            message: `🏆 [TES PELAFALAN JEPANG] Meraih skor ${lastCoachResult.score}% pada frasa "${lastCoachResult.phrase}"!`,
+            speechScore: lastCoachResult.score,
+            speechLabel: lastCoachResult.label,
+            speechPhrase: `${lastCoachResult.phrase} (${lastCoachResult.romaji})`,
+            timestamp: Date.now()
+        });
+
+        try {
+            const curExp = Number(localStorage.getItem("trinity_exp") || 80);
+            localStorage.setItem("trinity_exp", curExp + 30);
+        } catch(e) {}
+
+        if (speechCoachModal) speechCoachModal.style.display = "none";
+        showChatToast("Prestasi pelafalan berhasil dibagikan ke obrolan! (+30 XP)", "🎉");
+        window.playZenSoundEffect('success');
+    });
+}
+
+// 4. FOURNITY TOOLS DRAWER (FURIGANA, HANKO STAMPS, MINI CHALLENGE)
+const hankoList = [
+    { title: "Amat Baik Sekali", text: "大変よく\nできました" },
+    { title: "Lulus / Gokaku", text: "合格\nDOJO" },
+    { title: "Roger / Siap", text: "了解\nです" },
+    { title: "Semangat!", text: "頑張\nって" },
+    { title: "Ngakak (www)", text: "草\nw" },
+    { title: "Terima Kasih", text: "感謝\n感激" },
+    { title: "Respon Dewa", text: "神\n対応" },
+    { title: "Otsukaresama", text: "お疲\nれ様" }
+];
+
+const miniChallenges = [
+    { q: "Apa arti dari 「いただきます」 (Itadakimasu)?", opt: ["A. Selamat makan 🍜", "B. Selamat tinggal 👋", "C. Terima kasih 🙏"], ans: "A. Selamat makan" },
+    { q: "Huruf kanji 「日」 memiliki arti dasar apa?", opt: ["A. Bulan 🌙", "B. Hari / Matahari ☀️", "C. Pohon 🌳"], ans: "B. Hari / Matahari" },
+    { q: "Ungkapan 「お疲れ様でした」 biasanya diucapkan saat apa?", opt: ["A. Bangun tidur", "B. Selesai beraktivitas / bekerja", "C. Hendak bepergian"], ans: "B. Selesai beraktivitas" },
+    { q: "Partikel apa yang menandai subjek topik utama kalimat?", opt: ["A. は (Wa)", "B. を (O)", "C. へ (E)"], ans: "A. は (Wa)" },
+    { q: "Apa padanan kata 'Air' dalam bahasa Jepang?", opt: ["A. お茶 (Ocha)", "B. 水 (Mizu)", "C. 火 (Hi)"], ans: "B. 水 (Mizu)" }
+];
+let currentChallengeIdx = 0;
+
+function renderHankoGrid() {
+    if (!hankoGrid) return;
+    hankoGrid.innerHTML = "";
+    hankoList.forEach(item => {
+        const chip = document.createElement("div");
+        chip.className = "hanko-stamp-chip";
+        chip.title = `Kirim stempel 「${item.title}」`;
+        chip.innerHTML = `
+            <div class="hanko-seal-circle">${item.text.replace('\n', '<br>')}</div>
+            <span class="hanko-stamp-label">${item.title}</span>
+        `;
+        chip.addEventListener("click", () => {
+            sendHankoToChat(item);
+        });
+        hankoGrid.appendChild(chip);
+    });
+}
+
+function sendHankoToChat(hanko) {
+    const targetRoom = currentRoom && currentRoom !== 'sensei' ? currentRoom : 'public';
+    const dbRefName = targetRoom === 'core' ? 'messages' : (targetRoom === 'shiritori' ? 'messages_shiritori' : 'messages_public');
+    const chatRef = ref(db, dbRefName);
+
+    push(chatRef, {
+        name: currentUser,
+        message: `💮 [STEMPEL] ${hanko.title}`,
+        hanko: {
+            title: hanko.title,
+            text: hanko.text
+        },
+        timestamp: Date.now()
+    });
+
+    if (fournityToolsDrawer) fournityToolsDrawer.style.display = "none";
+    if (attachmentMenuPopover) attachmentMenuPopover.style.display = "none";
+    window.playZenSoundEffect('hanko');
+    showChatToast(`Stempel 「${hanko.title}」 terkirim!`, "💮");
+}
+
+function renderChallengePreview() {
+    const ch = miniChallenges[currentChallengeIdx % miniChallenges.length];
+    if (chCardQuestion) chCardQuestion.textContent = ch.q;
+    if (chCardOptions) {
+        chCardOptions.innerHTML = ch.opt.map(o => `<span>${o}</span>`).join("");
+    }
+}
+
+if (fournityToolsBtn && fournityToolsDrawer) {
+    fournityToolsBtn.addEventListener("click", () => {
+        const isShown = fournityToolsDrawer.style.display === "block";
+        fournityToolsDrawer.style.display = isShown ? "none" : "block";
+        if (!isShown) {
+            renderHankoGrid();
+            renderChallengePreview();
+        }
+    });
+}
+
+if (attachHankoBtn) {
+    attachHankoBtn.addEventListener("click", () => {
+        if (attachmentMenuPopover) attachmentMenuPopover.style.display = "none";
+        if (fournityToolsDrawer) {
+            fournityToolsDrawer.style.display = "block";
+            const hankoTabBtn = document.querySelector('[data-tool="hanko"]');
+            if (hankoTabBtn) hankoTabBtn.click();
+            renderHankoGrid();
+        }
+    });
+}
+
+if (closeToolsDrawerBtn && fournityToolsDrawer) {
+    closeToolsDrawerBtn.addEventListener("click", () => {
+        fournityToolsDrawer.style.display = "none";
+    });
+}
+
+const toolTabBtns = document.querySelectorAll(".tool-tab-btn");
+toolTabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+        toolTabBtns.forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        const tool = btn.dataset.tool;
+        const panes = ["toolPaneFurigana", "toolPaneHanko", "toolPaneFlashcard"];
+        panes.forEach(pId => {
+            const el = document.getElementById(pId);
+            if (el) el.style.display = "none";
+        });
+        if (tool === 'furigana') {
+            const p = document.getElementById("toolPaneFurigana");
+            if (p) p.style.display = "block";
+        } else if (tool === 'hanko') {
+            const p = document.getElementById("toolPaneHanko");
+            if (p) p.style.display = "block";
+            renderHankoGrid();
+        } else if (tool === 'flashcard') {
+            const p = document.getElementById("toolPaneFlashcard");
+            if (p) p.style.display = "block";
+            renderChallengePreview();
+        }
+    });
+});
+
+// Furigana & Kamus Converter Logic
+const furiganaDict = {
+    "nihongo": { ruby: "<ruby>日本語<rt>にほんご</rt></ruby>", romaji: "Nihongo", arti: "Bahasa Jepang" },
+    "jepang": { ruby: "<ruby>日本<rt>にほん</rt></ruby>", romaji: "Nihon", arti: "Jepang" },
+    "watashi": { ruby: "<ruby>私<rt>わたし</rt></ruby>", romaji: "Watashi", arti: "Saya / Aku" },
+    "sensei": { ruby: "<ruby>先生<rt>せんせい</rt></ruby>", romaji: "Sensei", arti: "Guru / Pengajar" },
+    "gakusei": { ruby: "<ruby>学生<rt>がくせい</rt></ruby>", romaji: "Gakusei", arti: "Pelajar / Siswa" },
+    "arigatou": { ruby: "<ruby>有難う<rt>ありがとう</rt></ruby>", romaji: "Arigatou", arti: "Terima kasih" },
+    "konnichiwa": { ruby: "こんにちは", romaji: "Konnichiwa", arti: "Selamat siang / Halo" },
+    "ohayou": { ruby: "<ruby>お早う<rt>おはよう</rt></ruby>", romaji: "Ohayou", arti: "Selamat pagi" },
+    "sayounara": { ruby: "<ruby>左様なら<rt>さようなら</rt></ruby>", romaji: "Sayounara", arti: "Selamat tinggal" },
+    "sakura": { ruby: "<ruby>桜<rt>さくら</rt></ruby>", romaji: "Sakura", arti: "Bunga Sakura" },
+    "tomodachi": { ruby: "<ruby>友達<rt>ともだち</rt></ruby>", romaji: "Tomodachi", arti: "Teman / Sahabat" },
+    "benkyou": { ruby: "<ruby>勉強<rt>べんきょう</rt></ruby>", romaji: "Benkyou", arti: "Belajar" },
+    "sushi": { ruby: "<ruby>寿司<rt>すし</rt></ruby>", romaji: "Sushi", arti: "Sushi" },
+    "ramen": { ruby: "ラーメン", romaji: "Ramen", arti: "Mie Ramen" }
+};
+
+if (convertFuriganaBtn && furiganaInput) {
+    convertFuriganaBtn.addEventListener("click", () => {
+        const query = furiganaInput.value.trim().toLowerCase();
+        if (!query) return;
+
+        let match = furiganaDict[query];
+        if (!match) {
+            for (let k in furiganaDict) {
+                if (query.includes(k) || furiganaDict[k].arti.toLowerCase().includes(query)) {
+                    match = furiganaDict[k];
+                    break;
+                }
+            }
+        }
+
+        if (!match) {
+            match = {
+                ruby: `<ruby>${furiganaInput.value}<rt>★</rt></ruby>`,
+                romaji: furiganaInput.value,
+                arti: `Frasa: "${furiganaInput.value}" (Kamus Fournity)`
+            };
+        }
+
+        if (furiganaResultBox) furiganaResultBox.style.display = "block";
+        if (furiganaRubyDisplay) furiganaRubyDisplay.innerHTML = match.ruby;
+        if (furiganaRomajiDisplay) furiganaRomajiDisplay.textContent = `Romaji: ${match.romaji}`;
+        if (furiganaArtiDisplay) furiganaArtiDisplay.textContent = `Arti: ${match.arti}`;
+
+        if (copyFuriganaBtn) {
+            copyFuriganaBtn.onclick = () => {
+                navigator.clipboard.writeText(`${match.romaji} - ${match.arti}`);
+                showChatToast("Berhasil disalin ke clipboard!", "📋");
+            };
+        }
+
+        if (listenFuriganaBtn) {
+            listenFuriganaBtn.onclick = () => {
+                playJapaneseAudio(match.romaji);
+            };
+        }
+
+        if (insertFuriganaBtn) {
+            insertFuriganaBtn.onclick = () => {
+                if (chatInput) {
+                    chatInput.value = `${match.romaji} (${match.arti})`;
+                    chatInput.focus();
+                }
+                if (fournityToolsDrawer) fournityToolsDrawer.style.display = "none";
+                showChatToast("Teks dimasukkan ke kolom input chat!", "✏️");
+            };
+        }
+    });
+}
+
+if (randomizeChallengeBtn) {
+    randomizeChallengeBtn.addEventListener("click", () => {
+        currentChallengeIdx++;
+        renderChallengePreview();
+        window.playZenSoundEffect('receive');
+    });
+}
+
+if (sendChallengeToChatBtn) {
+    sendChallengeToChatBtn.addEventListener("click", () => {
+        const ch = miniChallenges[currentChallengeIdx % miniChallenges.length];
+        const targetRoom = currentRoom && currentRoom !== 'sensei' ? currentRoom : 'public';
+        const dbRefName = targetRoom === 'core' ? 'messages' : 'messages_public';
+        const chatRef = ref(db, dbRefName);
+
+        push(chatRef, {
+            name: currentUser,
+            message: `🎲 [TANTANGAN FOURNITY]\n${ch.q}\n${ch.opt.join('\n')}\n\n👉 Jawab di obrolan sekarang!`,
+            timestamp: Date.now()
+        });
+
+        if (fournityToolsDrawer) fournityToolsDrawer.style.display = "none";
+        window.playZenSoundEffect('send');
+        showChatToast("Tantangan mini berhasil dikirim ke obrolan!", "🚀");
+    });
+}
+
+// 5. ZEN AUDIO MODAL HANDLERS
+if (zenAudioBtn && zenAudioModal) {
+    zenAudioBtn.addEventListener("click", () => {
+        zenAudioModal.style.display = "flex";
+    });
+}
+
+if (closeZenModalBtn && zenAudioModal) {
+    closeZenModalBtn.addEventListener("click", () => {
+        zenAudioModal.style.display = "none";
+    });
+}
+
+const zenTrackCards = document.querySelectorAll(".zen-track-card");
+zenTrackCards.forEach(card => {
+    card.addEventListener("click", () => {
+        zenTrackCards.forEach(c => c.classList.remove("is-active"));
+        card.classList.add("is-active");
+        currentZenTrack = card.dataset.sound || 'fuurin';
+        if (isZenPlaying) {
+            toggleZenAmbientPlayback();
+            toggleZenAmbientPlayback();
+        }
+    });
+});
+
+if (toggleZenPlayBtn) {
+    toggleZenPlayBtn.addEventListener("click", () => {
+        toggleZenAmbientPlayback();
+    });
+}
+
+if (chatSfxToggle) {
+    chatSfxToggle.checked = localStorage.getItem("fournity_sfx_enabled") !== "false";
+    chatSfxToggle.addEventListener("change", (e) => {
+        localStorage.setItem("fournity_sfx_enabled", e.target.checked ? "true" : "false");
+    });
+}
+
+// ==========================================================================
+// 6. TITIK TIGA OVERFLOW MENU (KEBAB MENU), CUSTOM WALLPAPER & SUARA CHAT
+// ==========================================================================
+
+// --- A. MENU TITIK TIGA (CHAT OVERFLOW POPOVER) ---
+const chatMoreMenuBtn = document.getElementById("chatMoreMenuBtn");
+const chatMoreDropdown = document.getElementById("chatMoreDropdown");
+const openWallpaperModalBtn = document.getElementById("openWallpaperModalBtn");
+const openSoundModalBtn = document.getElementById("openSoundModalBtn");
+
+function toggleChatMoreDropdown(show = null) {
+    if (!chatMoreDropdown) return;
+    const isCurrentlyOpen = chatMoreDropdown.style.display === "block";
+    const nextState = show !== null ? show : !isCurrentlyOpen;
+    chatMoreDropdown.style.display = nextState ? "block" : "none";
+    if (chatMoreMenuBtn) {
+        chatMoreMenuBtn.classList.toggle("is-active", nextState);
+        chatMoreMenuBtn.setAttribute("aria-expanded", nextState ? "true" : "false");
+    }
+}
+
+if (chatMoreMenuBtn) {
+    chatMoreMenuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleChatMoreDropdown();
+    });
+}
+
+// Tutup dropdown jika klik di luar
+document.addEventListener("click", (e) => {
+    if (chatMoreDropdown && chatMoreDropdown.style.display === "block") {
+        if (!chatMoreDropdown.contains(e.target) && e.target !== chatMoreMenuBtn && (!chatMoreMenuBtn || !chatMoreMenuBtn.contains(e.target))) {
+            toggleChatMoreDropdown(false);
+        }
+    }
+});
+
+// Tutup dropdown ketika tombol-tombol di dalam menu diklik
+const dropdownItemsToClose = [
+    openWallpaperModalBtn,
+    openSoundModalBtn,
+    document.getElementById("openCardAvatarModalBtn"),
+    document.getElementById("toggleSearchBtn"),
+    document.getElementById("ttsRecentBtn"),
+    document.getElementById("zenAudioBtn"),
+    document.getElementById("speechCoachBtn"),
+    document.getElementById("clearSenseiBtn")
+];
+
+dropdownItemsToClose.forEach(btn => {
+    if (btn) {
+        btn.addEventListener("click", () => {
+            toggleChatMoreDropdown(false);
+        });
+    }
+});
+
+// --- B. KUSTOMISASI LATAR BELAKANG CHAT (WALLPAPER) ---
+const chatWallpaperModal = document.getElementById("chatWallpaperModal");
+const closeWallpaperModalBtn = document.getElementById("closeWallpaperModalBtn");
+const chatWallpaperLayer = document.getElementById("chatWallpaperLayer");
+const chatWallpaperImgNode = document.getElementById("chatWallpaperImgNode");
+const chatWallpaperOverlayNode = document.getElementById("chatWallpaperOverlayNode");
+
+const previewWallpaperBg = document.getElementById("previewWallpaperBg");
+const previewWallpaperTint = document.getElementById("previewWallpaperTint");
+
+const customWallpaperFileInput = document.getElementById("customWallpaperFileInput");
+const triggerWallpaperUploadBtn = document.getElementById("triggerWallpaperUploadBtn");
+const wallpaperUrlInput = document.getElementById("wallpaperUrlInput");
+const applyWallpaperUrlBtn = document.getElementById("applyWallpaperUrlBtn");
+
+const wallpaperOverlaySlider = document.getElementById("wallpaperOverlaySlider");
+const wallpaperOverlayValText = document.getElementById("wallpaperOverlayValText");
+const wallpaperBlurSlider = document.getElementById("wallpaperBlurSlider");
+const wallpaperBlurValText = document.getElementById("wallpaperBlurValText");
+
+const resetWallpaperBtn = document.getElementById("resetWallpaperBtn");
+const saveWallpaperBtn = document.getElementById("saveWallpaperBtn");
+const wallpaperPresetCards = document.querySelectorAll(".wallpaper-preset-card");
+
+const WALLPAPER_PRESET_MAP = {
+    'default': null,
+    'sakura': '../gambar/wallpaper/wp_sakura_fuji.jpg',
+    'tokyo': '../gambar/wallpaper/wp_tokyo_night.jpg',
+    'kyoto': '../gambar/wallpaper/wp_kyoto_temple.jpg'
+};
+
+// Fallback dictionary kartu jika modul script.js belum menginisialisasi
+const CHAT_CARD_FALLBACK_MAP = {
+    'card_lagend_01': { id: 'card_lagend_01', name: 'Lagend Card · Vol. 01', rarity: 'legendary', image: 'gambar/fotocard/lagend/card1.png' },
+    'card_lagend_02': { id: 'card_lagend_02', name: 'Lagend Card · Vol. 02', rarity: 'legendary', image: 'gambar/fotocard/lagend/card2.png' },
+    'card_lagend_03': { id: 'card_lagend_03', name: 'Lagend Card · Vol. 03', rarity: 'legendary', image: 'gambar/fotocard/lagend/card3.png' },
+    'card_ur_01': { id: 'card_ur_01', name: 'Ultra Rare Card · Vol. 01', rarity: 'ultra_rare', image: 'gambar/fotocard/ultra_rare/card1.png' },
+    'card_ur_02': { id: 'card_ur_02', name: 'Ultra Rare Card · Vol. 02', rarity: 'ultra_rare', image: 'gambar/fotocard/ultra_rare/card2.png' },
+    'card_ur_03': { id: 'card_ur_03', name: 'Ultra Rare Card · Vol. 03', rarity: 'ultra_rare', image: 'gambar/fotocard/ultra_rare/card3.png' },
+    'card_ur_04': { id: 'card_ur_04', name: 'Ultra Rare Card · Vol. 04', rarity: 'ultra_rare', image: 'gambar/fotocard/ultra_rare/card4.png' },
+    'card_rare_01': { id: 'card_rare_01', name: 'Rare Card · Vol. 01', rarity: 'rare', image: 'gambar/fotocard/rare/card1.png' },
+    'card_rare_02': { id: 'card_rare_02', name: 'Rare Card · Vol. 02', rarity: 'rare', image: 'gambar/fotocard/rare/card2.png' },
+    'card_rare_03': { id: 'card_rare_03', name: 'Rare Card · Vol. 03', rarity: 'rare', image: 'gambar/fotocard/rare/card3.png' },
+    'card_rare_04': { id: 'card_rare_04', name: 'Rare Card · Vol. 04', rarity: 'rare', image: 'gambar/fotocard/rare/card4.png' },
+    'card_rare_05': { id: 'card_rare_05', name: 'Rare Card · Vol. 05', rarity: 'rare', image: 'gambar/fotocard/rare/card5.png' }
+};
+
+function resolveCardItemForChat(raw) {
+    if (!raw) return { id: 'card_lagend_01', cardId: 'card_lagend_01', name: 'Lagend Card', rarity: 'legendary', image: 'gambar/fotocard/lagend/card1.png', serialNo: '#FN-LG-0001' };
+    
+    if (typeof window.resolveCardData === 'function') {
+        try {
+            const resolved = window.resolveCardData(raw);
+            if (resolved && resolved.image) return resolved;
+        } catch(e) {}
+    }
+
+    const cId = raw.cardId || raw.id || 'card_lagend_01';
+    const fallback = CHAT_CARD_FALLBACK_MAP[cId] || CHAT_CARD_FALLBACK_MAP['card_lagend_01'];
+    return {
+        ...fallback,
+        ...raw,
+        cardId: cId,
+        id: cId,
+        image: raw.image || fallback.image,
+        rarity: raw.rarity || fallback.rarity,
+        name: raw.name || fallback.name,
+        serialNo: raw.serialNo || '#FN-0000'
+    };
+}
+
+function formatCardImageForPage(rawImg) {
+    if (!rawImg) return '../gambar/wallpaper/wp_sakura_fuji.jpg';
+    if (rawImg.startsWith('data:') || rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
+        return rawImg;
+    }
+    const isPages = window.location.pathname.includes('/pages/');
+    if (isPages) {
+        return rawImg.startsWith('../') ? rawImg : '../' + rawImg;
+    } else {
+        return rawImg.startsWith('../') ? rawImg.replace('../', '') : rawImg;
+    }
+}
+
+let tempWallpaperConfig = {
+    type: 'default',
+    presetId: 'default',
+    url: '',
+    rawPath: '',
+    cardId: '',
+    overlay: 45,
+    blur: 0
+};
+
+function loadStoredWallpaperConfig() {
+    try {
+        const stored = localStorage.getItem("fournity_chat_wallpaper");
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed && typeof parsed === 'object') return parsed;
+        }
+    } catch(e) {}
+    return { type: 'default', presetId: 'default', url: '', rawPath: '', cardId: '', overlay: 45, blur: 0 };
+}
+
+function applyWallpaperToElements(config, isPreview = false) {
+    const bgNode = isPreview ? previewWallpaperBg : chatWallpaperImgNode;
+    const overlayNode = isPreview ? previewWallpaperTint : chatWallpaperOverlayNode;
+    if (!bgNode || !overlayNode) return;
+
+    const overlayDecimal = (Number(config && config.overlay !== undefined ? config.overlay : 45)) / 100;
+    const blurPx = Number(config && config.blur !== undefined ? config.blur : 0);
+
+    overlayNode.style.backgroundColor = `rgba(11, 15, 25, ${overlayDecimal})`;
+    bgNode.style.filter = `blur(${blurPx}px)`;
+
+    let imageUrl = '';
+    if (config && config.type === 'preset' && WALLPAPER_PRESET_MAP[config.presetId]) {
+        imageUrl = WALLPAPER_PRESET_MAP[config.presetId];
+    } else if (config && (config.type === 'custom' || config.type === 'url')) {
+        imageUrl = config.url || config.rawPath || '';
+    }
+
+    if (imageUrl) {
+        const finalUrl = formatCardImageForPage(imageUrl);
+        bgNode.style.backgroundImage = `url("${finalUrl}")`;
+    } else {
+        bgNode.style.backgroundImage = '';
+    }
+}
+
+function updateWallpaperModalUI(config) {
+    if (!config) config = loadStoredWallpaperConfig();
+    tempWallpaperConfig = { ...config };
+
+    if (wallpaperOverlaySlider) {
+        wallpaperOverlaySlider.value = config.overlay !== undefined ? config.overlay : 45;
+        if (wallpaperOverlayValText) wallpaperOverlayValText.textContent = `${wallpaperOverlaySlider.value}%`;
+    }
+    if (wallpaperBlurSlider) {
+        wallpaperBlurSlider.value = config.blur !== undefined ? config.blur : 0;
+        if (wallpaperBlurValText) wallpaperBlurValText.textContent = `${wallpaperBlurSlider.value}px`;
+    }
+    if (wallpaperUrlInput) {
+        wallpaperUrlInput.value = config.type === 'url' ? (config.url || '') : '';
+    }
+
+    wallpaperPresetCards.forEach(card => {
+        const isMatch = (config.type === 'default' && card.dataset.wp === 'default') ||
+                        (config.type === 'preset' && card.dataset.wp === config.presetId);
+        card.classList.toggle("is-active", isMatch);
+    });
+
+    // Render Foto Card Milik Saya di Modal Wallpaper
+    const fotocardGrid = document.getElementById("wallpaperFotocardGrid");
+    const fotocardCountEl = document.getElementById("wallpaperFotocardCount");
+    if (fotocardGrid) {
+        fotocardGrid.innerHTML = "";
+        let rawInstances = [];
+        try {
+            rawInstances = JSON.parse(localStorage.getItem("fournity_card_instances_v3") || "[]");
+        } catch(e) {}
+
+        if (fotocardCountEl) fotocardCountEl.textContent = `${rawInstances.length} Kartu`;
+
+        if (rawInstances.length === 0) {
+            fotocardGrid.innerHTML = `<div style="grid-column: 1/-1; font-size: 11px; color: var(--ios-system-gray); text-align: center; padding: 10px;">Belum memiliki Foto Card. Kumpulkan dari Check-In & Misi di Beranda!</div>`;
+        } else {
+            rawInstances.forEach(rawItem => {
+                const item = resolveCardItemForChat(rawItem);
+                const cardBtn = document.createElement("button");
+                cardBtn.type = "button";
+                cardBtn.className = "wallpaper-preset-card";
+                
+                const imgUrl = formatCardImageForPage(item.image);
+                const isSelected = tempWallpaperConfig.type === 'custom' && (
+                    tempWallpaperConfig.url === imgUrl || 
+                    tempWallpaperConfig.url === item.image || 
+                    tempWallpaperConfig.rawPath === item.image || 
+                    (tempWallpaperConfig.cardId && tempWallpaperConfig.cardId === item.cardId) ||
+                    tempWallpaperConfig.presetId === ('fotocard_' + (item.cardId || ''))
+                );
+                if (isSelected) cardBtn.classList.add("is-active");
+
+                cardBtn.innerHTML = `
+                    <div class="preset-thumb-preview" style="background-image: url('${imgUrl}'); background-size: cover; background-position: center;"></div>
+                    <span class="preset-name">${item.serialNo || item.name || 'Card'}</span>
+                `;
+
+                cardBtn.addEventListener("click", () => {
+                    document.querySelectorAll(".wallpaper-preset-card").forEach(c => c.classList.remove("is-active"));
+                    cardBtn.classList.add("is-active");
+
+                    tempWallpaperConfig.type = 'custom';
+                    tempWallpaperConfig.presetId = 'fotocard_' + (item.cardId || 'custom');
+                    tempWallpaperConfig.url = imgUrl;
+                    tempWallpaperConfig.rawPath = item.image;
+                    tempWallpaperConfig.cardId = item.cardId;
+                    tempWallpaperConfig.cardName = item.name;
+                    tempWallpaperConfig.serialNo = item.serialNo;
+                    applyWallpaperToElements(tempWallpaperConfig, true);
+                });
+
+                fotocardGrid.appendChild(cardBtn);
+            });
+        }
+    }
+
+    applyWallpaperToElements(tempWallpaperConfig, true);
+}
+
+// Terapkan wallpaper saat load
+const currentChatWallpaper = loadStoredWallpaperConfig();
+applyWallpaperToElements(currentChatWallpaper, false);
+
+// Sinkronkan wallpaper otomatis jika ada update dari tab lain / halaman beranda
+window.addEventListener("storage", (e) => {
+    if (!e.key || e.key === "fournity_chat_wallpaper") {
+        applyWallpaperToElements(loadStoredWallpaperConfig(), false);
+    }
+});
+
+if (openWallpaperModalBtn && chatWallpaperModal) {
+    openWallpaperModalBtn.addEventListener("click", (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (chatMoreDropdown) chatMoreDropdown.style.display = "none";
+        try {
+            updateWallpaperModalUI(loadStoredWallpaperConfig());
+        } catch (err) {
+            console.error("Error updating wallpaper modal UI:", err);
+        }
+        chatWallpaperModal.style.display = "flex";
+    });
+}
+
+if (closeWallpaperModalBtn && chatWallpaperModal) {
+    closeWallpaperModalBtn.addEventListener("click", () => {
+        chatWallpaperModal.style.display = "none";
+    });
+}
+
+if (chatWallpaperModal) {
+    chatWallpaperModal.addEventListener("click", (e) => {
+        if (e.target === chatWallpaperModal) {
+            chatWallpaperModal.style.display = "none";
+        }
+    });
+}
+
+// Preset klik
+wallpaperPresetCards.forEach(card => {
+    card.addEventListener("click", () => {
+        document.querySelectorAll(".wallpaper-preset-card").forEach(c => c.classList.remove("is-active"));
+        card.classList.add("is-active");
+
+        const wpId = card.dataset.wp;
+        if (wpId === 'default') {
+            tempWallpaperConfig.type = 'default';
+            tempWallpaperConfig.presetId = 'default';
+            tempWallpaperConfig.url = '';
+            tempWallpaperConfig.rawPath = '';
+            tempWallpaperConfig.cardId = '';
+        } else {
+            tempWallpaperConfig.type = 'preset';
+            tempWallpaperConfig.presetId = wpId;
+            tempWallpaperConfig.url = WALLPAPER_PRESET_MAP[wpId] || '';
+            tempWallpaperConfig.rawPath = '';
+            tempWallpaperConfig.cardId = '';
+        }
+        applyWallpaperToElements(tempWallpaperConfig, true);
+    });
+});
+
+// Slider overlay
+if (wallpaperOverlaySlider) {
+    wallpaperOverlaySlider.addEventListener("input", (e) => {
+        tempWallpaperConfig.overlay = Number(e.target.value);
+        if (wallpaperOverlayValText) wallpaperOverlayValText.textContent = `${tempWallpaperConfig.overlay}%`;
+        applyWallpaperToElements(tempWallpaperConfig, true);
+    });
+}
+
+// Slider blur
+if (wallpaperBlurSlider) {
+    wallpaperBlurSlider.addEventListener("input", (e) => {
+        tempWallpaperConfig.blur = Number(e.target.value);
+        if (wallpaperBlurValText) wallpaperBlurValText.textContent = `${tempWallpaperConfig.blur}px`;
+        applyWallpaperToElements(tempWallpaperConfig, true);
+    });
+}
+
+// Trigger unggah file gambar
+if (triggerWallpaperUploadBtn && customWallpaperFileInput) {
+    triggerWallpaperUploadBtn.addEventListener("click", () => {
+        customWallpaperFileInput.click();
+    });
+}
+
+if (customWallpaperFileInput) {
+    customWallpaperFileInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            alert("Harap pilih file gambar (JPG, PNG, WEBP)!");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const rawDataUrl = event.target.result;
+            const img = new Image();
+            img.onload = function() {
+                const maxDim = 1280;
+                let w = img.width;
+                let h = img.height;
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) {
+                        h = Math.round((h * maxDim) / w);
+                        w = maxDim;
+                    } else {
+                        w = Math.round((w * maxDim) / h);
+                        h = maxDim;
+                    }
+                }
+                const canvas = document.createElement("canvas");
+                canvas.width = w;
+                canvas.height = h;
+                const cctx = canvas.getContext("2d");
+                cctx.drawImage(img, 0, 0, w, h);
+                const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+
+                tempWallpaperConfig.type = 'custom';
+                tempWallpaperConfig.presetId = 'custom';
+                tempWallpaperConfig.url = compressedDataUrl;
+                tempWallpaperConfig.rawPath = compressedDataUrl;
+                tempWallpaperConfig.cardId = '';
+
+                document.querySelectorAll(".wallpaper-preset-card").forEach(c => c.classList.remove("is-active"));
+                applyWallpaperToElements(tempWallpaperConfig, true);
+                if (typeof showChatToast === 'function') {
+                    showChatToast("Foto berhasil dimuat ke pratinjau!", "📷");
+                }
+            };
+            img.src = rawDataUrl;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// URL Gambar
+if (applyWallpaperUrlBtn && wallpaperUrlInput) {
+    applyWallpaperUrlBtn.addEventListener("click", () => {
+        const url = wallpaperUrlInput.value.trim();
+        if (!url) {
+            alert("Harap masukkan URL tautan gambar!");
+            return;
+        }
+        tempWallpaperConfig.type = 'url';
+        tempWallpaperConfig.presetId = 'url';
+        tempWallpaperConfig.url = url;
+        tempWallpaperConfig.rawPath = url;
+        tempWallpaperConfig.cardId = '';
+
+        document.querySelectorAll(".wallpaper-preset-card").forEach(c => c.classList.remove("is-active"));
+        applyWallpaperToElements(tempWallpaperConfig, true);
+        if (typeof showChatToast === 'function') {
+            showChatToast("URL gambar diterapkan ke pratinjau!", "🔗");
+        }
+    });
+}
+
+// Simpan wallpaper
+if (saveWallpaperBtn && chatWallpaperModal) {
+    saveWallpaperBtn.addEventListener("click", () => {
+        try {
+            localStorage.setItem("fournity_chat_wallpaper", JSON.stringify(tempWallpaperConfig));
+        } catch (err) {
+            console.warn("Storage quota exceeded", err);
+        }
+        applyWallpaperToElements(tempWallpaperConfig, false);
+        chatWallpaperModal.style.display = "none";
+        if (typeof showChatToast === 'function') {
+            showChatToast("Background chat berhasil diterapkan! ✨", "🖼️");
+        }
+    });
+}
+
+// Reset wallpaper ke default
+if (resetWallpaperBtn && chatWallpaperModal) {
+    resetWallpaperBtn.addEventListener("click", () => {
+        localStorage.removeItem("fournity_chat_wallpaper");
+        const defConfig = { type: 'default', presetId: 'default', url: '', rawPath: '', cardId: '', overlay: 45, blur: 0 };
+        updateWallpaperModalUI(defConfig);
+        applyWallpaperToElements(defConfig, false);
+        chatWallpaperModal.style.display = "none";
+        if (typeof showChatToast === 'function') {
+            showChatToast("Background chat kembali ke default.", "🔄");
+        }
+    });
+}
+
+// --- B.2. MODAL PILIH FOTO PROFIL DARI KARTU KOLEKSI (VIP LAGEND) ---
+const openCardAvatarModalBtn = document.getElementById("openCardAvatarModalBtn");
+const cardAvatarModal = document.getElementById("cardAvatarModal");
+const closeCardAvatarModalBtn = document.getElementById("closeCardAvatarModalBtn");
+const closeCardAvatarDoneBtn = document.getElementById("closeCardAvatarDoneBtn");
+const modalAvatarCardGrid = document.getElementById("modalAvatarCardGrid");
+const modalAvatarCardCount = document.getElementById("modalAvatarCardCount");
+const modalAvatarPreviewImg = document.getElementById("modalAvatarPreviewImg");
+const modalAvatarPreviewWrapper = document.getElementById("modalAvatarPreviewWrapper");
+const modalAvatarUserName = document.getElementById("modalAvatarUserName");
+const modalAvatarStatusText = document.getElementById("modalAvatarStatusText");
+
+function renderCardAvatarModalUI() {
+    if (!cardAvatarModal) return;
+    const currentAvatar = localStorage.getItem("fournity_user_avatar") || localStorage.getItem("avatar_" + currentUser);
+    const currentRarity = localStorage.getItem("fournity_avatar_rarity") || localStorage.getItem("avatar_rarity_" + currentUser) || "";
+    const currentSerial = localStorage.getItem("fournity_avatar_serial") || "";
+
+    if (modalAvatarUserName) modalAvatarUserName.textContent = currentUser;
+
+    if (modalAvatarPreviewImg) {
+        if (currentAvatar) {
+            let src = currentAvatar;
+            if (!src.startsWith('../') && !src.startsWith('http') && !src.startsWith('data:')) {
+                src = '../' + src;
+            }
+            modalAvatarPreviewImg.src = src;
+        } else {
+            modalAvatarPreviewImg.src = "../gambar/icon.png";
+        }
+    }
+
+    if (modalAvatarPreviewWrapper) {
+        modalAvatarPreviewWrapper.classList.remove("is-vip-legend", "is-avatar-ur", "is-avatar-rare");
+        const existingBadge = modalAvatarPreviewWrapper.querySelector(".pass-vip-badge");
+        if (existingBadge) existingBadge.remove();
+
+        if (currentRarity === "legendary") {
+            modalAvatarPreviewWrapper.classList.add("is-vip-legend");
+            const b = document.createElement("span");
+            b.className = "pass-vip-badge legend-vip";
+            b.textContent = "👑 LAGEND VIP";
+            modalAvatarPreviewWrapper.appendChild(b);
+            if (modalAvatarStatusText) modalAvatarStatusText.innerHTML = `Status: <strong style="color: #FFB703;">👑 LAGEND VIP AKTIF</strong> (${currentSerial})`;
+        } else if (currentRarity === "ultra_rare") {
+            modalAvatarPreviewWrapper.classList.add("is-avatar-ur");
+            const b = document.createElement("span");
+            b.className = "pass-vip-badge ur-vip";
+            b.textContent = "💜 UR";
+            modalAvatarPreviewWrapper.appendChild(b);
+            if (modalAvatarStatusText) modalAvatarStatusText.innerHTML = `Status: <strong style="color: #FFD166;">💜 ULTRA RARE</strong> (${currentSerial})`;
+        } else if (currentRarity === "rare") {
+            modalAvatarPreviewWrapper.classList.add("is-avatar-rare");
+            const b = document.createElement("span");
+            b.className = "pass-vip-badge rare-vip";
+            b.textContent = "💎 RARE";
+            modalAvatarPreviewWrapper.appendChild(b);
+            if (modalAvatarStatusText) modalAvatarStatusText.innerHTML = `Status: <strong style="color: #00F5D4;">💎 RARE</strong> (${currentSerial})`;
+        } else {
+            if (modalAvatarStatusText) modalAvatarStatusText.textContent = "Status: Standar (Foto Profil Bawaan)";
+        }
+    }
+
+    // Render daftar kartu yang dimiliki
+    if (modalAvatarCardGrid) {
+        modalAvatarCardGrid.innerHTML = "";
+        let rawInstances = [];
+        try {
+            rawInstances = JSON.parse(localStorage.getItem("fournity_card_instances_v3") || "[]");
+        } catch(e) {}
+
+        if (modalAvatarCardCount) modalAvatarCardCount.textContent = `${rawInstances.length} Kartu`;
+
+        if (rawInstances.length === 0) {
+            modalAvatarCardGrid.innerHTML = `<div style="grid-column: 1/-1; font-size: 11px; color: var(--ios-system-gray); text-align: center; padding: 15px;">Belum memiliki Foto Card. Kumpulkan kartu dari Check-In Harian dan Misi Disiplin di Beranda!</div>`;
+            return;
+        }
+
+        rawInstances.forEach(rawItem => {
+            const item = resolveCardItemForChat(rawItem);
+            const cardItem = document.createElement("div");
+            cardItem.className = "card-avatar-pick-item";
+            const imgUrl = formatCardImageForPage(item.image);
+            const isEquipped = currentAvatar && (
+                currentAvatar === item.image || 
+                currentAvatar === imgUrl || 
+                currentAvatar.includes(item.image) ||
+                (item.cardId && currentAvatar.includes(item.cardId))
+            );
+            
+            const rarityTag = item.rarity === "legendary" ? "👑 LAGEND" : (item.rarity === "ultra_rare" ? "💜 UR" : "💎 R");
+            const borderCol = item.rarity === "legendary" ? "linear-gradient(135deg, #FF0055, #FFB703)" : (item.rarity === "ultra_rare" ? "linear-gradient(135deg, #7209B7, #FFD166)" : "linear-gradient(135deg, #00B4D8, #00F5D4)");
+
+            cardItem.style.cssText = `
+                position: relative;
+                border-radius: 12px;
+                padding: 3px;
+                background: ${borderCol};
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s;
+                text-align: center;
+                box-shadow: ${item.rarity === "legendary" ? "0 0 10px rgba(255, 183, 3, 0.5)" : "0 2px 6px rgba(0,0,0,0.5)"};
+            `;
+            if (isEquipped) {
+                cardItem.style.outline = "2px solid #FFD700";
+            }
+
+            cardItem.innerHTML = `
+                <div style="width: 100%; height: 90px; border-radius: 10px; overflow: hidden; background: #000;">
+                    <img src="${imgUrl}" alt="${item.name || 'Card'}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='../gambar/umaedi.png'">
+                </div>
+                <div style="font-size: 8.5px; font-weight: 800; color: #fff; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.serialNo || item.name || 'Card'}</div>
+                <div style="font-size: 7.5px; font-weight: 800; color: #FFD166;">${rarityTag}</div>
+            `;
+
+            cardItem.addEventListener("click", async () => {
+                // Terapkan sebagai foto profil pengguna
+                const cleanImg = item.image.replace(/^(\.\.\/|\.\/)+/, '');
+                localStorage.setItem("fournity_user_avatar", cleanImg);
+                localStorage.setItem("fournity_avatar_rarity", item.rarity);
+                localStorage.setItem("fournity_avatar_card_id", item.cardId || '');
+                localStorage.setItem("fournity_avatar_serial", item.serialNo || '');
+                localStorage.setItem(`avatar_${currentUser}`, cleanImg);
+                localStorage.setItem(`avatar_rarity_${currentUser}`, item.rarity);
+                localStorage.setItem(`avatar_serial_${currentUser}`, item.serialNo || '');
+
+                try {
+                    let profiles = JSON.parse(localStorage.getItem("fournity_user_profiles") || "{}");
+                    profiles[currentUser] = profiles[currentUser] || {};
+                    profiles[currentUser].photoBase64 = cleanImg;
+                    profiles[currentUser].avatarRarity = item.rarity;
+                    profiles[currentUser].avatarSerial = item.serialNo || '';
+                    localStorage.setItem("fournity_user_profiles", JSON.stringify(profiles));
+                } catch(e) {}
+
+                // Segera update in-memory window.userProfiles agar reaktif tanpa delay
+                if (window.userProfiles && currentUser) {
+                    window.userProfiles[currentUser] = window.userProfiles[currentUser] || {};
+                    window.userProfiles[currentUser].displayName = currentUser;
+                    window.userProfiles[currentUser].photoBase64 = cleanImg;
+                    window.userProfiles[currentUser].avatar = cleanImg;
+                    window.userProfiles[currentUser].avatarRarity = item.rarity;
+                    window.userProfiles[currentUser].avatarSerial = item.serialNo || '';
+                }
+
+                // Sinkronkan ke cloud Firebase RTDB agar pengguna lain langsung melihat update real-time
+                const currentUid = localStorage.getItem("nihongoChatUid");
+                if (currentUid && db) {
+                    try {
+                        const updates = {};
+                        updates[`users/${currentUid}/profile/avatar`] = cleanImg;
+                        updates[`users/${currentUid}/profile/photoBase64`] = cleanImg;
+                        updates[`users/${currentUid}/profile/avatarRarity`] = item.rarity;
+                        updates[`users/${currentUid}/profile/avatarSerial`] = item.serialNo || '';
+                        updates[`users/${currentUid}/profile/updatedAt`] = Date.now();
+                        if (currentUser) {
+                            updates[`user_profiles/${currentUser}/photoBase64`] = cleanImg;
+                            updates[`user_profiles/${currentUser}/avatarRarity`] = item.rarity;
+                            updates[`user_profiles/${currentUser}/avatarSerial`] = item.serialNo || '';
+                        }
+                        await update(ref(db), updates);
+                    } catch(e) {
+                        console.warn("Gagal update avatar kartu ke cloud:", e);
+                    }
+                }
+
+                if (item.rarity === "legendary") {
+                    if (typeof playZenSoundEffect === 'function') playZenSoundEffect('celebrate');
+                    if (typeof showChatToast === 'function') showChatToast("👑 Efek VIP Lagend Diaktifkan!", "✨");
+                } else {
+                    if (typeof playZenSoundEffect === 'function') playZenSoundEffect('receive');
+                    if (typeof showChatToast === 'function') showChatToast("Foto profil diperbarui!", "✅");
+                }
+
+                renderCardAvatarModalUI();
+                updateAllRenderedChatAvatars();
+                window.dispatchEvent(new Event("profilesUpdated"));
+                window.dispatchEvent(new Event("storage"));
+            });
+
+            modalAvatarCardGrid.appendChild(cardItem);
+        });
+    }
+}
+
+// Handler Reset Avatar ke Default di Modal Chat
+const resetCardAvatarBtn = document.getElementById("resetCardAvatarBtn");
+if (resetCardAvatarBtn) {
+    resetCardAvatarBtn.addEventListener("click", async () => {
+        localStorage.removeItem("fournity_user_avatar");
+        localStorage.removeItem("fournity_custom_avatar");
+        localStorage.removeItem("fournity_avatar_rarity");
+        localStorage.removeItem("fournity_avatar_card_id");
+        localStorage.removeItem("fournity_avatar_serial");
+        if (currentUser) {
+            localStorage.removeItem(`avatar_${currentUser}`);
+            localStorage.removeItem(`avatar_rarity_${currentUser}`);
+            localStorage.removeItem(`avatar_serial_${currentUser}`);
+        }
+
+        try {
+            let profiles = JSON.parse(localStorage.getItem("fournity_user_profiles") || "{}");
+            if (profiles[currentUser]) {
+                profiles[currentUser].photoBase64 = "";
+                profiles[currentUser].avatarRarity = "";
+                profiles[currentUser].avatarSerial = "";
+                localStorage.setItem("fournity_user_profiles", JSON.stringify(profiles));
+            }
+        } catch(e) {}
+
+        // Segera kosongkan in-memory window.userProfiles
+        if (window.userProfiles && currentUser && window.userProfiles[currentUser]) {
+            window.userProfiles[currentUser].photoBase64 = "";
+            window.userProfiles[currentUser].avatar = "";
+            window.userProfiles[currentUser].avatarRarity = "";
+            window.userProfiles[currentUser].avatarSerial = "";
+        }
+
+        const currentUid = localStorage.getItem("nihongoChatUid");
+        if (currentUid && db) {
+            try {
+                const updates = {};
+                updates[`users/${currentUid}/profile/avatar`] = "";
+                updates[`users/${currentUid}/profile/photoBase64`] = "";
+                updates[`users/${currentUid}/profile/avatarRarity`] = "";
+                updates[`users/${currentUid}/profile/avatarSerial`] = "";
+                updates[`users/${currentUid}/profile/updatedAt`] = Date.now();
+                if (currentUser) {
+                    updates[`user_profiles/${currentUser}/photoBase64`] = "";
+                    updates[`user_profiles/${currentUser}/avatarRarity`] = "";
+                    updates[`user_profiles/${currentUser}/avatarSerial`] = "";
+                }
+                await update(ref(db), updates);
+            } catch(e) {
+                console.warn("Gagal update reset profil ke server:", e);
+            }
+        }
+
+        if (typeof playZenSoundEffect === 'function') playZenSoundEffect('receive');
+        if (typeof showChatToast === 'function') showChatToast("Foto profil dikembalikan ke default!", "🔄");
+
+        renderCardAvatarModalUI();
+        updateAllRenderedChatAvatars();
+        window.dispatchEvent(new Event("profilesUpdated"));
+        window.dispatchEvent(new Event("storage"));
+    });
+}
+
+if (openCardAvatarModalBtn && cardAvatarModal) {
+    openCardAvatarModalBtn.addEventListener("click", (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (chatMoreDropdown) chatMoreDropdown.style.display = "none";
+        try {
+            renderCardAvatarModalUI();
+        } catch(err) {
+            console.error("Error rendering card avatar modal UI:", err);
+        }
+        cardAvatarModal.style.display = "flex";
+    });
+}
+
+if (closeCardAvatarModalBtn && cardAvatarModal) {
+    closeCardAvatarModalBtn.addEventListener("click", () => {
+        cardAvatarModal.style.display = "none";
+    });
+}
+
+if (closeCardAvatarDoneBtn && cardAvatarModal) {
+    closeCardAvatarDoneBtn.addEventListener("click", () => {
+        cardAvatarModal.style.display = "none";
+    });
+}
+
+if (cardAvatarModal) {
+    cardAvatarModal.addEventListener("click", (e) => {
+        if (e.target === cardAvatarModal) {
+            cardAvatarModal.style.display = "none";
+        }
+    });
+}
+
+// --- C. PENGATURAN SUARA NOTIFIKASI PESAN MASUK & KIRIM ---
+const chatSoundSettingsModal = document.getElementById("chatSoundSettingsModal");
+const closeSoundModalBtn = document.getElementById("closeSoundModalBtn");
+const closeSoundModalDoneBtn = document.getElementById("closeSoundModalDoneBtn");
+
+const tabSoundReceive = document.getElementById("tabSoundReceive");
+const tabSoundSend = document.getElementById("tabSoundSend");
+const soundTabPaneReceive = document.getElementById("soundTabPaneReceive");
+const soundTabPaneSend = document.getElementById("soundTabPaneSend");
+
+const receiveSoundToggle = document.getElementById("receiveSoundToggle");
+const sendSoundToggle = document.getElementById("sendSoundToggle");
+
+const receiveSoundCards = document.querySelectorAll("#receiveSoundList .sound-option-card");
+const sendSoundCards = document.querySelectorAll("#sendSoundList .sound-option-card");
+const testSoundBtns = document.querySelectorAll(".test-sound-btn");
+
+function initSoundSettingsUI() {
+    const isReceiveEnabled = localStorage.getItem("fournity_receive_sound_enabled") !== "false";
+    const isSendEnabled = localStorage.getItem("fournity_send_sound_enabled") !== "false";
+    const currentReceiveTone = localStorage.getItem("fournity_receive_sound") || "chime_duo";
+    const currentSendTone = localStorage.getItem("fournity_send_sound") || "swoosh";
+
+    if (receiveSoundToggle) receiveSoundToggle.checked = isReceiveEnabled;
+    if (sendSoundToggle) sendSoundToggle.checked = isSendEnabled;
+
+    receiveSoundCards.forEach(card => {
+        card.classList.toggle("is-selected", card.dataset.soundId === currentReceiveTone);
+    });
+
+    sendSoundCards.forEach(card => {
+        card.classList.toggle("is-selected", card.dataset.soundId === currentSendTone);
+    });
+}
+
+if (openSoundModalBtn && chatSoundSettingsModal) {
+    openSoundModalBtn.addEventListener("click", () => {
+        initSoundSettingsUI();
+        chatSoundSettingsModal.style.display = "flex";
+    });
+}
+
+if (closeSoundModalBtn && chatSoundSettingsModal) {
+    closeSoundModalBtn.addEventListener("click", () => {
+        chatSoundSettingsModal.style.display = "none";
+    });
+}
+
+if (closeSoundModalDoneBtn && chatSoundSettingsModal) {
+    closeSoundModalDoneBtn.addEventListener("click", () => {
+        chatSoundSettingsModal.style.display = "none";
+        if (typeof showChatToast === 'function') {
+            showChatToast("Pengaturan suara tersimpan!", "🔔");
+        }
+    });
+}
+
+// Tab navigation modal suara
+if (tabSoundReceive && tabSoundSend && soundTabPaneReceive && soundTabPaneSend) {
+    tabSoundReceive.addEventListener("click", () => {
+        tabSoundReceive.classList.add("is-active");
+        tabSoundSend.classList.remove("is-active");
+        soundTabPaneReceive.style.display = "block";
+        soundTabPaneSend.style.display = "none";
+    });
+
+    tabSoundSend.addEventListener("click", () => {
+        tabSoundSend.classList.add("is-active");
+        tabSoundReceive.classList.remove("is-active");
+        soundTabPaneSend.style.display = "block";
+        soundTabPaneReceive.style.display = "none";
+    });
+}
+
+// Toggles
+if (receiveSoundToggle) {
+    receiveSoundToggle.addEventListener("change", (e) => {
+        localStorage.setItem("fournity_receive_sound_enabled", e.target.checked ? "true" : "false");
+    });
+}
+
+if (sendSoundToggle) {
+    sendSoundToggle.addEventListener("change", (e) => {
+        localStorage.setItem("fournity_send_sound_enabled", e.target.checked ? "true" : "false");
+    });
+}
+
+// Pilihan nada terima
+receiveSoundCards.forEach(card => {
+    card.addEventListener("click", (e) => {
+        if (e.target.classList.contains("test-sound-btn")) return;
+        receiveSoundCards.forEach(c => c.classList.remove("is-selected"));
+        card.classList.add("is-selected");
+        const toneId = card.dataset.soundId;
+        localStorage.setItem("fournity_receive_sound", toneId);
+        if (typeof window.testChatSoundEffect === 'function') {
+            window.testChatSoundEffect('receive', toneId);
+        }
+    });
+});
+
+// Pilihan nada kirim
+sendSoundCards.forEach(card => {
+    card.addEventListener("click", (e) => {
+        if (e.target.classList.contains("test-sound-btn")) return;
+        sendSoundCards.forEach(c => c.classList.remove("is-selected"));
+        card.classList.add("is-selected");
+        const toneId = card.dataset.soundId;
+        localStorage.setItem("fournity_send_sound", toneId);
+        if (typeof window.testChatSoundEffect === 'function') {
+            window.testChatSoundEffect('send', toneId);
+        }
+    });
+});
+
+// Tombol [▶ Tes] suara
+testSoundBtns.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const pType = btn.dataset.previewType;
+        const pId = btn.dataset.previewId;
+        if (typeof window.testChatSoundEffect === 'function') {
+            window.testChatSoundEffect(pType, pId);
+        }
+    });
+});
+
+// Tutup modal ketika tombol Escape ditekan
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        if (chatMoreDropdown && chatMoreDropdown.style.display === "block") {
+            toggleChatMoreDropdown(false);
+        }
+        if (chatWallpaperModal && chatWallpaperModal.style.display === "flex") {
+            chatWallpaperModal.style.display = "none";
+        }
+        if (chatSoundSettingsModal && chatSoundSettingsModal.style.display === "flex") {
+            chatSoundSettingsModal.style.display = "none";
+        }
+        if (photoSendPreviewModal && photoSendPreviewModal.style.display === "flex") {
+            closePhotoSendPreview();
+        }
+        if (imageLightboxOverlay && imageLightboxOverlay.style.display === "flex") {
+            imageLightboxOverlay.style.display = "none";
+        }
+    }
+});

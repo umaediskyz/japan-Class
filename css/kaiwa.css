@@ -1,0 +1,1660 @@
+/* ==========================================================================
+   KAIWA LIVE - SIMULASI TELPON PERCAKAPAN JEPANG REALISTIS (iOS THEME)
+   Nihongo Fournity Japan Class (日本語会話シミュレーション)
+   ========================================================================== */
+
+:root {
+    --ios-bg: #000000;
+    --ios-card-bg: rgba(28, 28, 30, 0.85);
+    --ios-card-border: rgba(255, 255, 255, 0.12);
+    --ios-blur: blur(25px);
+    --ios-green: #34C759;
+    --ios-red: #FF3B30;
+    --ios-blue: #0A84FF;
+    --ios-gold: #FFD60A;
+    --ios-text: #FFFFFF;
+    --ios-text-secondary: #8E8E93;
+    --japan-sakura: #FF758F;
+}
+
+body.kaiwa-body {
+    background-color: var(--ios-bg);
+    color: var(--ios-text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Background Ambient Glow */
+.kaiwa-ambient-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: 
+        radial-gradient(circle at 15% 15%, rgba(10, 132, 255, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 30%, rgba(255, 117, 143, 0.12), transparent 40%),
+        radial-gradient(circle at 50% 85%, rgba(52, 199, 89, 0.1), transparent 50%),
+        #05070c;
+}
+
+/* ==========================================================================
+   HALAMAN KONTAK NYATA BERGAYA iOS (PHONE / CONTACTS APP THEME)
+   ========================================================================== */
+.ios-phone-app-container {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px 16px 105px;
+    box-sizing: border-box;
+}
+
+/* Real SVG Icons Style */
+.ios-svg-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* Top Navigation Bar iOS */
+.ios-top-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+}
+
+.ios-nav-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ios-blue);
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.ios-nav-link-btn:hover {
+    opacity: 0.8;
+}
+
+.ios-nav-center-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.ios-badge-live {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--ios-green);
+    background: rgba(52, 199, 89, 0.15);
+    border: 1px solid rgba(52, 199, 89, 0.4);
+    padding: 3px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+}
+
+/* Big Bold iOS Title "Kontak" */
+.ios-title-row {
+    margin-bottom: 12px;
+}
+
+.ios-large-contacts-title {
+    font-size: 34px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+}
+
+/* iOS Search Bar */
+.ios-search-wrapper {
+    margin-bottom: 14px;
+}
+
+.ios-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: rgba(118, 118, 128, 0.24);
+    border-radius: 12px;
+    padding: 9px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.ios-search-bar:focus-within {
+    background: rgba(118, 118, 128, 0.32);
+    border-color: rgba(10, 132, 255, 0.45);
+}
+
+.ios-search-icon {
+    width: 17px;
+    height: 17px;
+    color: #8E8E93;
+    flex-shrink: 0;
+}
+
+.ios-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+.ios-search-input::placeholder {
+    color: #8E8E93;
+}
+
+.ios-search-clear-btn {
+    background: transparent;
+    border: none;
+    color: #8E8E93;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+}
+
+.ios-search-clear-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* "Kartu Pengguna Saya" (My Card) */
+.ios-my-card-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(28, 28, 30, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    backdrop-filter: var(--ios-blur);
+    -webkit-backdrop-filter: var(--ios-blur);
+}
+
+.ios-my-card-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0A84FF, #0056b3);
+    color: #ffffff;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.ios-my-card-avatar svg {
+    width: 22px;
+    height: 22px;
+}
+
+.ios-my-card-meta {
+    flex: 1;
+}
+
+.ios-my-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.ios-my-card-sub {
+    font-size: 12px;
+    color: var(--ios-text-secondary);
+    margin-top: 2px;
+}
+
+/* Quick Action: Panggilan Acak (Speed Dial FaceTime Banner) */
+.ios-random-facetime-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.18) 0%, rgba(10, 132, 255, 0.18) 100%), rgba(28, 28, 30, 0.85);
+    border: 1px solid rgba(52, 199, 89, 0.38);
+    border-radius: 18px;
+    padding: 13px 16px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(52, 199, 89, 0.15);
+}
+
+.ios-random-facetime-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(52, 199, 89, 0.25);
+}
+
+.facetime-icon-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--ios-green);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(52, 199, 89, 0.5);
+}
+
+.facetime-icon-circle .speed-dial-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.facetime-card-text {
+    flex: 1;
+}
+
+.facetime-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.facetime-card-desc {
+    font-size: 11.5px;
+    color: #cbd5e1;
+    margin-top: 2px;
+}
+
+.btn-facetime-call-pill {
+    background: var(--ios-green);
+    border: none;
+    color: #fff;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+    transition: transform 0.2s;
+}
+
+.btn-facetime-call-pill:hover {
+    transform: scale(1.05);
+}
+
+/* Segmented Control iOS */
+.ios-segmented-bar {
+    display: flex;
+    background: rgba(118, 118, 128, 0.24);
+    padding: 3px;
+    border-radius: 12px;
+    gap: 4px;
+    margin-bottom: 18px;
+}
+
+.ios-segmented-bar .kaiwa-tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #8E8E93;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ios-segmented-bar .kaiwa-tab-btn:hover {
+    color: #ffffff;
+}
+
+.ios-segmented-bar .kaiwa-tab-btn.is-active {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Inset Grouped Contacts Container */
+.ios-contacts-grouped-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ios-alphabet-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: #8E8E93;
+    text-transform: uppercase;
+    padding-left: 14px;
+    margin-bottom: -8px;
+    letter-spacing: 0.5px;
+}
+
+.ios-inset-grouped-card {
+    background: rgba(22, 29, 44, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.ios-contact-table-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.ios-contact-table-row:last-child {
+    border-bottom: none;
+}
+
+.ios-contact-table-row:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.contact-row-avatar-box {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.contact-row-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+}
+
+.contact-row-online-dot {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--ios-green);
+    border: 2px solid #1c1c1e;
+    box-shadow: 0 0 6px rgba(52, 199, 89, 0.8);
+}
+
+.contact-row-info {
+    flex: 1;
+    text-align: left;
+    min-width: 0;
+}
+
+.contact-row-name-line {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.contact-row-name {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.contact-row-kanji {
+    font-size: 12.5px;
+    color: var(--ios-gold);
+    font-weight: 600;
+}
+
+.contact-row-sub-line {
+    font-size: 12px;
+    color: var(--ios-text-secondary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contact-row-dot {
+    margin: 0 3px;
+    color: #64748b;
+}
+
+.contact-row-topic-line {
+    font-size: 11px;
+    color: #cbd5e1;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contact-row-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.contact-row-level {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 7px;
+    border-radius: 6px;
+    background: rgba(10, 132, 255, 0.15);
+    color: var(--ios-blue);
+    border: 1px solid rgba(10, 132, 255, 0.35);
+}
+
+.btn-ios-circle-call {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--ios-green);
+    color: #ffffff;
+    border: none;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.45);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.btn-ios-circle-call:hover {
+    transform: scale(1.1);
+    background: #30D158;
+}
+
+.btn-ios-circle-call:active {
+    transform: scale(0.95);
+}
+
+/* Empty Search State */
+.ios-no-contacts-found {
+    text-align: center;
+    padding: 36px 20px;
+    background: rgba(28, 28, 30, 0.6);
+    border-radius: 18px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.empty-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-top: 8px;
+}
+
+.empty-sub {
+    font-size: 12px;
+    color: #8E8E93;
+    margin-top: 4px;
+}
+
+/* iOS Bottom Phone Tab Bar */
+.ios-bottom-phone-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 600px;
+    background: rgba(14, 20, 34, 0.94);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 12px));
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+.ios-phone-tab-btn {
+    background: transparent;
+    border: none;
+    color: #8E8E93;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.ios-phone-tab-btn svg {
+    width: 22px;
+    height: 22px;
+}
+
+.ios-phone-tab-btn:hover {
+    color: #ffffff;
+}
+
+.ios-phone-tab-btn.is-active {
+    color: var(--ios-blue);
+}
+
+/* ==========================================================================
+   SIMULASI 1: LAYAR BERDERING iOS (OUTGOING CALLING SCREEN - 6 DETIK)
+   ========================================================================== */
+.calling-overlay-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10020;
+    background: radial-gradient(circle at 50% 20%, rgba(20, 30, 50, 0.95), #050811 85%);
+    backdrop-filter: blur(35px);
+    -webkit-backdrop-filter: blur(35px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 20px 48px;
+    box-sizing: border-box;
+    animation: callingFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes callingFadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.calling-top-bar {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.calling-center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: auto 0;
+}
+
+.calling-avatar-ripple-box {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin-bottom: 24px;
+}
+
+.calling-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.35);
+    position: relative;
+    z-index: 3;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+}
+
+/* Pulsing Ripples Animation (Efek Berdering iOS) */
+.calling-ripple {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--ios-blue);
+    opacity: 0;
+    animation: ripplePulse 2.2s infinite cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 1;
+}
+
+.calling-ripple.r2 {
+    animation-delay: 0.7s;
+}
+
+.calling-ripple.r3 {
+    animation-delay: 1.4s;
+}
+
+@keyframes ripplePulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+.calling-target-name {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.5px;
+}
+
+.calling-target-jp {
+    font-size: 1.05rem;
+    color: var(--ios-gold);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.calling-status-text {
+    font-size: 14px;
+    color: var(--ios-blue);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.spin-slow {
+    animation: spinSlow 3s linear infinite;
+}
+
+@keyframes spinSlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Bottom Cancel Calling Button */
+.calling-bottom-bar {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-cancel-call {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--ios-red);
+    border: none;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(255, 59, 48, 0.6);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-cancel-call:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 30px rgba(255, 59, 48, 0.8);
+}
+
+.cancel-call-label {
+    font-size: 12px;
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   SIMULASI 2: LAYAR PANGGILAN TERHUBUNG iOS (REALISTIS & BERSIH)
+   ========================================================================== */
+.connected-call-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10025;
+    background: #000000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 16px 14px calc(115px + max(24px, env(safe-area-inset-bottom, 24px)));
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    animation: connectedFadeIn 0.3s ease-out;
+}
+
+@keyframes connectedFadeIn {
+    from { opacity: 0; transform: scale(1.02); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.call-viewport-wrapper {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin: auto 0;
+}
+
+/* Detik Hijau Di Paling Atas Layar */
+.top-call-timer-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(28, 28, 30, 0.85);
+    border: 1.5px solid rgba(52, 199, 89, 0.5);
+    padding: 7px 20px;
+    border-radius: 999px;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75), 0 0 20px rgba(52, 199, 89, 0.25);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #34C759;
+    letter-spacing: 0.8px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+}
+
+.timer-green-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34C759;
+    box-shadow: 0 0 10px #34C759;
+    display: inline-block;
+    animation: liveDotPulse 1.3s infinite ease-in-out;
+}
+
+/* Header Profil Lawan Bicara (Ukuran Lebih Besar) & Nama */
+.call-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.call-header-avatar-wrap {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    border: 3.5px solid rgba(52, 199, 89, 0.9);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 25px rgba(52, 199, 89, 0.35);
+    transition: transform 0.25s ease;
+}
+
+.call-header-avatar-wrap:hover {
+    transform: scale(1.03);
+}
+
+.call-header-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.call-header-live-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ios-green);
+    border: 3px solid #000;
+    box-shadow: 0 0 10px rgba(52, 199, 89, 0.9);
+}
+
+.call-header-name {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+/* ==========================================================================
+   VIDEO CONTAINER HORIZONTAL (MP4 PLAYER REALISTIS)
+   ========================================================================== */
+.kaiwa-video-stage {
+    width: 100%;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kaiwa-video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Fallback Natural Saat Kamera/Video Off (Mirip FaceTime) */
+.video-fallback-studio {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 50%, rgba(28, 38, 56, 0.7), #070a12 90%);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.studio-avatar-box {
+    position: relative;
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    margin-bottom: 14px;
+}
+
+.studio-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    animation: studioAvatarPulse 2s infinite ease-in-out alternate;
+}
+
+@keyframes studioAvatarPulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(10, 132, 255, 0.3)); }
+    100% { transform: scale(1.04); filter: drop-shadow(0 0 16px rgba(10, 132, 255, 0.6)); }
+}
+
+.studio-wave-equalizer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 18px;
+}
+
+.studio-eq-bar {
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #34C759, #0A84FF);
+    animation: eqAnim 0.7s infinite alternate ease-in-out;
+}
+
+.studio-eq-bar:nth-child(1) { height: 6px; animation-delay: 0.1s; }
+.studio-eq-bar:nth-child(2) { height: 16px; animation-delay: 0.25s; }
+.studio-eq-bar:nth-child(3) { height: 10px; animation-delay: 0.15s; }
+.studio-eq-bar:nth-child(4) { height: 18px; animation-delay: 0.35s; }
+.studio-eq-bar:nth-child(5) { height: 8px; animation-delay: 0.2s; }
+
+@keyframes eqAnim {
+    0% { height: 4px; }
+    100% { height: 18px; }
+}
+
+/* ==========================================================================
+   TOMBOL KONTROL PANGGILAN iOS (PINNED DI PALING BAWAH - REAL SVG ICONS)
+   ========================================================================== */
+.ios-call-controls-dock {
+    position: fixed;
+    bottom: max(24px, env(safe-area-inset-bottom, 24px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10030;
+    width: calc(100% - 32px);
+    max-width: 440px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 20px;
+    background: rgba(28, 28, 30, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 36px;
+    backdrop-filter: var(--ios-blur);
+    -webkit-backdrop-filter: var(--ios-blur);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.9), 0 0 25px rgba(0, 0, 0, 0.6);
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.call-control-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.call-control-btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    display: grid;
+    place-items: center;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+    user-select: none;
+}
+
+/* Kiri: Tombol Logo Speaker */
+.btn-speaker-control {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.btn-speaker-control:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.08);
+}
+
+.btn-speaker-control.is-muted {
+    background: rgba(255, 69, 58, 0.2);
+    border-color: rgba(255, 69, 58, 0.5);
+    color: #ff6961;
+}
+
+/* Tengah: Tombol Akhiri Panggilan Merah iOS */
+.btn-end-call-main {
+    width: 68px;
+    height: 68px;
+    background: linear-gradient(135deg, #FF3B30, #DC2626);
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(255, 59, 48, 0.65);
+}
+
+.btn-end-call-main .end-call-svg {
+    width: 32px;
+    height: 32px;
+}
+
+.btn-end-call-main:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(255, 59, 48, 0.9);
+    background: linear-gradient(135deg, #FF453A, #FF3B30);
+}
+
+.btn-end-call-main:active {
+    transform: scale(0.96);
+}
+
+/* Kanan: Tombol Volume / Sliders */
+.btn-volume-control {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.btn-volume-control:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.08);
+}
+
+.btn-volume-control.is-boosted {
+    background: rgba(255, 214, 10, 0.25);
+    border-color: var(--ios-gold);
+    color: var(--ios-gold);
+    box-shadow: 0 0 12px rgba(255, 214, 10, 0.4);
+}
+
+.call-control-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #cbd5e1;
+    letter-spacing: 0.3px;
+}
+
+/* Helper SVG Icons */
+.ios-btn-svg {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.ios-inline-svg {
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+    vertical-align: middle;
+    color: var(--japan-sakura);
+}
+
+.pulse-call {
+    animation: pulseCallAnim 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseCallAnim {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.8; }
+}
+
+.connected-green-pulse {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--ios-green);
+    box-shadow: 0 0 10px var(--ios-green);
+    display: inline-block;
+    animation: liveDotPulse 1.2s infinite ease-in-out;
+}
+
+/* iOS Dynamic Toast Notification */
+.ios-toast-banner {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    z-index: 10030;
+    background: rgba(28, 28, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    color: #ffffff;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(10, 132, 255, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.ios-toast-banner.is-visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* Responsiveness */
+@media (max-width: 600px) {
+    .kaiwa-page-title {
+        font-size: 1.6rem;
+    }
+    .random-call-hero-card {
+        padding: 18px;
+    }
+    .btn-start-random-call {
+        width: 100%;
+        justify-content: center;
+    }
+    .contacts-grid {
+        grid-template-columns: 1fr;
+    }
+    .top-call-timer-pill {
+        font-size: 14.5px;
+        padding: 5px 16px;
+    }
+    .call-header-avatar-wrap {
+        width: 95px;
+        height: 95px;
+    }
+    .call-header-name {
+        font-size: 1.2rem;
+    }
+    .ios-call-controls-dock {
+        bottom: max(16px, env(safe-area-inset-bottom, 16px));
+        border-radius: 28px;
+        padding: 10px 14px;
+        width: calc(100% - 24px);
+    }
+    .call-control-btn {
+        width: 52px;
+        height: 52px;
+    }
+    .btn-end-call-main {
+        width: 62px;
+        height: 62px;
+    }
+    .btn-end-call-main .end-call-svg {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* ==========================================================================
+   iOS UNIFIED PANEL & STATUS SCREEN (ANTI-OVERFLOW / MOBILE FIT)
+   ========================================================================== */
+.ios-kaiwa-panel,
+.ios-status-panel {
+    background: linear-gradient(180deg, #0e1422 0%, #0a0e18 100%) !important;
+    width: 100% !important;
+    max-width: 600px !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.6);
+}
+
+.chat-list-container.ios-panel-scroll-content,
+.ios-panel-scroll-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 6px 16px calc(85px + env(safe-area-inset-bottom, 16px));
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+}
+
+.ios-status-section {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 4px;
+    overflow: hidden;
+}
+
+.ios-section-header-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #8E99A8;
+    letter-spacing: 0.6px;
+    padding-left: 14px;
+    text-transform: uppercase;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.ios-status-my-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background 0.18s ease;
+    overflow: hidden;
+}
+
+.ios-status-my-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.status-avatar-wrapper {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-avatar-wrapper.is-my-status .status-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.status-add-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ios-blue);
+    color: #ffffff;
+    display: grid;
+    place-items: center;
+    border: 2px solid #1c1c1e;
+    box-shadow: 0 2px 6px rgba(10, 132, 255, 0.6);
+}
+
+.status-add-badge svg {
+    width: 11px;
+    height: 11px;
+}
+
+.status-info-col {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+    overflow: hidden;
+}
+
+.status-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.status-title-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.status-title-kanji {
+    font-size: 12px;
+    color: var(--ios-gold);
+    font-weight: 600;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.status-subtitle-text {
+    font-size: 12px;
+    color: #8E99A8;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
+}
+
+.status-action-btns {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.btn-status-quick-tool {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(118, 118, 128, 0.22);
+    color: var(--ios-blue);
+    border: none;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-status-quick-tool:hover {
+    background: rgba(118, 118, 128, 0.35);
+    transform: scale(1.06);
+}
+
+.btn-status-quick-tool svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Status Story Row (Recent Updates) */
+.status-story-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: background 0.18s ease;
+    overflow: hidden;
+}
+
+.status-story-row:last-child {
+    border-bottom: none;
+}
+
+.status-story-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.status-ring-gradient {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    padding: 2.5px;
+    box-sizing: border-box;
+    background: linear-gradient(135deg, #0A84FF 0%, #30D158 50%, #FF2D55 100%);
+    box-shadow: 0 0 10px rgba(10, 132, 255, 0.35);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.status-story-row:hover .status-ring-gradient {
+    transform: scale(1.05);
+}
+
+.status-ring-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 2px solid #1c1c1e;
+}
+
+.status-story-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ios-blue);
+    background: rgba(10, 132, 255, 0.15);
+    border: 1px solid rgba(10, 132, 255, 0.35);
+    padding: 2px 7px;
+    border-radius: 6px;
+    margin-left: auto;
+    flex-shrink: 0;
+    max-width: 90px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+    .status-story-tag {
+        display: none !important;
+    }
+    .chat-list-container.ios-panel-scroll-content,
+    .ios-panel-scroll-content {
+        padding: 6px 12px calc(85px + env(safe-area-inset-bottom, 16px));
+        gap: 10px;
+    }
+    .ios-status-my-row, .status-story-row {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+    .status-avatar-wrapper, .status-ring-gradient {
+        width: 44px;
+        height: 44px;
+    }
+    .btn-status-quick-tool {
+        width: 32px;
+        height: 32px;
+    }
+    .ios-random-facetime-card {
+        padding: 11px 12px;
+        gap: 10px;
+    }
+    .facetime-icon-circle {
+        width: 38px;
+        height: 38px;
+    }
+    .btn-facetime-call-pill {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    .ios-my-card-box {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+    .ios-contact-table-row {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+    .contact-row-avatar-box {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+@media (max-width: 360px) {
+    .chat-list-container.ios-panel-scroll-content,
+    .ios-panel-scroll-content {
+        padding: 4px 8px calc(85px + env(safe-area-inset-bottom, 16px));
+    }
+    .ios-status-my-row, .status-story-row {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+    .status-avatar-wrapper, .status-ring-gradient {
+        width: 40px;
+        height: 40px;
+    }
+    .btn-status-quick-tool {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* ==========================================================================
+   STORY VIEWER MODAL (FULLSCREEN iOS STORY PLAYER)
+   ========================================================================== */
+.status-story-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    background: #000000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: env(safe-area-inset-top, 16px) 16px calc(16px + env(safe-area-inset-bottom, 16px));
+    box-sizing: border-box;
+    animation: storyModalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes storyModalPop {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.story-progress-bar-wrap {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+    max-width: 520px;
+    margin: 8px auto 12px;
+}
+
+.story-progress-segment {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.story-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: width 0.05s linear;
+}
+
+.story-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    z-index: 2;
+}
+
+.story-header-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.story-author-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #ffffff;
+}
+
+.story-author-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.story-author-time {
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.btn-close-story {
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    color: #ffffff;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 18px;
+    backdrop-filter: blur(8px);
+}
+
+.story-modal-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 520px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    padding: 16px 0;
+}
+
+.story-backdrop-media {
+    width: 100%;
+    max-height: 55vh;
+    border-radius: 22px;
+    object-fit: cover;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.story-caption-card {
+    position: absolute;
+    bottom: 24px;
+    left: 16px;
+    right: 16px;
+    background: rgba(28, 28, 30, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 18px;
+    padding: 14px 18px;
+    color: #ffffff;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.story-caption-jp {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.4;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.story-caption-romaji {
+    font-size: 12px;
+    color: var(--ios-gold);
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.story-caption-id {
+    font-size: 12px;
+    color: #cbd5e1;
+    margin-top: 4px;
+    line-height: 1.35;
+}
+
+.story-modal-bottom-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    z-index: 2;
+}
+
+.story-reply-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    padding: 10px 18px;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+}
+
+.story-reply-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.btn-story-reaction {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #ffffff;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.2s;
+}
+
+.btn-story-reaction:hover {
+    transform: scale(1.15);
+}
+
+
