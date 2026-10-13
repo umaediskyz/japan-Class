@@ -47,12 +47,24 @@ let currentUid = localStorage.getItem("nihongoChatUid");
 let currentEmail = localStorage.getItem("nihongoChatEmail");
 let currentUser = localStorage.getItem("nihongoChatUser");
 
-// Jaga persistensi sesi lokal & kartu pengguna
+// Bersihkan seluruh data sesi akun saat keluar agar tidak tertinggal di mode tamu
 function clearUserSessionData() {
     localStorage.removeItem("nihongoChatUid");
     localStorage.removeItem("nihongoChatEmail");
-    // Catatan: Kartu (fournity_card_instances_v3), avatar, dan progres lokal tetap dijaga aman agar tidak hilang saat logout
+    localStorage.removeItem("nihongoChatUser");
+    localStorage.removeItem("fournity_user_avatar");
+    localStorage.removeItem("fournity_custom_avatar");
+    localStorage.removeItem("fournity_avatar_rarity");
+    localStorage.removeItem("fournity_avatar_serial");
+    localStorage.removeItem("fournity_card_instances_v3");
+    localStorage.removeItem("fournity_unlocked_cards");
+    localStorage.removeItem("fournity_checkin_v2");
+    localStorage.removeItem("fournity_checkin_exp");
+    localStorage.removeItem("fournity_quest_bonus_exp");
+    localStorage.removeItem("trinity_exp");
+    localStorage.removeItem("trinity_memorized_kanji");
 }
+window.clearUserSessionData = clearUserSessionData;
 
 async function initNewUserInCloud(uid, displayName, email) {
     // Pertahankan kartu & progres yang telah diperoleh di sesi lokal (jangan di-wipe ke [])
@@ -374,8 +386,10 @@ if (globalLoginOverlay) {
 
     if (topLoginToggle) {
         topLoginToggle.addEventListener("click", () => {
-            if (auth.currentUser || currentUser) document.getElementById("profileModalOverlay").style.display = "flex";
-            else {
+            const hasAuth = !!(auth.currentUser || localStorage.getItem("nihongoChatUid"));
+            if (hasAuth) {
+                document.getElementById("profileModalOverlay").style.display = "flex";
+            } else {
                 globalLoginOverlay.style.display = "flex";
                 if(guestPromptPopup) guestPromptPopup.style.display = "none";
             }
@@ -587,27 +601,27 @@ onAuthStateChanged(auth, async (user) => {
         // Mode Tamu / Belum Login Aktif
         currentUid = null;
         currentEmail = null;
-        currentUser = localStorage.getItem("nihongoChatUser") || null;
+        currentUser = null;
         localStorage.removeItem("nihongoChatUid");
         localStorage.removeItem("nihongoChatEmail");
+        localStorage.removeItem("nihongoChatUser");
+        localStorage.removeItem("fournity_user_avatar");
+        localStorage.removeItem("fournity_custom_avatar");
+        localStorage.removeItem("fournity_avatar_rarity");
+        localStorage.removeItem("fournity_avatar_serial");
+        localStorage.removeItem("fournity_card_instances_v3");
+        localStorage.removeItem("fournity_unlocked_cards");
 
-        if (topText) topText.textContent = currentUser || "Login";
+        if (topText) topText.textContent = "Login";
         if (topAvatar) {
-            const cardAvatar = localStorage.getItem("fournity_user_avatar");
-            const customAvatar = localStorage.getItem("fournity_custom_avatar");
-            const finalAvatar = cardAvatar || customAvatar;
-            if (finalAvatar) {
-                topAvatar.src = finalAvatar;
-                topAvatar.style.display = "block";
-                if (topIcon) topIcon.style.display = "none";
-            } else {
-                topAvatar.style.display = "none";
-                topAvatar.src = "gambar/icon.png";
-                if (topIcon) topIcon.style.display = "block";
-            }
+            topAvatar.style.display = "none";
+            topAvatar.src = "gambar/icon.png";
         }
+        if (topIcon) topIcon.style.display = "block";
         if (adminToggleBtn) adminToggleBtn.style.display = "none";
         if (profileEmailDisplay) profileEmailDisplay.textContent = "";
+        if (profileNameInput) profileNameInput.value = "";
+        if (profilePreviewImg) profilePreviewImg.src = "gambar/icon.png";
 
         if (typeof window.syncMainTopHeaderProfile === 'function') window.syncMainTopHeaderProfile();
         if (typeof window.refreshPass === 'function') window.refreshPass();
@@ -809,10 +823,24 @@ if (closeProfileModal) closeProfileModal.addEventListener("click", () => documen
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
+        logoutBtn.disabled = true;
+        logoutBtn.textContent = "SEDANG KELUAR...";
         try {
             await signOut(auth);
-        } catch(e) {}
+        } catch(e) {
+            console.warn("SignOut err:", e);
+        }
         clearUserSessionData();
+        currentUser = null;
+        currentUid = null;
+        currentEmail = null;
+        
+        const profileModal = document.getElementById("profileModalOverlay");
+        if (profileModal) profileModal.style.display = "none";
+
+        if (typeof window.syncMainTopHeaderProfile === 'function') window.syncMainTopHeaderProfile();
+        if (typeof window.renderShowcaseSlider === 'function') window.renderShowcaseSlider();
+        
         window.location.reload();
     });
 }

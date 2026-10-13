@@ -74,6 +74,7 @@ body.message-page.ios-theme {
     background-image: 
         radial-gradient(circle at 10% 15%, rgba(10, 132, 255, 0.08) 0%, transparent 45%),
         radial-gradient(circle at 90% 85%, rgba(255, 117, 140, 0.06) 0%, transparent 45%);
+    background-attachment: fixed;
     color: #FFFFFF; 
     overflow: hidden; 
     margin: 0;
@@ -472,15 +473,17 @@ body.message-page.ios-theme {
 }
 
 .ios-back-arrow-icon {
-    font-size: 26px;
-    line-height: 1;
-    font-weight: 300;
-    margin-top: -2px;
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    flex-shrink: 0;
+    stroke: currentColor;
 }
 
 .ios-back-text {
     font-size: 16.5px;
     letter-spacing: -0.2px;
+    font-weight: 400;
 }
 
 /* iOS Chat Center Contact Box */
@@ -1458,48 +1461,143 @@ body.message-page.ios-theme {
     height: 32px !important;
     min-width: 32px !important;
     border-radius: 50% !important;
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: rgba(255, 255, 255, 0.09) !important;
     color: var(--ios-system-gray) !important;
-    font-size: 20px !important;
-    font-weight: 300 !important;
-    display: grid !important;
-    place-items: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     border: none !important;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease;
     margin-bottom: 2px;
     padding: 0 !important;
     box-shadow: none !important;
+    flex-shrink: 0;
+}
+
+.chat-tool-btn.ios-plus-btn svg {
+    display: block;
+    width: 16px;
+    height: 16px;
 }
 
 .chat-tool-btn.ios-plus-btn:hover,
 .chat-tool-btn.ios-plus-btn:active {
-    background: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.18) !important;
     color: #FFFFFF !important;
+    transform: scale(1.06);
 }
 
-.chat-tool-btn.ios-emoji-btn,
-.chat-tool-btn.ios-mic-btn {
+.chat-tool-btn.ios-tools-quick-btn {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    color: var(--ios-system-gray) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    cursor: pointer;
+    font-size: 16px !important;
+    margin-bottom: 2px;
+    padding: 0 !important;
+    box-shadow: none !important;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.chat-tool-btn.ios-tools-quick-btn:hover {
+    transform: scale(1.08);
+}
+
+.chat-tool-btn.ios-emoji-btn {
     width: 30px !important;
     height: 30px !important;
     min-width: 30px !important;
     border-radius: 50% !important;
     background: transparent !important;
     color: var(--ios-system-gray) !important;
-    font-size: 18px !important;
-    display: grid !important;
-    place-items: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     border: none !important;
     cursor: pointer;
     margin-bottom: 3px;
     padding: 0 !important;
     box-shadow: none !important;
-    transition: opacity 0.15s ease, color 0.15s ease;
+    transition: color 0.18s ease, transform 0.15s ease;
+    flex-shrink: 0;
 }
 
-.chat-tool-btn.ios-emoji-btn:hover,
+.chat-tool-btn.ios-emoji-btn svg {
+    display: block;
+    width: 19px;
+    height: 19px;
+}
+
+.chat-tool-btn.ios-emoji-btn:hover {
+    color: #FFFFFF !important;
+    transform: scale(1.08);
+}
+
+/* Voice Memo VN Waveform Button (SF Symbol Waveform) */
+.chat-tool-btn.ios-mic-btn {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    color: var(--ios-system-gray) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    cursor: pointer;
+    margin-bottom: 2px;
+    padding: 0 !important;
+    box-shadow: none !important;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    flex-shrink: 0;
+}
+
+.chat-tool-btn.ios-mic-btn svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+}
+
 .chat-tool-btn.ios-mic-btn:hover {
     color: #FFFFFF !important;
+    transform: scale(1.08);
+}
+
+/* VN Recording State - Native iOS Pulsing Waveform */
+.chat-tool-btn.ios-mic-btn.is-recording {
+    color: #FF3B30 !important;
+    background: rgba(255, 59, 48, 0.16) !important;
+    transform: scale(1.12);
+    box-shadow: 0 0 14px rgba(255, 59, 48, 0.45) !important;
+}
+
+.chat-tool-btn.ios-mic-btn.is-recording .wave-bar {
+    transform-origin: center;
+    animation: iosVnPulse 0.65s ease-in-out infinite alternate;
+}
+
+.chat-tool-btn.ios-mic-btn.is-recording .wave-bar-1 { animation-delay: 0.05s; }
+.chat-tool-btn.ios-mic-btn.is-recording .wave-bar-2 { animation-delay: 0.2s; }
+.chat-tool-btn.ios-mic-btn.is-recording .wave-bar-3 { animation-delay: 0.1s; }
+.chat-tool-btn.ios-mic-btn.is-recording .wave-bar-4 { animation-delay: 0.25s; }
+.chat-tool-btn.ios-mic-btn.is-recording .wave-bar-5 { animation-delay: 0.15s; }
+.chat-tool-btn.ios-mic-btn.is-recording .wave-bar-6 { animation-delay: 0.3s; }
+.chat-tool-btn.ios-mic-btn.is-recording .wave-bar-7 { animation-delay: 0.08s; }
+
+@keyframes iosVnPulse {
+    0% { transform: scaleY(0.45); opacity: 0.65; }
+    100% { transform: scaleY(1.35); opacity: 1; }
 }
 
 /* Rounded Input Capsule */
@@ -1519,7 +1617,7 @@ body.message-page.ios-theme {
 
 .chat-input-wrapper.ios-input-capsule:focus-within {
     border-color: rgba(10, 132, 255, 0.6);
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.11);
 }
 
 .group-chat .chat-input-area textarea {
@@ -1544,7 +1642,7 @@ body.message-page.ios-theme {
     color: var(--ios-system-gray);
 }
 
-/* Iconic Apple Blue Circular Send Button with Up Arrow (↑) */
+/* Iconic Apple Blue Circular Send Button with Crisp SF Upward Arrow (↑) */
 .group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn { 
     width: 32px; 
     height: 32px; 
@@ -1552,28 +1650,48 @@ body.message-page.ios-theme {
     border-radius: 50%; 
     color: #FFFFFF; 
     background: var(--ios-blue); 
-    font-size: 17px; 
-    font-weight: 700;
-    line-height: 1;
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     border: none;
     margin-bottom: 2px;
-    box-shadow: 0 2px 8px rgba(10, 132, 255, 0.4);
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 2px 8px rgba(10, 132, 255, 0.45);
+    transition: transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn .ios-send-arrow-icon {
+    display: block;
+    width: 16px;
+    height: 16px;
+    stroke: #FFFFFF;
+    margin-top: -1px; /* Optical centering for upward arrow in circle */
+    transition: transform 0.15s ease;
 }
 
 .group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn:hover:not(:disabled),
-.group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn:active:not(:disabled) { 
+.group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn:active:not(:disabled),
+.group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn.is-ready:hover { 
     transform: scale(1.08); 
+    background: #0071e3;
+    box-shadow: 0 3px 12px rgba(10, 132, 255, 0.6);
 }
 
-.group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn:disabled { 
+.group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn:disabled,
+.group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn.is-disabled { 
     opacity: 0.35; 
     cursor: not-allowed; 
-    background: rgba(255, 255, 255, 0.12); 
+    background: rgba(255, 255, 255, 0.13); 
     box-shadow: none; 
+    color: rgba(255, 255, 255, 0.4);
+    transform: none;
+}
+
+.group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn:disabled .ios-send-arrow-icon,
+.group-chat .chat-input-area button#sendBtn.ios-send-bubble-btn.is-disabled .ios-send-arrow-icon {
+    stroke: rgba(255, 255, 255, 0.5);
 }
 
 /* ==========================================================================
@@ -3290,10 +3408,7 @@ body.keyboard-open .phrase-chip {
    ========================================================================== */
 .chat-wallpaper-layer {
     position: absolute;
-    top: 54px;
-    bottom: 60px;
-    left: 0;
-    right: 0;
+    inset: 0;
     pointer-events: none;
     z-index: 1;
     overflow: hidden;
@@ -3302,10 +3417,22 @@ body.keyboard-open .phrase-chip {
 
 .chat-wallpaper-image-node {
     position: absolute;
-    inset: -10px; /* Offset sedikit agar efek blur tidak menghasilkan tepi putih/kosong */
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* Gunakan ukuran layar statis (100lvh / --screen-fixed-height) agar latar belakang tidak terkompresi / ter-zoom saat keyboard virtual HP muncul */
+    height: 100vh;
+    height: 100lvh;
+    height: var(--screen-fixed-height, 100lvh);
+    min-height: 100vh;
+    min-height: 100lvh;
+    min-height: var(--screen-fixed-height, 100lvh);
     background-size: cover;
-    background-position: center;
+    background-position: center top;
     background-repeat: no-repeat;
+    pointer-events: none;
+    will-change: transform;
+    transform: translateZ(0);
     transition: filter 0.25s ease, background-image 0.3s ease;
     
     /* Default dark pattern */
@@ -3320,9 +3447,18 @@ body.keyboard-open .phrase-chip {
 
 .chat-wallpaper-overlay-node {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100lvh;
+    height: var(--screen-fixed-height, 100lvh);
+    min-height: 100vh;
+    min-height: 100lvh;
+    min-height: var(--screen-fixed-height, 100lvh);
     background-color: rgba(11, 15, 25, 0.45);
     transition: background-color 0.25s ease;
+    pointer-events: none;
 }
 
 /* Pastikan gelembung chat tetap berada di atas layer wallpaper */

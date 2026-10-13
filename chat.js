@@ -777,8 +777,7 @@ if (recordAudioBtn) {
                 
                 mediaRecorder.start();
                 isRecording = true;
-                recordAudioBtn.style.color = "#E63946"; 
-                recordAudioBtn.style.animation = "pulseGlow 1s infinite";
+                recordAudioBtn.classList.add("is-recording");
                 if(chatInput) chatInput.placeholder = "Merekam suara... (Klik mic lagi untuk stop)";
             } catch (err) {
                 alert("Gagal mengakses mikrofon. Pastikan Anda mengizinkan akses mic di browser.");
@@ -786,9 +785,8 @@ if (recordAudioBtn) {
         } else {
             if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
             isRecording = false;
-            recordAudioBtn.style.color = ""; 
-            recordAudioBtn.style.animation = "none";
-            if(chatInput) chatInput.placeholder = "Tulis pesan (bisa romaji atau kana)...";
+            recordAudioBtn.classList.remove("is-recording");
+            if(chatInput) chatInput.placeholder = "iMessage Fournity...";
         }
     });
 }
@@ -2443,6 +2441,7 @@ function sendMessage() {
     if (typeof playZenSoundEffect === 'function') playZenSoundEffect('send');
     chatInput.value = ""; 
     autoResizeInput();
+    syncSendButtonState();
     cancelReply(); 
     
     set(ref(db, `typing_${currentRoom}/${currentUser}`), null);
@@ -2454,6 +2453,23 @@ function sendMessage() {
     if (unreadScrollBadge) unreadScrollBadge.style.display = "none";
 }
 
+function syncSendButtonState() {
+    const hasText = chatInput && chatInput.value.trim().length > 0;
+    if (chatInputArea) {
+        chatInputArea.classList.toggle("has-input-text", hasText);
+    }
+    if (sendBtn) {
+        if (hasText) {
+            sendBtn.classList.add("is-ready");
+            sendBtn.classList.remove("is-disabled");
+            if (currentUser) sendBtn.disabled = false;
+        } else {
+            sendBtn.classList.remove("is-ready");
+            if (!currentUser) sendBtn.disabled = true;
+        }
+    }
+}
+
 function setLoginState(user) {
     if (user) {
         if(chatInput) chatInput.disabled = false;
@@ -2462,6 +2478,7 @@ function setLoginState(user) {
         if(chatInput) chatInput.disabled = true;
         if(sendBtn) sendBtn.disabled = true;
     }
+    syncSendButtonState();
 }
 
 setLoginState(currentUser);
@@ -2469,6 +2486,7 @@ setLoginState(currentUser);
 if(chatInput) {
     chatInput.addEventListener("input", () => {
         autoResizeInput();
+        syncSendButtonState();
         if (!currentRoom || !currentUser || currentRoom === "sensei") return;
         const typingRef = ref(db, `typing_${currentRoom}/${currentUser}`);
         
@@ -2608,24 +2626,27 @@ if (switchUserBtn) {
             if (!action || !action.trim()) return;
             const val = action.trim();
             if (val.toUpperCase() === "LOGOUT") {
-                if (window.auth && typeof window.auth.signOut === "function") {
-                    window.auth.signOut().then(() => {
-                        localStorage.removeItem("nihongoChatUid");
-                        localStorage.removeItem("nihongoChatEmail");
-                        localStorage.removeItem("nihongoChatUser");
-                        localStorage.removeItem("fournity_user_avatar");
-                        localStorage.removeItem("fournity_custom_avatar");
-                        alert("✨ Berhasil keluar dari akun.");
-                        window.location.reload();
-                    });
-                } else {
+                const doLogoutCleanup = () => {
                     localStorage.removeItem("nihongoChatUid");
                     localStorage.removeItem("nihongoChatEmail");
                     localStorage.removeItem("nihongoChatUser");
                     localStorage.removeItem("fournity_user_avatar");
                     localStorage.removeItem("fournity_custom_avatar");
+                    localStorage.removeItem("fournity_avatar_rarity");
+                    localStorage.removeItem("fournity_avatar_serial");
+                    localStorage.removeItem("fournity_card_instances_v3");
+                    localStorage.removeItem("fournity_unlocked_cards");
+                    if (typeof window.clearUserSessionData === "function") {
+                        window.clearUserSessionData();
+                    }
                     alert("✨ Berhasil keluar dari akun.");
                     window.location.reload();
+                };
+
+                if (window.auth && typeof window.auth.signOut === "function") {
+                    window.auth.signOut().then(doLogoutCleanup).catch(doLogoutCleanup);
+                } else {
+                    doLogoutCleanup();
                 }
             } else if (val.toUpperCase() === "SANDI") {
                 const newPass = prompt("Ketik kata sandi baru akun Fournity Anda (minimal 6 karakter):");
@@ -2667,6 +2688,12 @@ function setupMobileKeyboardHandler() {
     let baseHeight = window.innerHeight;
     let syncRaf = null;
 
+    function lockScreenHeight() {
+        const h = Math.max(window.screen.availHeight || 0, window.screen.height || 0, window.innerHeight || 0);
+        document.documentElement.style.setProperty('--screen-fixed-height', `${h}px`);
+    }
+    lockScreenHeight();
+
     function syncViewport() {
         const vv = window.visualViewport;
         const currentHeight = vv ? vv.height : window.innerHeight;
@@ -2690,6 +2717,7 @@ function setupMobileKeyboardHandler() {
             document.body.classList.remove('keyboard-open');
             if (!isInputFocused) {
                 baseHeight = window.innerHeight;
+                lockScreenHeight();
             }
         }
 
@@ -2709,8 +2737,10 @@ function setupMobileKeyboardHandler() {
     }
 
     window.addEventListener('resize', () => {
-        if (!document.activeElement || (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA')) {
+        const isInputFocused = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+        if (!isInputFocused) {
             baseHeight = window.innerHeight;
+            lockScreenHeight();
         }
         window.syncChatViewport();
     });
@@ -2718,6 +2748,7 @@ function setupMobileKeyboardHandler() {
     window.addEventListener('orientationchange', () => {
         setTimeout(() => {
             baseHeight = window.innerHeight;
+            lockScreenHeight();
             syncViewport();
         }, 200);
     });

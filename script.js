@@ -1421,18 +1421,18 @@ function syncMainTopHeaderProfile() {
     if (!topAvatar && !topPill) return;
 
     const hasAuthUid = !!localStorage.getItem("nihongoChatUid");
-    let user = localStorage.getItem("nihongoChatUser");
+    let user = hasAuthUid ? localStorage.getItem("nihongoChatUser") : null;
 
-    const customPhoto = localStorage.getItem("fournity_custom_avatar");
-    const cardAvatar = localStorage.getItem("fournity_user_avatar");
-    const userStoredAvatar = user ? localStorage.getItem(`avatar_${user}`) : null;
-    const profileFromDb = (window.userProfiles && user && window.userProfiles[user]) ? window.userProfiles[user].photoBase64 : null;
-    const equippedAvatar = cardAvatar || customPhoto || userStoredAvatar || profileFromDb || window.newPhotoBase64;
-    const equippedRarity = localStorage.getItem("fournity_avatar_rarity") || (user ? localStorage.getItem(`avatar_rarity_${user}`) : null);
+    const customPhoto = hasAuthUid ? localStorage.getItem("fournity_custom_avatar") : null;
+    const cardAvatar = hasAuthUid ? localStorage.getItem("fournity_user_avatar") : null;
+    const userStoredAvatar = (hasAuthUid && user) ? localStorage.getItem(`avatar_${user}`) : null;
+    const profileFromDb = (hasAuthUid && window.userProfiles && user && window.userProfiles[user]) ? window.userProfiles[user].photoBase64 : null;
+    const equippedAvatar = hasAuthUid ? (cardAvatar || customPhoto || userStoredAvatar || profileFromDb || window.newPhotoBase64) : null;
+    const equippedRarity = hasAuthUid ? (localStorage.getItem("fournity_avatar_rarity") || (user ? localStorage.getItem(`avatar_rarity_${user}`) : null)) : null;
 
     // Update Text Username di Header
     if (topText) {
-        if (user) {
+        if (hasAuthUid && user) {
             topText.textContent = user;
         } else {
             topText.textContent = "Login";
@@ -1442,7 +1442,7 @@ function syncMainTopHeaderProfile() {
     // Tentukan URL Foto yang Benar
     const isPages = window.location.pathname.includes('/pages/');
     const defaultIcon = isPages ? '../gambar/icon.png' : 'gambar/icon.png';
-    let finalPhoto = equippedAvatar || (user ? defaultIcon : null);
+    let finalPhoto = (hasAuthUid && equippedAvatar) ? equippedAvatar : null;
 
     if (finalPhoto && topAvatar) {
         let src = finalPhoto;
@@ -1462,7 +1462,7 @@ function syncMainTopHeaderProfile() {
         topAvatar.src = src;
         topAvatar.style.display = "block";
         if (topIcon) topIcon.style.display = "none";
-    } else if (!user && !equippedAvatar) {
+    } else {
         if (topAvatar) topAvatar.style.display = "none";
         if (topIcon) topIcon.style.display = "inline-block";
     }
@@ -2162,19 +2162,9 @@ function getOwnedCardInstances() {
                 return parsed.map(resolveCardData);
             }
         }
-        // Auto-restitusi paket kartu awal agar pengguna tidak pernah kehilangan koleksi
-        const starter = DEFAULT_STARTER_CARDS.map(resolveCardData);
-        localStorage.setItem("fournity_card_instances_v3", JSON.stringify(starter));
-        const uniqueIds = [...new Set(starter.map(inst => inst.cardId || inst.id))];
-        localStorage.setItem("fournity_unlocked_cards", JSON.stringify(uniqueIds));
-        if (!localStorage.getItem("fournity_user_avatar")) {
-            localStorage.setItem("fournity_user_avatar", "gambar/fotocard/lagend/card1.png");
-            localStorage.setItem("fournity_avatar_rarity", "legendary");
-            localStorage.setItem("fournity_avatar_serial", "#FN-LG-0001");
-        }
-        return starter;
+        return [];
     } catch(e) {
-        return DEFAULT_STARTER_CARDS.map(resolveCardData);
+        return [];
     }
 }
 
