@@ -61,6 +61,7 @@ function clearUserSessionData() {
     localStorage.removeItem("fournity_checkin_v2");
     localStorage.removeItem("fournity_checkin_exp");
     localStorage.removeItem("fournity_quest_bonus_exp");
+    localStorage.removeItem("fournity_user_role");
     localStorage.removeItem("trinity_exp");
     localStorage.removeItem("trinity_memorized_kanji");
 }
@@ -86,10 +87,12 @@ async function initNewUserInCloud(uid, displayName, email) {
         }
     } catch(e) {}
 
+    const isOwner = (email && email.toLowerCase().includes("umaedi")) || (displayName && displayName.toLowerCase() === "umaedi");
     const initialUserData = {
         profile: {
             displayName: displayName,
             email: email,
+            role: isOwner ? "admin" : "member",
             avatar: localStorage.getItem("fournity_user_avatar") || "",
             avatarRarity: localStorage.getItem("fournity_avatar_rarity") || "",
             avatarSerial: localStorage.getItem("fournity_avatar_serial") || "",
@@ -118,6 +121,7 @@ async function initNewUserInCloud(uid, displayName, email) {
         photoBase64: localStorage.getItem("fournity_user_avatar") || "",
         avatarRarity: localStorage.getItem("fournity_avatar_rarity") || "",
         avatarSerial: localStorage.getItem("fournity_avatar_serial") || "",
+        role: isOwner ? "admin" : "member",
         uid: uid
     });
 }
@@ -242,6 +246,25 @@ async function loadUserDataFromCloud(user) {
             } else {
                 localStorage.removeItem("fournity_chat_wallpaper");
             }
+
+            // 6. Role & Hak Akses Pengguna
+            const isOwner = (user.email && user.email.toLowerCase().includes("umaedi")) || (displayName && displayName.toLowerCase() === "umaedi");
+            const cloudRole = (data.profile?.role || (isOwner ? "admin" : "member")).toLowerCase();
+            localStorage.setItem("fournity_user_role", cloudRole);
+            window.currentUserRole = cloudRole;
+
+            // Pasang Realtime Listener untuk perubahan Role secara langsung dari Command Center
+            onValue(ref(db, `users/${uid}/profile/role`), (roleSnap) => {
+                if (roleSnap.exists()) {
+                    const dynamicRole = roleSnap.val().toLowerCase();
+                    localStorage.setItem("fournity_user_role", dynamicRole);
+                    window.currentUserRole = dynamicRole;
+                    const adminToggleBtn = document.getElementById("adminToggleBtn");
+                    const isAdm = dynamicRole === "admin" || (user.email && user.email.toLowerCase().includes("umaedi"));
+                    if (adminToggleBtn) adminToggleBtn.style.display = isAdm ? "block" : "none";
+                    window.dispatchEvent(new Event('userRoleUpdated'));
+                }
+            });
         } else {
             // Belum ada data di users/${uid} -> inisialisasi starter pack baru
             await initNewUserInCloud(uid, displayName, user.email);
@@ -588,7 +611,10 @@ onAuthStateChanged(auth, async (user) => {
         if (profilePreviewImg && !window.newPhotoBase64) profilePreviewImg.src = finalPhoto;
 
         // Cek Admin System Override
-        const isLeadDev = (user.email && user.email.toLowerCase().includes("umaedi")) || (currentUser.toLowerCase() === "umaedi");
+        const currentRole = (localStorage.getItem("fournity_user_role") || "").toLowerCase();
+        const isLeadDev = (user.email && user.email.toLowerCase().includes("umaedi")) || 
+                          (currentUser.toLowerCase() === "umaedi") || 
+                          (currentRole === "admin");
         if (isLeadDev && adminToggleBtn) adminToggleBtn.style.display = "block";
         else if (adminToggleBtn) adminToggleBtn.style.display = "none";
 
@@ -605,6 +631,7 @@ onAuthStateChanged(auth, async (user) => {
         localStorage.removeItem("nihongoChatUid");
         localStorage.removeItem("nihongoChatEmail");
         localStorage.removeItem("nihongoChatUser");
+        localStorage.removeItem("fournity_user_role");
         localStorage.removeItem("fournity_user_avatar");
         localStorage.removeItem("fournity_custom_avatar");
         localStorage.removeItem("fournity_avatar_rarity");
@@ -1281,9 +1308,12 @@ if (leaderboardList) {
 const msgBadge = document.getElementById("msgBadge");
 
 if (currentUid && currentUser && msgBadge) {
+    const curRole = (localStorage.getItem("fournity_user_role") || "").toLowerCase();
     const isCore = !!currentUid && (
         (currentEmail && currentEmail.toLowerCase().includes("umaedi")) ||
-        (currentUser && currentUser.toLowerCase() === "umaedi")
+        (currentUser && currentUser.toLowerCase() === "umaedi") ||
+        curRole === "admin" ||
+        curRole === "core"
     );
     
     const checkUnread = (roomName) => {

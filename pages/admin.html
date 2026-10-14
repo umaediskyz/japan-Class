@@ -19,7 +19,8 @@
         (function() {
             const rawUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase();
             const rawEmail = (localStorage.getItem("nihongoChatEmail") || "").toLowerCase();
-            const isLeadDev = rawUser === "umaedi" || rawEmail.includes("umaedi");
+            const rawRole = (localStorage.getItem("fournity_user_role") || "").toLowerCase();
+            const isLeadDev = rawUser === "umaedi" || rawEmail.includes("umaedi") || rawRole === "admin";
             window.__IS_FOURNITY_ADMIN = isLeadDev;
         })();
     </script>
@@ -101,6 +102,33 @@
             </button>
         </div>
     </header>
+
+    <!-- ====================================================================== -->
+    <!-- 1.5 CYBER VIEWPORT MODE BAR (MODE HP & DESKTOP SWITCHER)               -->
+    <!-- ====================================================================== -->
+    <div class="cyber-viewport-bar" id="cyberViewportBar">
+        <div class="viewport-bar-inner">
+            <div class="viewport-brand-tag">
+                <span class="cyber-pulse-dot"></span>
+                <span>TAMPILAN SISTEM:</span>
+            </div>
+            
+            <div class="cyber-switch-group" role="tablist" aria-label="Pengaturan Mode Tampilan Halaman">
+                <button type="button" class="cyber-switch-btn is-active" id="btnModeMobile" data-mode="mobile" title="Tampilan HP (Optimal, Rapi, Anti-Potong)">
+                    <span>📱</span>
+                    <span>Mode HP (Default)</span>
+                </button>
+                <button type="button" class="cyber-switch-btn" id="btnModeDesktop" data-mode="desktop" title="Tampilan Desktop (Widescreen Table & Full Dashboard)">
+                    <span>🖥️</span>
+                    <span>Mode Desktop</span>
+                </button>
+            </div>
+
+            <div class="viewport-active-badge" id="viewportStatusText">
+                ⚡ Mode HP Aktif • Kartu Pengguna Anti-Potong
+            </div>
+        </div>
+    </div>
 
     <!-- ====================================================================== -->
     <!-- 2. MAIN DASHBOARD WRAPPER                                              -->
@@ -322,42 +350,50 @@
                         </div>
                     </div>
 
-                    <!-- Toolbar: Search & Rarity Filter -->
+                    <!-- Toolbar: Search & Role/Rarity Filter -->
                     <div class="user-table-toolbar">
                         <div class="user-search-wrap">
                             <span class="user-search-icon">🔍</span>
-                            <input type="text" id="userSearchInput" class="admin-input" placeholder="Cari nama, email, atau UID...">
+                            <input type="text" id="userSearchInput" class="admin-input" placeholder="Cari nama, email, UID, atau role...">
                         </div>
                         <div class="user-filter-pills">
                             <button type="button" class="filter-pill-btn is-active" data-filter="all">Semua</button>
-                            <button type="button" class="filter-pill-btn" data-filter="legendary">👑 Founder / VIP</button>
-                            <button type="button" class="filter-pill-btn" data-filter="ur">💜 Ultra Rare (UR)</button>
-                            <button type="button" class="filter-pill-btn" data-filter="rare">💎 Rare</button>
-                            <button type="button" class="filter-pill-btn" data-filter="default">🎋 Gakusei</button>
+                            <button type="button" class="filter-pill-btn" data-filter="admin" style="color:#FFD166; border-color:rgba(255,183,3,0.3);">👑 Admin</button>
+                            <button type="button" class="filter-pill-btn" data-filter="core" style="color:#FCA5A5; border-color:rgba(239,68,68,0.3);">🛡️ 4 Pilar Core</button>
+                            <button type="button" class="filter-pill-btn" data-filter="legendary">⭐ VIP</button>
+                            <button type="button" class="filter-pill-btn" data-filter="default">🎋 Member</button>
                         </div>
                     </div>
 
-                    <!-- Table Responsive Wrapper -->
-                    <div class="admin-table-responsive">
+                    <!-- 1. Mode Desktop: Table Responsive Wrapper -->
+                    <div class="admin-table-responsive" id="adminTableContainer">
                         <table class="admin-table" id="adminUserTable">
                             <thead>
                                 <tr>
                                     <th>Pengguna / Profil</th>
+                                    <th>Peran & Hak Akses</th>
                                     <th>UID Firebase</th>
                                     <th>Level & EXP</th>
                                     <th>Streak Presensi</th>
                                     <th>Koleksi Kartu</th>
-                                    <th style="text-align: right;">Aksi Kendali</th>
+                                    <th style="text-align: right;">Aksi Kendali Akun</th>
                                 </tr>
                             </thead>
                             <tbody id="userTableBody">
                                 <tr>
-                                    <td colspan="6" style="text-align: center; color: var(--admin-text-dim); padding: 24px;">
+                                    <td colspan="7" style="text-align: center; color: var(--admin-text-dim); padding: 24px;">
                                         Mengambil data user dari Firebase RTDB...
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- 2. Mode HP (Default): Cyber Mobile User Cards Container -->
+                    <div class="cyber-user-cards-container" id="adminUserCardsMobile">
+                        <div class="cyber-card-loading">
+                            Mengambil data user dari Firebase RTDB...
+                        </div>
                     </div>
                 </section>
 
@@ -543,7 +579,8 @@
             getAuth, 
             signInWithEmailAndPassword, 
             signOut, 
-            onAuthStateChanged 
+            onAuthStateChanged,
+            sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -638,6 +675,7 @@
         const userTotalBadge = document.getElementById("userTotalBadge");
         const userSearchInput = document.getElementById("userSearchInput");
         const userTableBody = document.getElementById("userTableBody");
+        const adminUserCardsMobile = document.getElementById("adminUserCardsMobile");
         const filterPills = document.querySelectorAll(".filter-pill-btn");
         let activeUserFilter = "all";
 
@@ -689,27 +727,82 @@
         }
 
         // ==========================================
+        // 0.5 CYBER VIEWPORT MODE SWITCHER (HP VS DESKTOP)
+        // ==========================================
+        const btnModeMobile = document.getElementById("btnModeMobile");
+        const btnModeDesktop = document.getElementById("btnModeDesktop");
+        const viewportStatusText = document.getElementById("viewportStatusText");
+        const cyberViewportBar = document.getElementById("cyberViewportBar");
+
+        // Default: Mode HP (Mobile View)
+        let currentViewMode = localStorage.getItem("fournity_admin_view_mode") || "mobile";
+
+        function applyViewMode(mode) {
+            currentViewMode = mode;
+            localStorage.setItem("fournity_admin_view_mode", mode);
+
+            if (mode === "desktop") {
+                document.body.classList.remove("is-mode-mobile");
+                document.body.classList.add("is-mode-desktop");
+                if (btnModeDesktop) btnModeDesktop.classList.add("is-active");
+                if (btnModeMobile) btnModeMobile.classList.remove("is-active");
+                if (viewportStatusText) {
+                    viewportStatusText.innerHTML = `🖥️ Mode Desktop Aktif • Tabel Lengkap & Multi-Kolom`;
+                }
+            } else {
+                // Default: Mobile View
+                document.body.classList.remove("is-mode-desktop");
+                document.body.classList.add("is-mode-mobile");
+                if (btnModeMobile) btnModeMobile.classList.add("is-active");
+                if (btnModeDesktop) btnModeDesktop.classList.remove("is-active");
+                if (viewportStatusText) {
+                    viewportStatusText.innerHTML = `📱 Mode HP Aktif • Kartu Pengguna Anti-Potong`;
+                }
+            }
+        }
+
+        if (btnModeMobile) {
+            btnModeMobile.addEventListener("click", () => {
+                applyViewMode("mobile");
+                showAdminToast("Beralih ke Tampilan Mode HP (Default)", "📱");
+            });
+        }
+
+        if (btnModeDesktop) {
+            btnModeDesktop.addEventListener("click", () => {
+                applyViewMode("desktop");
+                showAdminToast("Beralih ke Tampilan Mode Desktop", "🖥️");
+            });
+        }
+
+        applyViewMode(currentViewMode);
+
+        // ==========================================
         // 1. OTENTIKASI & ACCESS GUARD
         // ==========================================
         function checkAdminAccess(user) {
             const storedUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase();
             const storedEmail = (localStorage.getItem("nihongoChatEmail") || "").toLowerCase();
+            const storedRole = (localStorage.getItem("fournity_user_role") || "").toLowerCase();
             const authEmail = (user && user.email ? user.email : "").toLowerCase();
             const authName = (user && user.displayName ? user.displayName : "").toLowerCase();
 
             const isUmaedi = storedUser === "umaedi" || 
                             storedEmail.includes("umaedi") || 
                             authEmail.includes("umaedi") || 
-                            authName === "umaedi";
+                            authName === "umaedi" ||
+                            storedRole === "admin";
 
             if (isUmaedi) {
                 adminAuthLockScreen.style.display = "none";
                 adminDashboardMain.style.display = "block";
                 adminNavbar.style.display = "flex";
+                if (cyberViewportBar) cyberViewportBar.style.display = "block";
             } else {
                 adminAuthLockScreen.style.display = "flex";
                 adminDashboardMain.style.display = "none";
                 adminNavbar.style.display = "none";
+                if (cyberViewportBar) cyberViewportBar.style.display = "none";
             }
         }
 
@@ -1089,7 +1182,7 @@
         }
 
         // ==========================================
-        // 6. DATA USER & DIREKTORI ANGGOTA
+        // 6. DATA USER & DIREKTORI ANGGOTA & MANAJEMEN ROLE
         // ==========================================
         function renderUserTable() {
             if (!userTableBody) return;
@@ -1100,11 +1193,20 @@
             if (uids.length === 0) {
                 userTableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" style="text-align: center; color: var(--admin-text-dim); padding: 24px;">
+                        <td colspan="7" style="text-align: center; color: var(--admin-text-dim); padding: 24px;">
                             Tidak ada data pengguna terdaftar di node "users".
                         </td>
                     </tr>
                 `;
+                if (adminUserCardsMobile) {
+                    adminUserCardsMobile.innerHTML = `
+                        <div class="cyber-card-empty">
+                            <span style="font-size: 28px; display: block; margin-bottom: 8px;">📭</span>
+                            <strong style="color: #FFFFFF; font-size: 13px;">Belum Ada Pengguna</strong>
+                            <p style="margin-top: 4px; color: var(--admin-text-muted);">Tidak ada data pengguna terdaftar di node "users".</p>
+                        </div>
+                    `;
+                }
                 return;
             }
 
@@ -1126,19 +1228,24 @@
                 const cardCount = (inventory.card_instances || []).length || (inventory.unlocked_cards || []).length || 0;
                 const createdAt = profile.createdAt ? new Date(profile.createdAt).toLocaleDateString("id-ID") : "-";
 
+                // Deteksi Role
+                const isLeadAdmin = email.toLowerCase().includes("umaedi") || displayName.toLowerCase() === "umaedi";
+                const role = (profile.role || (isLeadAdmin ? "admin" : "member")).toLowerCase();
+
                 // Filter Search
                 const matchSearch = displayName.toLowerCase().includes(searchVal) || 
                                     email.toLowerCase().includes(searchVal) || 
-                                    uid.toLowerCase().includes(searchVal);
+                                    uid.toLowerCase().includes(searchVal) ||
+                                    role.includes(searchVal);
                 if (!matchSearch) return;
 
-                // Filter Rarity Pills
-                if (activeUserFilter === "legendary" && !rarity.includes("legend") && !rarity.includes("vip")) return;
-                if (activeUserFilter === "ur" && !rarity.includes("ur") && !rarity.includes("ultra")) return;
-                if (activeUserFilter === "rare" && !rarity.includes("rare") && rarity.includes("ultra")) return;
-                if (activeUserFilter === "default" && (rarity.includes("legend") || rarity.includes("ur") || rarity.includes("rare"))) return;
+                // Filter Pills
+                if (activeUserFilter === "admin" && role !== "admin") return;
+                if (activeUserFilter === "core" && role !== "core") return;
+                if (activeUserFilter === "legendary" && !rarity.includes("legend") && !rarity.includes("vip") && role !== "admin" && role !== "core") return;
+                if (activeUserFilter === "default" && (role === "admin" || role === "core")) return;
 
-                filteredList.push({ uid, displayName, email, avatar, rarity, exp, streak, cardCount, createdAt });
+                filteredList.push({ uid, displayName, email, avatar, rarity, role, exp, streak, cardCount, createdAt });
             });
 
             if (userTotalBadge) userTotalBadge.textContent = `${filteredList.length} Akun`;
@@ -1146,27 +1253,40 @@
             if (filteredList.length === 0) {
                 userTableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" style="text-align: center; color: var(--admin-text-dim); padding: 24px;">
+                        <td colspan="7" style="text-align: center; color: var(--admin-text-dim); padding: 24px;">
                             Tidak ada pengguna yang cocok dengan kriteria pencarian / filter.
                         </td>
                     </tr>
                 `;
+                if (adminUserCardsMobile) {
+                    adminUserCardsMobile.innerHTML = `
+                        <div class="cyber-card-empty">
+                            <span style="font-size: 28px; display: block; margin-bottom: 8px;">🔍</span>
+                            <strong style="color: #FFFFFF; font-size: 13px;">Tidak Ditemukan</strong>
+                            <p style="margin-top: 4px; color: var(--admin-text-muted);">Tidak ada pengguna yang cocok dengan kriteria pencarian atau filter yang dipilih.</p>
+                        </div>
+                    `;
+                }
                 return;
             }
 
+            // 1. Render Desktop Table Rows
             userTableBody.innerHTML = filteredList.map(u => {
                 let rarityClass = "";
-                let rarityTag = "";
                 if (u.rarity.includes("legend") || u.rarity.includes("vip")) {
                     rarityClass = "is-vip";
-                    rarityTag = '<span style="font-size:9.5px; color:#FFB703; font-weight:800;">👑 VIP</span>';
                 } else if (u.rarity.includes("ur") || u.rarity.includes("ultra")) {
                     rarityClass = "is-ur";
-                    rarityTag = '<span style="font-size:9.5px; color:#8B5CF6; font-weight:800;">💜 UR</span>';
-                } else if (u.rarity.includes("rare")) {
-                    rarityTag = '<span style="font-size:9.5px; color:#00F0FF; font-weight:800;">💎 RARE</span>';
+                }
+
+                // Render Badge Role
+                let roleBadgeHtml = "";
+                if (u.role === "admin") {
+                    roleBadgeHtml = `<span class="admin-role-badge is-admin" title="Administrator Tertinggi Sistem">👑 ADMIN</span>`;
+                } else if (u.role === "core") {
+                    roleBadgeHtml = `<span class="admin-role-badge is-core" title="4 Pilar Tim Inti (Akses Ruang Privat)">🛡️ 4 PILAR</span>`;
                 } else {
-                    rarityTag = '<span style="font-size:9.5px; color:#94A3B8;">🎋 GAKUSEI</span>';
+                    roleBadgeHtml = `<span class="admin-role-badge is-member" title="Gakusei / Member Biasa">🎋 GAKUSEI</span>`;
                 }
 
                 const avatarSrc = u.avatar || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231E293B"/><text x="50%" y="55%" font-size="14" text-anchor="middle" dominant-baseline="middle" fill="%23FFF">👤</text></svg>';
@@ -1177,10 +1297,13 @@
                             <div class="user-table-cell-profile">
                                 <img src="${avatarSrc}" class="user-table-avatar ${rarityClass}" alt="${u.displayName}">
                                 <div>
-                                    <span class="user-table-name">${u.displayName} ${rarityTag}</span>
+                                    <span class="user-table-name">${u.displayName}</span>
                                     <span class="user-table-email">${u.email}</span>
                                 </div>
                             </div>
+                        </td>
+                        <td>
+                            ${roleBadgeHtml}
                         </td>
                         <td>
                             <span style="font-family:'JetBrains Mono', monospace; font-size:10.5px; color:#94A3B8;" title="${u.uid}">
@@ -1196,20 +1319,133 @@
                         <td>
                             <span style="font-weight:700; color:#CBD5E1;">🃏 ${u.cardCount} Kartu</span>
                         </td>
-                        <td style="text-align: right;">
-                            <button type="button" class="btn-action-small" onclick="window.adminCopyUid('${u.uid}')" title="Salin UID">
-                                📋 UID
+                        <td style="text-align: right; white-space: nowrap;">
+                            <select class="admin-role-select" onchange="window.adminSetUserRole('${u.uid}', '${u.displayName}', this.value)" title="Ubah Hak Akses / Grup Akun Ini">
+                                <option value="member" ${u.role === 'member' ? 'selected' : ''}>🎋 Member Biasa</option>
+                                <option value="core" ${u.role === 'core' ? 'selected' : ''}>🛡️ Izinkan 4 Pilar (Core)</option>
+                                <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>👑 Jadikan Admin</option>
+                            </select>
+                            <button type="button" class="btn-action-small btn-action-warning" onclick="window.adminSendPasswordReset('${u.email}', '${u.displayName}')" title="Kirim Link Ganti Sandi ke Email Akun Ini">
+                                🔑 Sandi
                             </button>
                             <button type="button" class="btn-action-small btn-action-accent" onclick="window.adminGrantExp('${u.uid}', '${u.displayName}')" title="Beri +100 EXP">
                                 ⚡ +100 EXP
                             </button>
-                            <button type="button" class="btn-action-small" onclick="window.adminResetAvatar('${u.uid}', '${u.displayName}')" style="color:#FF6B81;" title="Reset Foto Profil">
-                                🔄 Reset
+                            <button type="button" class="btn-action-small" onclick="window.adminResetAvatar('${u.uid}', '${u.displayName}')" title="Reset Avatar">
+                                🔄 Avatar
+                            </button>
+                            <button type="button" class="btn-action-small" onclick="window.adminCopyUid('${u.uid}')" title="Salin UID">
+                                📋 UID
+                            </button>
+                            <button type="button" class="btn-action-small btn-action-danger" onclick="window.adminDeleteUserData('${u.uid}', '${u.displayName}')" title="Hapus Data Akun dari Database">
+                                🗑️ Hapus
                             </button>
                         </td>
                     </tr>
                 `;
             }).join("");
+
+            // 2. Render Mobile Cyber User Cards (Default Phone View)
+            if (adminUserCardsMobile) {
+                adminUserCardsMobile.innerHTML = filteredList.map(u => {
+                    let rarityClass = "";
+                    if (u.rarity.includes("legend") || u.rarity.includes("vip")) {
+                        rarityClass = "is-vip";
+                    } else if (u.rarity.includes("ur") || u.rarity.includes("ultra")) {
+                        rarityClass = "is-ur";
+                    }
+
+                    let roleBadgeHtml = "";
+                    let roleColor = "#00F0FF";
+                    if (u.role === "admin") {
+                        roleBadgeHtml = `<span class="admin-role-badge is-admin" title="Administrator Tertinggi Sistem">👑 ADMIN</span>`;
+                        roleColor = "#FFB703";
+                    } else if (u.role === "core") {
+                        roleBadgeHtml = `<span class="admin-role-badge is-core" title="4 Pilar Tim Inti (Akses Ruang Privat)">🛡️ 4 PILAR</span>`;
+                        roleColor = "#FF2E4D";
+                    } else {
+                        roleBadgeHtml = `<span class="admin-role-badge is-member" title="Gakusei / Member Biasa">🎋 GAKUSEI</span>`;
+                        roleColor = "#00F0FF";
+                    }
+
+                    const avatarSrc = u.avatar || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231E293B"/><text x="50%" y="55%" font-size="14" text-anchor="middle" dominant-baseline="middle" fill="%23FFF">👤</text></svg>';
+
+                    return `
+                        <div class="cyber-user-card is-role-${u.role}">
+                            <!-- Header Profil & Rarity -->
+                            <div class="cuc-header">
+                                <div class="cuc-profile">
+                                    <div class="cuc-avatar-wrap ${rarityClass}">
+                                        <img src="${avatarSrc}" class="cuc-avatar-img" alt="${u.displayName}">
+                                    </div>
+                                    <div class="cuc-name-group">
+                                        <div class="cuc-name-row">
+                                            <span class="cuc-name">${u.displayName}</span>
+                                            <span class="cuc-role-tag">${roleBadgeHtml}</span>
+                                        </div>
+                                        <span class="cuc-email">${u.email}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- UID Row with Tap-to-copy -->
+                            <div class="cuc-uid-row">
+                                <span class="cuc-uid-text" title="${u.uid}">UID: ${u.uid}</span>
+                                <button type="button" class="btn-action-small" onclick="window.adminCopyUid('${u.uid}')" style="padding: 2px 8px; font-size: 10px; flex-shrink: 0;">
+                                    📋 Salin
+                                </button>
+                            </div>
+
+                            <!-- Telemetry Metrics Grid -->
+                            <div class="cuc-metrics-grid">
+                                <div class="cuc-metric-pill">
+                                    <span class="cuc-metric-lbl">Total EXP</span>
+                                    <span class="cuc-metric-val" style="color: var(--admin-gold);">${u.exp}</span>
+                                </div>
+                                <div class="cuc-metric-pill">
+                                    <span class="cuc-metric-lbl">Streak</span>
+                                    <span class="cuc-metric-val" style="color: #10B981;">🔥 ${u.streak}h</span>
+                                </div>
+                                <div class="cuc-metric-pill">
+                                    <span class="cuc-metric-lbl">Koleksi</span>
+                                    <span class="cuc-metric-val" style="color: #CBD5E1;">🃏 ${u.cardCount}</span>
+                                </div>
+                            </div>
+
+                            <!-- Touch-Friendly Role Controller Box -->
+                            <div class="cuc-role-control-box">
+                                <div class="cuc-control-label">
+                                    <span>🛡️ HAK AKSES PENGGUNA (ROLE)</span>
+                                    <span class="cuc-current-role-txt" style="color: ${roleColor};">
+                                        ${u.role.toUpperCase()}
+                                    </span>
+                                </div>
+                                <select class="cyber-touch-role-select" onchange="window.adminSetUserRole('${u.uid}', '${u.displayName}', this.value)" title="Ubah Hak Akses Akun">
+                                    <option value="member" ${u.role === 'member' ? 'selected' : ''}>🎋 Member Biasa (Gakusei)</option>
+                                    <option value="core" ${u.role === 'core' ? 'selected' : ''}>🛡️ Izinkan 4 Pilar (Core Group)</option>
+                                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>👑 Administrator Tertinggi (Admin)</option>
+                                </select>
+                            </div>
+
+                            <!-- Mobile Action Buttons Grid -->
+                            <div class="cuc-actions-grid">
+                                <button type="button" class="btn-cuc-action btn-cuc-warning" onclick="window.adminSendPasswordReset('${u.email}', '${u.displayName}')" title="Kirim Link Ganti Sandi ke Email">
+                                    🔑 Reset Sandi
+                                </button>
+                                <button type="button" class="btn-cuc-action btn-cuc-accent" onclick="window.adminGrantExp('${u.uid}', '${u.displayName}')" title="Beri +100 EXP ke Pengguna">
+                                    ⚡ +100 EXP
+                                </button>
+                                <button type="button" class="btn-cuc-action btn-cuc-secondary" onclick="window.adminResetAvatar('${u.uid}', '${u.displayName}')" title="Reset Avatar ke Default">
+                                    🔄 Reset Avatar
+                                </button>
+                                <button type="button" class="btn-cuc-action btn-cuc-danger" onclick="window.adminDeleteUserData('${u.uid}', '${u.displayName}')" title="Hapus Data Akun dari Database">
+                                    🗑️ Hapus Akun
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            }
         }
 
         // Listener Users & User Profiles
@@ -1238,6 +1474,57 @@
         });
 
         // Global User Table Actions
+        window.adminSetUserRole = async (uid, name, newRole) => {
+            const roleLabels = {
+                admin: "👑 Administrator",
+                core: "🛡️ 4 Pilar Tim Khusus (Core)",
+                member: "🎋 Gakusei (Member Biasa)"
+            };
+            const roleLabel = roleLabels[newRole] || newRole;
+            try {
+                await update(ref(db, `users/${uid}/profile`), { role: newRole });
+                if (currentUserProfiles[name]) {
+                    await update(ref(db, `user_profiles/${name}`), { role: newRole });
+                }
+                showAdminToast(`Akses ${name} berhasil diubah ke: ${roleLabel}!`, "🛡️");
+                addActivityLog("Otorisasi Pengguna", `Admin mengubah hak akses ${name} menjadi ${roleLabel}`, "👑");
+            } catch (err) {
+                alert("Gagal mengubah peran: " + err.message);
+                showAdminToast("Gagal memperbarui role: " + err.message, "❌");
+            }
+        };
+
+        window.adminSendPasswordReset = async (email, name) => {
+            if (!email || !email.includes("@")) {
+                alert(`Akun ${name} tidak memiliki format email yang valid.`);
+                return;
+            }
+            if (confirm(`Kirim tautan resmi reset kata sandi Firebase ke email:\n${email}?`)) {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    showAdminToast(`Link reset kata sandi telah dikirim ke ${email}!`, "📧", 5000);
+                    addActivityLog("Reset Password Dikirim", `Tautan ganti kata sandi dikirim ke ${email} (${name})`, "🔑");
+                } catch (err) {
+                    alert("Gagal mengirim email reset sandi: " + err.message);
+                }
+            }
+        };
+
+        window.adminDeleteUserData = async (uid, name) => {
+            if (confirm(`⚠️ PERINGATAN HAPUS AKUN:\n\nAnda yakin ingin menghapus seluruh data akun "${name}" (UID: ${uid}) dari database Realtime Database?\n\nCatatan: Jika akun juga terdaftar di Firebase Auth, Anda dapat menghapusnya permanen di tab Firebase Console -> Authentication -> Users.`)) {
+                try {
+                    await remove(ref(db, `users/${uid}`));
+                    if (currentUserProfiles[name]) {
+                        await remove(ref(db, `user_profiles/${name}`));
+                    }
+                    showAdminToast(`Data akun ${name} berhasil dihapus dari database!`, "🗑️");
+                    addActivityLog("Hapus Data Akun", `Data akun ${name} (UID: ${uid}) telah dihapus dari RTDB oleh Admin.`, "🗑️");
+                } catch (err) {
+                    alert("Gagal menghapus akun: " + err.message);
+                }
+            }
+        };
+
         window.adminCopyUid = (uid) => {
             navigator.clipboard.writeText(uid);
             showAdminToast("UID berhasil disalin ke clipboard!", "📋");

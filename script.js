@@ -3101,8 +3101,37 @@ function initCardGiftingSystem() {
     const paneGiftCode = document.getElementById("paneGiftCode");
     const targetUserSelect = document.getElementById("sendTargetUserSelect");
     const targetUserManual = document.getElementById("sendTargetUserManual");
+    const sendSearchUser = document.getElementById("sendSearchUser");
+    const btnClearRecipientSearch = document.getElementById("btnClearRecipientSearch");
+    const selectedRecipientBadge = document.getElementById("selectedRecipientBadge");
+    const srbAvatar = document.getElementById("srbAvatar");
+    const srbName = document.getElementById("srbName");
+    const btnRemoveSelectedRecipient = document.getElementById("btnRemoveSelectedRecipient");
+    const recipientSearchResults = document.getElementById("recipientSearchResults");
     const cardMsgInput = document.getElementById("sendCardMessage");
     const btnConfirmSend = document.getElementById("btnConfirmSendCard");
+
+    let cachedCommunityMembers = [];
+    let selectedRecipientUser = null;
+
+    // Listener Live Search Penerima Kartu
+    if (sendSearchUser) {
+        sendSearchUser.addEventListener("input", (e) => {
+            handleRecipientSearch(e.target.value);
+        });
+    }
+
+    if (btnClearRecipientSearch) {
+        btnClearRecipientSearch.addEventListener("click", () => {
+            clearRecipientSelection();
+        });
+    }
+
+    if (btnRemoveSelectedRecipient) {
+        btnRemoveSelectedRecipient.addEventListener("click", () => {
+            clearRecipientSelection();
+        });
+    }
     const giftCodeNote = document.getElementById("giftCodeNote");
     const btnGenCode = document.getElementById("btnGenerateGiftCode");
     const codeResultBox = document.getElementById("giftCodeResultBox");
@@ -3202,7 +3231,8 @@ function initCardGiftingSystem() {
         }
 
         updateCardPreviewStrip(currentCardToGift);
-        populateRecipientDropdown();
+        clearRecipientSelection();
+        loadCommunityUsersForGifting();
 
         // Reset state tabs & input
         if (tabDirect && tabGiftCode && paneDirect && paneGiftCode) {
@@ -3212,7 +3242,7 @@ function initCardGiftingSystem() {
             paneGiftCode.classList.remove("is-active");
         }
         if (cardMsgInput) cardMsgInput.value = "";
-        if (targetUserManual) targetUserManual.value = "";
+        clearRecipientSelection();
         if (giftCodeNote) giftCodeNote.value = "";
         if (codeResultBox) codeResultBox.style.display = "none";
         if (genCodeActionRow) genCodeActionRow.style.display = "block";
@@ -3240,13 +3270,10 @@ function initCardGiftingSystem() {
         }
     }
 
-    // 3. Muat Anggota Komunitas Penerima dari Firebase & Profil (HANYA NAMA PENGGUNA)
-    async function populateRecipientDropdown() {
-        if (!targetUserSelect) return;
-        targetUserSelect.innerHTML = `<option value="">-- Pilih Anggota Komunitas --</option>`;
-
+    // 3. Tarik Akun Komunitas dari Firebase untuk Cache Pencarian
+    async function loadCommunityUsersForGifting() {
         const myUser = (localStorage.getItem("nihongoChatUser") || "").toLowerCase().trim();
-        const candidateUsers = new Map();
+        const candidateMap = new Map();
 
         // Helper filter format email
         function isEmailFormat(str) {
@@ -3265,56 +3292,160 @@ function initCardGiftingSystem() {
             return s;
         }
 
-        // 1. Anggota 4 Pilar Fournity dengan nama resmi
-        const defaultMembers = ["Sensei Iqbal", "Fasya", "Umaedi", "Rifki"];
-        defaultMembers.forEach(name => {
-            const key = name.toLowerCase();
-            if (key !== myUser) {
-                candidateUsers.set(key, name);
-            }
-        });
-
-        // 2. Tarik Profil Publik dari Firebase RTDB (user_profiles)
         try {
             const RTDB_BASE = 'https://nihongo-trinity-default-rtdb.firebaseio.com';
-            const res = await fetch(`${RTDB_BASE}/user_profiles.json`, { cache: 'no-store' });
-            if (res.ok) {
-                const data = await res.json();
-                if (data && typeof data === 'object') {
-                    Object.entries(data).forEach(([key, val]) => {
-                        const rawName = (val && val.displayName) ? val.displayName : key;
+            const [usersRes, profilesRes] = await Promise.all([
+                fetch(`${RTDB_BASE}/users.json`, { cache: 'no-store' }),
+                fetch(`${RTDB_BASE}/user_profiles.json`, { cache: 'no-store' })
+            ]);
+
+            // 1. Olah data node users (sumber utama akun nyata terdaftar di Fournity)
+            if (usersRes.ok) {
+                const usersData = await usersRes.json();
+                if (usersData && typeof usersData === 'object') {
+                    Object.values(usersData).forEach(u => {
+                        const prof = (u && u.profile) ? u.profile : {};
+                        const rawName = prof.displayName || "";
                         const name = cleanName(rawName);
-                        // Hanya masukkan jika bukan email, tidak kosong, dan bukan akun sendiri
+                        let avatar = prof.avatar || prof.photoBase64 || "";
                         if (name && !isEmailFormat(name) && name.toLowerCase() !== myUser) {
-                            const nameKey = name.toLowerCase();
-                            candidateUsers.set(nameKey, name);
+                            candidateMap.set(name.toLowerCase(), { name, avatar });
                         }
                     });
                 }
             }
-        } catch(e) {}
 
-        // 3. Tarik dari in-memory window.userProfiles jika ada
-        if (window.userProfiles && typeof window.userProfiles === "object") {
-            Object.entries(window.userProfiles).forEach(([key, val]) => {
-                const rawName = (val && val.displayName) ? val.displayName : key;
-                const name = cleanName(rawName);
-                if (name && !isEmailFormat(name) && name.toLowerCase() !== myUser) {
-                    const nameKey = name.toLowerCase();
-                    if (!candidateUsers.has(nameKey)) {
-                        candidateUsers.set(nameKey, name);
-                    }
+            // 2. Olah data node user_profiles (memperkaya foto profil jika belum ada di users)
+            if (profilesRes.ok) {
+                const profilesData = await profilesRes.json();
+                if (profilesData && typeof profilesData === 'object') {
+                    Object.entries(profilesData).forEach(([key, val]) => {
+                        const rawName = (val && val.displayName) ? val.displayName : key;
+                        const name = cleanName(rawName);
+                        const avatar = (val && (val.photoBase64 || val.avatar)) ? (val.photoBase64 || val.avatar) : "";
+                        if (name && !isEmailFormat(name) && name.toLowerCase() !== myUser) {
+                            const nameKey = name.toLowerCase();
+                            if (!candidateMap.has(nameKey)) {
+                                candidateMap.set(nameKey, { name, avatar });
+                            } else if (!candidateMap.get(nameKey).avatar && avatar) {
+                                candidateMap.get(nameKey).avatar = avatar;
+                            }
+                        }
+                    });
                 }
-            });
+            }
+        } catch (e) {
+            console.warn("Gagal memuat akun nyata dari Firebase:", e);
         }
 
-        // 4. Render ke Dropdown: HANYA NAMA PENGGUNA SAJA (TANPA EMAIL)
-        candidateUsers.forEach((name) => {
-            const opt = document.createElement("option");
-            opt.value = name;
-            opt.textContent = `👤 ${name}`;
-            targetUserSelect.appendChild(opt);
+        cachedCommunityMembers = Array.from(candidateMap.values());
+    }
+
+    // 3.1 Handler Pencarian Penerima (Hanya Tampil Jika Form Diisi, Sembunyi Jika Kosong)
+    function handleRecipientSearch(query) {
+        const cleanQuery = (query || "").trim().toLowerCase();
+
+        // JIKA FORM KOSONG: AKUN/PROFIL TIDAK AKAN MUNCUL!
+        if (!cleanQuery) {
+            if (recipientSearchResults) {
+                recipientSearchResults.style.display = "none";
+                recipientSearchResults.innerHTML = "";
+            }
+            if (btnClearRecipientSearch) btnClearRecipientSearch.style.display = "none";
+            return;
+        }
+
+        if (btnClearRecipientSearch) btnClearRecipientSearch.style.display = "flex";
+        if (selectedRecipientBadge) selectedRecipientBadge.style.display = "none";
+
+        // Filter akun yang cocok dari database Firebase berdasarkan nama/inisial
+        const matches = cachedCommunityMembers.filter(cand => {
+            const nameLower = (cand.name || "").toLowerCase();
+            return nameLower.includes(cleanQuery);
         });
+
+        if (recipientSearchResults) {
+            recipientSearchResults.style.display = "block";
+
+            // JIKA AKUN ATAU PENGGUNA TIDAK ADA: TEKS "PENGGUNA TIDAK DITEMUKAN"
+            if (matches.length === 0) {
+                recipientSearchResults.innerHTML = `
+                    <div class="recipient-not-found">
+                        <span class="rnf-icon">⚠️</span>
+                        <span>Pengguna tidak ditemukan</span>
+                    </div>
+                `;
+                return;
+            }
+
+            // JIKA ADA: MUNCUL PROFIL AKUNNYA (HANYA FOTO PROFIL DAN NAMA)
+            const defaultAvatarSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%231e293b'/%3E%3Ccircle cx='32' cy='24' r='12' fill='%2338bdf8'/%3E%3Cpath d='M16 52c0-8.837 7.163-16 16-16s16 7.163 16 16' fill='%2338bdf8'/%3E%3C/svg%3E";
+
+            let gridHtml = `<div class="recipient-search-results-grid">`;
+            matches.forEach(cand => {
+                const avatarSrc = cand.avatar || defaultAvatarSvg;
+                const isSelected = selectedRecipientUser && selectedRecipientUser.name.toLowerCase() === cand.name.toLowerCase();
+                gridHtml += `
+                    <div class="recipient-card-item ${isSelected ? 'is-selected' : ''}" data-name="${cand.name}">
+                        <div class="recipient-avatar-wrap">
+                            <img src="${avatarSrc}" class="recipient-avatar-img" alt="${cand.name}" onerror="this.src='gambar/icon.png'">
+                            <span class="recipient-check-badge">✓</span>
+                        </div>
+                        <span class="recipient-card-name" title="${cand.name}">${cand.name}</span>
+                    </div>
+                `;
+            });
+            gridHtml += `</div>`;
+            recipientSearchResults.innerHTML = gridHtml;
+
+            // Pasang event klik pada setiap kartu profil hasil pencarian
+            recipientSearchResults.querySelectorAll(".recipient-card-item").forEach(item => {
+                item.addEventListener("click", () => {
+                    const chosenName = item.dataset.name;
+                    const chosenUser = matches.find(m => m.name === chosenName) || { name: chosenName, avatar: "" };
+                    selectRecipient(chosenUser);
+                });
+            });
+        }
+    }
+
+    // 3.2 Pilih Penerima & Tampilkan Chip Indikator
+    function selectRecipient(user) {
+        selectedRecipientUser = user;
+        if (sendSearchUser) sendSearchUser.value = user.name;
+        if (targetUserSelect) targetUserSelect.value = user.name;
+        if (targetUserManual) targetUserManual.value = user.name;
+
+        if (selectedRecipientBadge && srbName) {
+            srbName.textContent = user.name;
+            if (srbAvatar) {
+                srbAvatar.src = user.avatar || "gambar/icon.png";
+                srbAvatar.onerror = () => { srbAvatar.src = "gambar/icon.png"; };
+            }
+            selectedRecipientBadge.style.display = "flex";
+        }
+
+        if (btnClearRecipientSearch) btnClearRecipientSearch.style.display = "flex";
+        if (recipientSearchResults) {
+            recipientSearchResults.style.display = "none";
+            recipientSearchResults.innerHTML = "";
+        }
+    }
+
+    // 3.3 Hapus / Batalkan Pilihan Penerima
+    function clearRecipientSelection() {
+        selectedRecipientUser = null;
+        if (sendSearchUser) {
+            sendSearchUser.value = "";
+        }
+        if (targetUserSelect) targetUserSelect.value = "";
+        if (targetUserManual) targetUserManual.value = "";
+        if (selectedRecipientBadge) selectedRecipientBadge.style.display = "none";
+        if (recipientSearchResults) {
+            recipientSearchResults.style.display = "none";
+            recipientSearchResults.innerHTML = "";
+        }
+        if (btnClearRecipientSearch) btnClearRecipientSearch.style.display = "none";
     }
 
     // 4. Konfirmasi Kirim Langsung ke User
@@ -3327,13 +3458,16 @@ function initCardGiftingSystem() {
         let target = targetUserSelect ? targetUserSelect.value.trim() : "";
         if (!target && targetUserManual) {
             target = targetUserManual.value.trim();
-            if (target.includes("@")) {
-                target = target.split("@")[0].trim();
-            }
+        }
+        if (!target && sendSearchUser) {
+            target = sendSearchUser.value.trim();
+        }
+        if (target.includes("@")) {
+            target = target.split("@")[0].trim();
         }
 
         if (!target) {
-            showToast("⚠️ Pilih atau ketik nama teman/anggota penerima kartu.");
+            showToast("⚠️ Cari dan pilih teman/anggota penerima kartu terlebih dahulu.");
             return;
         }
 

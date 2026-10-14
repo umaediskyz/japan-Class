@@ -5916,6 +5916,275 @@ a {
     height: 65px;
 }
 
+/* =======================================================
+   RECIPIENT LIVE SEARCH & RESULTS (SISTEM CARI AKUN)
+   ======================================================= */
+.recipient-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.recipient-search-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 13px;
+    color: #94a3b8;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.send-search-input {
+    padding-left: 36px !important;
+    padding-right: 32px !important;
+    font-size: 12.5px !important;
+    background: rgba(15, 23, 42, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    transition: all 0.2s ease !important;
+}
+
+.send-search-input:focus {
+    border-color: #34d399 !important;
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.25) !important;
+}
+
+.btn-clear-recipient-search {
+    position: absolute;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    color: #cbd5e1;
+    font-size: 11px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.btn-clear-recipient-search:hover {
+    background: rgba(255, 46, 77, 0.35);
+    color: #ff2e4d;
+}
+
+/* Container Hasil Pencarian (Hanya Muncul Saat Ada Isi di Form) */
+.recipient-search-results {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 12px;
+    padding: 8px;
+    max-height: 190px;
+    overflow-y: auto;
+    margin-top: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+    animation: searchResultsFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes searchResultsFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.recipient-search-results::-webkit-scrollbar {
+    width: 5px;
+}
+.recipient-search-results::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.recipient-search-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+}
+
+/* Card Profil Teman (Hanya Foto + Nama) */
+.recipient-card-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 6px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    user-select: none;
+}
+
+.recipient-card-item:hover {
+    background: rgba(52, 211, 153, 0.12);
+    border-color: rgba(52, 211, 153, 0.45);
+    transform: translateY(-2px);
+}
+
+.recipient-card-item.is-selected {
+    background: rgba(16, 185, 129, 0.18);
+    border-color: #10b981;
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+}
+
+.recipient-avatar-wrap {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.recipient-card-item.is-selected .recipient-avatar-wrap {
+    background: linear-gradient(135deg, #10b981, #059669);
+    transform: scale(1.05);
+}
+
+.recipient-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #1e293b;
+    display: block;
+}
+
+.recipient-card-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #e2e8f0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    letter-spacing: 0.3px;
+}
+
+.recipient-card-item.is-selected .recipient-card-name {
+    color: #34d399;
+}
+
+.recipient-check-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    background: #10b981;
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 900;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #0f172a;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+}
+
+.recipient-card-item.is-selected .recipient-check-badge {
+    display: flex;
+}
+
+/* Pesan Pengguna Tidak Ditemukan */
+.recipient-not-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 10px;
+    color: #f87171;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.recipient-not-found .rnf-icon {
+    font-size: 15px;
+}
+
+/* Selected Recipient Badge (Indikator Penerima Terpilih) */
+.selected-recipient-badge {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    animation: searchResultsFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.srb-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.srb-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.srb-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #10b981;
+    background: #1e293b;
+    flex-shrink: 0;
+}
+
+.srb-name {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #34d399;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.srb-remove {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.srb-remove:hover {
+    background: rgba(255, 46, 77, 0.2);
+    border-color: rgba(255, 46, 77, 0.4);
+    color: #ff2e4d;
+}
+
 .send-submit-btn {
     width: 100%;
     padding: 11px;

@@ -981,16 +981,29 @@
             <!-- Panel 1: Direct Send ke User Komunitas -->
             <div class="send-tab-pane is-active" id="paneDirectSend">
                 <div class="send-form-group">
-                    <label for="sendTargetUserSelect">Pilih Teman / Anggota Penerima:</label>
-                    <div class="recipient-input-wrap">
-                        <select id="sendTargetUserSelect" class="send-card-input">
-                            <option value="">-- Memuat daftar anggota komunitas... --</option>
-                        </select>
+                    <label for="sendSearchUser">Cari Teman / Anggota Penerima:</label>
+                    <div class="recipient-search-wrap">
+                        <span class="recipient-search-icon">🔍</span>
+                        <input type="text" id="sendSearchUser" class="send-card-input send-search-input" placeholder="Ketik nama atau inisial penerima (cth: fasya, iqbal, f)..." autocomplete="off">
+                        <button type="button" id="btnClearRecipientSearch" class="btn-clear-recipient-search" style="display: none;" title="Hapus pencarian">✕</button>
                     </div>
-                    <div class="recipient-manual-row" style="margin-top: 6px;">
-                        <span style="font-size: 10.5px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Atau ketik nama pengguna secara manual:</span>
-                        <input type="text" id="sendTargetUserManual" class="send-card-input send-input-sub" placeholder="Ketik username penerima (cth: Iqbal, Fasya, Umaedi)...">
+
+                    <!-- Indikator Penerima Terpilih (Muncul Setelah Profil Diklik) -->
+                    <div id="selectedRecipientBadge" class="selected-recipient-badge" style="display: none;">
+                        <span class="srb-label">Penerima Terpilih:</span>
+                        <div class="srb-chip">
+                            <img id="srbAvatar" src="gambar/icon.png" class="srb-avatar" alt="Avatar">
+                            <span id="srbName" class="srb-name">-</span>
+                        </div>
+                        <button type="button" id="btnRemoveSelectedRecipient" class="srb-remove" title="Ganti penerima">✕ Ganti</button>
                     </div>
+
+                    <!-- Container Hasil Pencarian (Hanya Muncul Saat Ada Teks di Form) -->
+                    <div id="recipientSearchResults" class="recipient-search-results" style="display: none;"></div>
+
+                    <!-- Form input tersembunyi untuk backend compatibility -->
+                    <select id="sendTargetUserSelect" style="display: none;"></select>
+                    <input type="hidden" id="sendTargetUserManual">
                 </div>
 
                 <div class="send-form-group">

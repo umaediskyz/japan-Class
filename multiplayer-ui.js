@@ -124,34 +124,114 @@
         }
     };
 
-    // 4. SINKRONISASI IDENTITAS & FOTO PROFIL PENGGUNA
+    // 4. SINKRONISASI IDENTITAS & FOTO PROFIL PENGGUNA (REAL DARI HALAMAN UTAMA)
+    function normalizeAvatarUrl(url) {
+        if (!url || typeof url !== "string") return "../gambar/icon.png";
+        let src = url.trim();
+        if (!src) return "../gambar/icon.png";
+
+        // Data URI atau External URL (http / https / blob)
+        if (src.startsWith("data:") || src.startsWith("http://") || src.startsWith("https://") || src.startsWith("blob:")) {
+            return src;
+        }
+
+        // Jalur relatif: bersihkan awalan ../ atau ./ lalu pastikan berawalan ../
+        const cleanPath = src.replace(/^(\.\.\/|\.\/)+/, '');
+        return "../" + cleanPath;
+    }
+
+    function getMyRealAvatar(username = null) {
+        const hasAuth = !!localStorage.getItem("nihongoChatUid");
+        const rawUser = username || (hasAuth ? localStorage.getItem("nihongoChatUser") : null) || "Gakusei";
+        const cleanUser = rawUser.trim();
+
+        // 1. Cek kartu fotocard yang dipasang sebagai avatar aktif di halaman utama
+        const cardAvatar = localStorage.getItem("fournity_user_avatar");
+        if (cardAvatar && cardAvatar.trim()) {
+            return normalizeAvatarUrl(cardAvatar);
+        }
+
+        // 2. Cek foto profil custom upload dari halaman utama
+        const customPhoto = localStorage.getItem("fournity_custom_avatar");
+        if (customPhoto && customPhoto.trim()) {
+            return normalizeAvatarUrl(customPhoto);
+        }
+
+        // 3. Cek localStorage avatar_<user>
+        if (cleanUser) {
+            const userStored = localStorage.getItem("avatar_" + cleanUser);
+            if (userStored && userStored.trim()) {
+                return normalizeAvatarUrl(userStored);
+            }
+            const lowerStored = localStorage.getItem("avatar_" + cleanUser.toLowerCase());
+            if (lowerStored && lowerStored.trim()) {
+                return normalizeAvatarUrl(lowerStored);
+            }
+        }
+
+        // 4. Cek window.userProfiles (dari database Firebase RTDB)
+        if (window.userProfiles && cleanUser) {
+            const prof = window.userProfiles[cleanUser] || 
+                         Object.entries(window.userProfiles).find(([k]) => k.toLowerCase() === cleanUser.toLowerCase())?.[1];
+            if (prof) {
+                const dbPhoto = prof.photoBase64 || prof.avatar;
+                if (dbPhoto && dbPhoto.trim()) {
+                    return normalizeAvatarUrl(dbPhoto);
+                }
+            }
+        }
+
+        // 5. Cek localStorage fournity_user_profiles
+        try {
+            const saved = JSON.parse(localStorage.getItem("fournity_user_profiles") || "{}");
+            if (cleanUser && saved[cleanUser]) {
+                const sPhoto = saved[cleanUser].photoBase64 || saved[cleanUser].avatar;
+                if (sPhoto && sPhoto.trim()) {
+                    return normalizeAvatarUrl(sPhoto);
+                }
+            }
+        } catch(e) {}
+
+        // 6. Cek memory window.newPhotoBase64
+        if (window.newPhotoBase64 && window.newPhotoBase64.trim()) {
+            return normalizeAvatarUrl(window.newPhotoBase64);
+        }
+
+        // 7. Cek fallback avatar pilar jika terdaftar
+        const pilarAvatars = ["fasya", "iqbal", "rifki", "umaedi"];
+        if (cleanUser && pilarAvatars.includes(cleanUser.toLowerCase())) {
+            return `../gambar/${cleanUser.toLowerCase()}.png`;
+        }
+
+        return "../gambar/icon.png";
+    }
+
     function getPlayerAvatar(username) {
         if (!username) return "../gambar/icon.png";
         const clean = username.trim();
+        const storedUser = (localStorage.getItem("nihongoChatUser") || "").trim();
 
-        // 1. Sinkronisasi dari Firebase RTDB user profiles jika ada
-        if (window.userProfiles && window.userProfiles[clean]?.photoBase64) {
-            return window.userProfiles[clean].photoBase64;
+        if (clean.toLowerCase() === storedUser.toLowerCase() || clean.toLowerCase() === "gakusei") {
+            return getMyRealAvatar(clean);
         }
 
-        // 2. Cek localStorage avatar_<user> atau fournity_user_avatar
-        const localAv = localStorage.getItem("avatar_" + clean) || (clean === myName ? localStorage.getItem("fournity_user_avatar") : null);
-        if (localAv) {
-            if (!localAv.startsWith('../') && !localAv.startsWith('http') && !localAv.startsWith('data:')) {
-                return '../' + localAv;
+        // Cek window.userProfiles
+        if (window.userProfiles) {
+            const prof = window.userProfiles[clean] || 
+                         Object.entries(window.userProfiles).find(([k]) => k.toLowerCase() === clean.toLowerCase())?.[1];
+            if (prof) {
+                const pAv = prof.photoBase64 || prof.avatar;
+                if (pAv && pAv.trim()) return normalizeAvatarUrl(pAv);
             }
-            return localAv;
         }
 
-        // 3. Cek localStorage fournity_user_profiles
-        try {
-            const saved = JSON.parse(localStorage.getItem("fournity_user_profiles") || "{}");
-            if (saved[clean]?.photoBase64) return saved[clean].photoBase64;
-        } catch (e) {}
+        const localAv = localStorage.getItem("avatar_" + clean) || localStorage.getItem("avatar_" + clean.toLowerCase());
+        if (localAv && localAv.trim()) {
+            return normalizeAvatarUrl(localAv);
+        }
 
-        // 4. Cek fallback avatar admin bawaan
-        const defaultAvatars = ["admin", "dimas", "fathan", "rifqi", "haikal", "sultan", "indra", "bayu", "arya"];
-        if (defaultAvatars.includes(clean.toLowerCase())) {
+        const pilarAvatars = ["fasya", "iqbal", "rifki", "umaedi"];
+        if (pilarAvatars.includes(clean.toLowerCase())) {
             return `../gambar/${clean.toLowerCase()}.png`;
         }
 
@@ -166,30 +246,42 @@
             storedUser = null;
         }
         const myName = (hasAuth && storedUser) ? storedUser : "Gakusei";
-        const myAvatar = getPlayerAvatar(myName);
+        const myAvatar = getMyRealAvatar(myName);
 
-        // Status bar atas
+        // Status bar atas di Lobby Arena
         const chipAv = document.getElementById("myChipAvatar");
         const chipNm = document.getElementById("myChipName");
-        if (chipAv) chipAv.src = myAvatar;
+        if (chipAv) {
+            chipAv.src = myAvatar;
+            chipAv.onerror = function() { this.onerror = null; this.src = "../gambar/icon.png"; };
+        }
         if (chipNm) chipNm.textContent = myName;
 
-        // Lobby slot 1
+        // Slot Player 1 di Lobby Pertandingan (Waiting Room)
         const p1Av = document.getElementById("p1Avatar");
         const p1Nm = document.getElementById("p1Name");
-        if (p1Av) p1Av.src = myAvatar;
-        if (p1Nm) p1Nm.textContent = myName;
+        if (p1Av) {
+            p1Av.src = myAvatar;
+            p1Av.onerror = function() { this.onerror = null; this.src = "../gambar/icon.png"; };
+        }
+        if (p1Nm) p1Nm.textContent = myName + " (Kamu)";
 
         // Battle arena
         const bAv = document.getElementById("battleMyAvatar");
         const bNm = document.getElementById("battleMyName");
-        if (bAv) bAv.src = myAvatar;
+        if (bAv) {
+            bAv.src = myAvatar;
+            bAv.onerror = function() { this.onerror = null; this.src = "../gambar/icon.png"; };
+        }
         if (bNm) bNm.textContent = myName;
 
         // Podium
         const podAv = document.getElementById("podiumMyAvatar");
         const podNm = document.getElementById("podiumMyName");
-        if (podAv) podAv.src = myAvatar;
+        if (podAv) {
+            podAv.src = myAvatar;
+            podAv.onerror = function() { this.onerror = null; this.src = "../gambar/icon.png"; };
+        }
         if (podNm) podNm.textContent = myName;
     }
 
@@ -396,6 +488,7 @@
         const btnBot = document.getElementById("modalBtnPlayBot");
         if (btnBot) {
             btnBot.addEventListener("click", function () {
+                if (window.isFirebaseActive) return; // Diserahkan ke engine realtime multiplayer.js
                 closeGameSetupModal();
                 UI_SFX.fanfare();
                 if (window.mpStartBotMatch) {
@@ -410,6 +503,7 @@
         const btnQuick = document.getElementById("modalBtnQuickMatch");
         if (btnQuick) {
             btnQuick.addEventListener("click", function () {
+                if (window.isFirebaseActive) return; // Diserahkan ke engine realtime multiplayer.js
                 closeGameSetupModal();
                 if (window.mpQuickMatch) {
                     window.mpQuickMatch();
@@ -425,6 +519,7 @@
         const btnCreate = document.getElementById("modalBtnCreateRoom");
         if (btnCreate) {
             btnCreate.addEventListener("click", function () {
+                if (window.isFirebaseActive) return; // Diserahkan ke engine realtime multiplayer.js
                 closeGameSetupModal();
                 UI_SFX.fanfare();
                 if (window.mpCreateRoom) {
@@ -440,6 +535,7 @@
         const inputCode = document.getElementById("inputRoomCode");
         if (btnJoinCode && inputCode) {
             btnJoinCode.addEventListener("click", function () {
+                if (window.isFirebaseActive) return; // Diserahkan ke engine realtime multiplayer.js
                 const code = inputCode.value.trim().toUpperCase();
                 if (!code) {
                     alert("Silakan masukkan 4-digit kode room!");

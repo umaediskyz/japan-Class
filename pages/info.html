@@ -154,13 +154,13 @@
                         Developer sistem dan pengelola server Nihongo Fournity. Bertanggung jawab penuh atas arsitektur backend Firebase Realtime Database, keamanan sandi, Web Audio procedural synth, engine pengenal lafal native, sinkronisasi presensi harian, dan stabilitas server berkecepatan tinggi.
                     </p>
                     <div class="pillar-actions">
-                        <a href="https://www.instagram.com/umaedi_" target="_blank" rel="noopener noreferrer" class="btn-pillar-ig">
+                        <a href="https://www.instagram.com/umaxnn_99hz" target="_blank" rel="noopener noreferrer" class="btn-pillar-ig">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
                                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
                                 <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
                             </svg>
-                            <span>Instagram @umaedi_</span>
+                            <span>Instagram @umaxnn_99hz_</span>
                         </a>
                         <a href="pesan.html" class="btn-pillar-secondary">
                             <span>💬</span> Kontak Server
@@ -190,13 +190,13 @@
                         Sensei pengampu utama di group ini. Mengurasi silabus aksara Hiragana &amp; Katakana, bedah tata bahasa Bunpou JLPT N5/N4, kamus kata game <em>Shiritori Dojo</em>, bimbingan lafal intonasi, dan memandu sesi diskusi materi interaktif para anggota komunitas.
                     </p>
                     <div class="pillar-actions">
-                        <a href="https://www.instagram.com/iqbal.sensei_" target="_blank" rel="noopener noreferrer" class="btn-pillar-ig">
+                        <a href="https://www.instagram.com/4llzzz___" target="_blank" rel="noopener noreferrer" class="btn-pillar-ig">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
                                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
                                 <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
                             </svg>
-                            <span>Instagram @iqbal.sensei_</span>
+                            <span>Instagram @4llzzz___</span>
                         </a>
                         <button type="button" class="btn-pillar-secondary" onclick="speakJapanese('こんにちは！Sensei Iqbalです。文法と会話を楽しく学びましょう！')">
                             <span>🔊</span> Sapaan Sensei
@@ -260,13 +260,13 @@
                         Koordinator komunitas dan moderator utama basecamp Nihongo Fournity. Memastikan lingkungan diskusi tetap bersahabat, tertib, dan aktif, mendampingi presensi belajar harian, serta menghimpun masukan member untuk kemajuan bersama.
                     </p>
                     <div class="pillar-actions">
-                        <a href="https://www.instagram.com/fasya.fournity" target="_blank" rel="noopener noreferrer" class="btn-pillar-ig">
+                        <a href="https://www.instagram.com/22_desember___" target="_blank" rel="noopener noreferrer" class="btn-pillar-ig">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
                                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
                                 <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
                             </svg>
-                            <span>Instagram @fasya.fournity</span>
+                            <span>Instagram @22_desember___</span>
                         </a>
                         <a href="pesan.html" class="btn-pillar-secondary">
                             <span>💬</span> Sapa Moderator
@@ -395,7 +395,7 @@
                         <span class="radar-stat-icon">👥</span>
                     </div>
                     <div class="radar-stat-val" id="valAccountsCount">
-                        6 <span class="unit">Member</span>
+                        5 <span class="unit">Member</span>
                     </div>
                     <span class="radar-stat-meta meta-gold" id="metaAccounts">🔒 Sandi &amp; Data Rahasia Terlindungi</span>
                 </div>
@@ -786,8 +786,8 @@
 
             // Total Pesan Tersimpan
             const totalMessages = (msgGen || 63) + (msgShi || 6) + (msgSen || 0) + (msgKan || 0);
-            // Total Akun Terdaftar (Maksimum dari user_profiles / users)
-            const totalAccounts = Math.max(userProfCount || 0, accountsCount || 0, 2);
+            // Total Akun Terdaftar (Sesuai dengan node users di admin.html)
+            const totalAccounts = (accountsCount !== null && accountsCount !== undefined && accountsCount > 0) ? accountsCount : (userProfCount || 0);
             // Pengguna Online Live
             const totalOnline = Math.max(1, (onlineChatCount || 0) + (onlineMpCount || 0));
             // Total Media

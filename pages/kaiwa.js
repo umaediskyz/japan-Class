@@ -237,6 +237,7 @@ let _volumeBoostLevel = 1; // 1 = 100%, 1.5 = Boost, 0.5 = Low
 let _currentFilter = "all";
 let _currentSearchQuery = "";
 let _activeIosTab = "chats";
+let _isCallEnding = false;
 
 // SVG ICONS (REAL VECTOR ASSETS - NO EMOJIS)
 const SVG_ICONS = {
@@ -823,11 +824,64 @@ function playHangupChime() {
     } catch (e) {}
 }
 
+// Simulasi Bunyi Nada Putus Telepon "Tut... Tut... Tut..." Realistis (3 Kali Beep)
+function playBusyHangupTones() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        if (!_audioCtx) _audioCtx = new AudioContext();
+        if (_audioCtx.state === "suspended") _audioCtx.resume();
+
+        const startTime = _audioCtx.currentTime;
+        const beeps = 3; // 3 kali bunyi tut tut
+        const beepDuration = 0.42; // Durasi tiap bunyi tut (420ms)
+        const pauseDuration = 0.38; // Jeda antar bunyi tut (380ms)
+
+        for (let i = 0; i < beeps; i++) {
+            const beepStart = startTime + i * (beepDuration + pauseDuration);
+            const beepEnd = beepStart + beepDuration;
+
+            const osc1 = _audioCtx.createOscillator();
+            const osc2 = _audioCtx.createOscillator();
+            const gain = _audioCtx.createGain();
+
+            // Frekuensi dual-tone standar telepon panggilan terputus / sibuk (425Hz & 450Hz)
+            osc1.type = "sine";
+            osc1.frequency.setValueAtTime(425, beepStart);
+
+            osc2.type = "sine";
+            osc2.frequency.setValueAtTime(450, beepStart);
+
+            // Envelope suara tut: mulai jelas dan fade out halus
+            gain.gain.setValueAtTime(0.001, beepStart);
+            gain.gain.linearRampToValueAtTime(0.14, beepStart + 0.02);
+            gain.gain.setValueAtTime(0.14, beepEnd - 0.03);
+            gain.gain.linearRampToValueAtTime(0.001, beepEnd);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(_audioCtx.destination);
+
+            osc1.start(beepStart);
+            osc1.stop(beepEnd);
+            osc2.start(beepStart);
+            osc2.stop(beepEnd);
+        }
+    } catch (e) {
+        console.warn("AudioContext error on playBusyHangupTones:", e);
+    }
+}
+
 // ==========================================================================
 // 5. SIMULASI PANGGILAN KELUAR BERDERING (OUTGOING CALL SCREEN - 6 DETIK)
 // ==========================================================================
 function startOutgoingCallSimulation(contact) {
     _activeContact = contact;
+
+    // Pastikan hentikan suara TTS apapun yang sedang berjalan
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
 
     const callingModal = document.getElementById("callingOverlayModal");
     const avatarImg = document.getElementById("callingAvatarImg");
@@ -891,6 +945,7 @@ function startConnectedCall(contact) {
     _callDurationSeconds = 0;
     _isMuted = false;
     _volumeBoostLevel = 1;
+    _isCallEnding = false;
 
     const connectedOverlay = document.getElementById("connectedCallOverlay");
     const avatarImg = document.getElementById("connectedAvatarImg");
@@ -899,6 +954,11 @@ function startConnectedCall(contact) {
     const fallbackStudio = document.getElementById("videoFallbackStudio");
     const studioAvatarImg = document.getElementById("studioAvatarImg");
     const timerDisplay = document.getElementById("callDurationText");
+    const timerPill = document.getElementById("callTimerDisplay");
+    const timerDot = document.getElementById("timerStatusDot");
+    const avatarWrap = document.getElementById("connectedAvatarWrap");
+    const liveBadge = document.getElementById("connectedLiveBadge");
+    const callEndedNotice = document.getElementById("callEndedStageNotice");
 
     if (!connectedOverlay) return;
 
@@ -906,16 +966,23 @@ function startConnectedCall(contact) {
     if (callerName) callerName.textContent = `${contact.name} (${contact.kanjiName})`;
     if (timerDisplay) timerDisplay.textContent = "00:00";
 
+    // Pastikan reset state tampilan hijau & sembunyikan notice merah
+    if (timerPill) timerPill.classList.remove("is-ended");
+    if (timerDot) timerDot.className = "timer-green-dot";
+    if (avatarWrap) avatarWrap.classList.remove("is-ended");
+    if (liveBadge) liveBadge.classList.remove("is-ended");
+    if (callEndedNotice) callEndedNotice.style.display = "none";
+
     connectedOverlay.style.display = "flex";
 
-    // Start Realtime Call Timer (Detik hijau tepat di paling atas layar)
+    // Start Realtime Call Timer (Detik tepat di bawah nama)
     if (_callTimerInterval) clearInterval(_callTimerInterval);
     _callTimerInterval = setInterval(() => {
         _callDurationSeconds++;
         const mins = Math.floor(_callDurationSeconds / 60);
         const secs = _callDurationSeconds % 60;
         const timeFormatted = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        if (timerDisplay) timerDisplay.textContent = timeFormatted;
+        if (timerDisplay && !_isCallEnding) timerDisplay.textContent = timeFormatted;
     }, 1000);
 
     // Setup Video Horizontal
@@ -923,7 +990,14 @@ function startConnectedCall(contact) {
         videoEl.style.display = "block";
         videoEl.muted = false; // Suara aktif
         videoEl.volume = 1;
+        videoEl.loop = false; // TIDAK looping: agar otomatis terputus saat video selesai
+        videoEl.removeAttribute("loop");
         videoEl.src = contact.videoFile;
+
+        // Otomatis akhiri panggilan saat video selesai diputar (seolah dimatikan oleh lawan bicara)
+        videoEl.onended = () => {
+            endConnectedCall(true);
+        };
 
         if (fallbackStudio) fallbackStudio.style.display = "none";
 
@@ -941,6 +1015,7 @@ function startConnectedCall(contact) {
         // Fallback natural FaceTime jika video belum dimasukkan
         videoEl.onerror = () => {
             videoEl.style.display = "none";
+            videoEl.onended = null;
             if (fallbackStudio) {
                 fallbackStudio.style.display = "flex";
                 if (studioAvatarImg) studioAvatarImg.src = contact.avatar;
@@ -951,14 +1026,27 @@ function startConnectedCall(contact) {
     updateSpeakerBadge(false);
     updateVolumeButtonState();
 
-    // Simulasi audio percakapan natural (tanpa teks subtitle di layar)
-    playCurrentDialogueAudio();
+    // Hentikan sisa TTS apapun saat panggilan baru dimulai
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
 
-    // Percakapan mengalir otomatis bergulir setiap 7 detik secara alami
-    if (_dialogueAutoTimer) clearInterval(_dialogueAutoTimer);
-    _dialogueAutoTimer = setInterval(() => {
-        advanceDialogueNaturally();
-    }, 7000);
+    // TTS Google KHUSUS untuk kontak Aoi saja
+    // Untuk kontak Yuna, Hana, dan Sakura, audio murni berasal dari video MP4 (tanpa TTS Google agar tidak bentrok)
+    if (contact.id === "aoi") {
+        playCurrentDialogueAudio();
+
+        // Percakapan Aoi mengalir otomatis bergulir setiap 7 detik secara alami
+        if (_dialogueAutoTimer) clearInterval(_dialogueAutoTimer);
+        _dialogueAutoTimer = setInterval(() => {
+            advanceDialogueNaturally();
+        }, 7000);
+    } else {
+        if (_dialogueAutoTimer) {
+            clearInterval(_dialogueAutoTimer);
+            _dialogueAutoTimer = null;
+        }
+    }
 
     // Rekam aktivitas belajar ke tracker profil jika tersedia
     if (typeof window.recordStudyActivity === 'function') {
@@ -966,20 +1054,25 @@ function startConnectedCall(contact) {
     }
 }
 
-// Simulasi Suara Percakapan Alami (Tanpa Subtitle di Layar)
+// Simulasi Suara Percakapan Alami (Khusus Kontak Aoi via TTS Google)
 function playCurrentDialogueAudio() {
     if (!_activeContact) return;
+
+    // TTS Google HANYA aktif khusus untuk kontak Aoi
+    // Kontak Sakura, Yuna, dan Hana sudah memiliki audio dari video, sehingga TTS dinonaktifkan
+    if (_activeContact.id !== "aoi") return;
+
     const dialogues = _activeContact.dialogues || [];
+    if (!dialogues.length) return;
     const currentDialogue = dialogues[_currentDialogueIndex] || dialogues[0];
 
-    // Pelafalan suara bahasa Jepang alami jika video belum memiliki audio
     const cleanJp = currentDialogue.speakerJp.replace(/[「」]/g, '');
     speakJapaneseText(cleanJp);
 }
 
-// Aliran Obrolan Otomatis (Berjalan Natural di Belakang Layar)
+// Aliran Obrolan Otomatis (Khusus Kontak Aoi)
 function advanceDialogueNaturally() {
-    if (!_activeContact) return;
+    if (!_activeContact || _activeContact.id !== "aoi") return;
     const dialogues = _activeContact.dialogues || [];
     if (!dialogues.length) return;
 
@@ -1070,7 +1163,11 @@ function updateVolumeButtonState() {
     }
 }
 
-function endConnectedCall() {
+function endConnectedCall(hungUpByContact = false) {
+    if (_isCallEnding) return;
+    _isCallEnding = true;
+
+    // 1. Hentikan timer penghitung detik durasi
     if (_callTimerInterval) {
         clearInterval(_callTimerInterval);
         _callTimerInterval = null;
@@ -1085,29 +1182,84 @@ function endConnectedCall() {
     }
 
     const videoEl = document.getElementById("kaiwaVideoElement");
+    const callEndedNotice = document.getElementById("callEndedStageNotice");
+    const endedSubText = document.getElementById("endedSubText");
+    const timerPill = document.getElementById("callTimerDisplay");
+    const timerText = document.getElementById("callDurationText");
+    const timerDot = document.getElementById("timerStatusDot");
+    const avatarWrap = document.getElementById("connectedAvatarWrap");
+    const liveBadge = document.getElementById("connectedLiveBadge");
+    const connectedOverlay = document.getElementById("connectedCallOverlay");
+
+    // 2. Saat video berakhir: video akan hilang dan tetap berada di dalam panggilan
     if (videoEl) {
+        videoEl.onended = null;
         videoEl.pause();
+        videoEl.style.display = "none";
         videoEl.src = "";
     }
 
-    playHangupChime();
+    // 3. Durasi berganti teks merah "Panggilan Berakhir"
+    if (timerPill) timerPill.classList.add("is-ended");
+    if (timerText) timerText.textContent = "Panggilan Berakhir";
+    if (timerDot) timerDot.className = "timer-red-dot";
+    if (avatarWrap) avatarWrap.classList.add("is-ended");
+    if (liveBadge) liveBadge.classList.add("is-ended");
 
-    const connectedOverlay = document.getElementById("connectedCallOverlay");
-    if (connectedOverlay) connectedOverlay.style.display = "none";
+    // 4. Ada peringatan panggilan diakhiri warna merah di panggung video
+    const contactName = _activeContact ? _activeContact.name : "Lawan Bicara";
+    if (callEndedNotice) {
+        if (endedSubText) {
+            endedSubText.textContent = hungUpByContact 
+                ? `${contactName} telah menutup panggilan` 
+                : "Anda telah mengakhiri panggilan";
+        }
+        callEndedNotice.style.display = "flex";
+    }
 
-    // Berikan reward EXP belajar Kaiwa
-    const currentExp = Number(localStorage.getItem("fournity_checkin_exp") || 0);
-    localStorage.setItem("fournity_checkin_exp", currentExp + 45);
+    // 5. Bunyi tut tut realistis (3 kali nada tut berulang)
+    playBusyHangupTones();
 
+    // Catat durasi telpon untuk EXP dan notifikasi
     const mins = Math.floor(_callDurationSeconds / 60);
     const secs = _callDurationSeconds % 60;
     const durStr = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
 
-    showIosToast(`Panggilan Selesai (${durStr}) · +45 EXP`);
+    // 6. Tunggu bunyi tut tut berbunyi beberapa detik (2.8 detik) sebelum keluar dari overlay telpon
+    const delayMs = hungUpByContact ? 2800 : 1200;
+
+    setTimeout(() => {
+        // Keluar dari halaman / overlay telpon
+        if (connectedOverlay) connectedOverlay.style.display = "none";
+        if (callEndedNotice) callEndedNotice.style.display = "none";
+
+        // Reset visual status setelah overlay ditutup
+        if (timerPill) timerPill.classList.remove("is-ended");
+        if (timerDot) timerDot.className = "timer-green-dot";
+        if (avatarWrap) avatarWrap.classList.remove("is-ended");
+        if (liveBadge) liveBadge.classList.remove("is-ended");
+
+        // Berikan reward EXP belajar Kaiwa
+        const currentExp = Number(localStorage.getItem("fournity_checkin_exp") || 0);
+        localStorage.setItem("fournity_checkin_exp", currentExp + 45);
+
+        if (hungUpByContact) {
+            showIosToast(`Panggilan Diakhiri oleh ${contactName} (${durStr}) · +45 EXP`);
+        } else {
+            showIosToast(`Panggilan Selesai (${durStr}) · +45 EXP`);
+        }
+
+        _isCallEnding = false;
+    }, delayMs);
 }
 
-// Pelafalan Suara Jepang
+// Pelafalan Suara Jepang (Khusus Kontak Aoi)
 function speakJapaneseText(text) {
+    // Keamanan ketat: Jangan pernah jalankan TTS untuk Yuna, Hana, atau Sakura (suara dari video)
+    if (_activeContact && _activeContact.id !== "aoi") {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        return;
+    }
     if (!('speechSynthesis' in window)) return;
     try {
         window.speechSynthesis.cancel();

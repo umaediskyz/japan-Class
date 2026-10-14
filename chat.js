@@ -28,12 +28,43 @@ if (!currentUser) {
     localStorage.setItem(sessionKey, currentUser);
 }
 
-// Hanya user Firebase Auth resmi dengan email developer / founder yang mendapatkan akses Core
-const isCore = !!authedUid && (
-    authedEmail.includes("umaedi") || 
-    authedEmail.includes("fournity") ||
-    authedEmail === "umaediskyz6@gmail.com"
-);
+// Cek status hak akses khusus 4 Pilar Core / Developer (Dinamis dari Role Cloud Firebase & Session)
+function checkIsCore() {
+    const curUid = localStorage.getItem("nihongoChatUid");
+    const curEmail = (localStorage.getItem("nihongoChatEmail") || "").toLowerCase();
+    const curName = (localStorage.getItem("nihongoChatUser") || "").toLowerCase();
+    const curRole = (localStorage.getItem("fournity_user_role") || "").toLowerCase();
+
+    const isLeadDev = curEmail.includes("umaedi") || 
+                      curEmail === "umaediskyz6@gmail.com" || 
+                      curName === "umaedi" || 
+                      curEmail.includes("fournity");
+
+    return !!curUid && (isLeadDev || curRole === "admin" || curRole === "core");
+}
+
+let isCore = checkIsCore();
+
+// Realtime Listener untuk kenaikan pangkat / otorisasi dari Admin
+window.addEventListener("userRoleUpdated", () => {
+    isCore = checkIsCore();
+    if (typeof updateCoreCardUI === "function") updateCoreCardUI();
+    if (typeof updateChatUserStatus === "function") updateChatUserStatus();
+});
+
+if (authedUid && typeof onValue === "function" && typeof ref === "function") {
+    try {
+        onValue(ref(db, `users/${authedUid}/profile/role`), (roleSnap) => {
+            if (roleSnap.exists()) {
+                const dynamicRole = roleSnap.val().toLowerCase();
+                localStorage.setItem("fournity_user_role", dynamicRole);
+                isCore = checkIsCore();
+                if (typeof updateCoreCardUI === "function") updateCoreCardUI();
+                if (typeof updateChatUserStatus === "function") updateChatUserStatus();
+            }
+        });
+    } catch(e) {}
+}
 
 let currentRoom = null; 
 let activeChatListener = null;
@@ -1277,19 +1308,22 @@ if (backToListBtn) {
     });
 }
 
-// Buka Core Card jika core
-const cardCore = document.getElementById("roomCardCore");
-if (cardCore) {
-    cardCore.style.display = "flex";
-    const coreSpan = cardCore.querySelector("h3 span");
-    if (isCore) {
-        if (coreSpan) coreSpan.innerHTML = `(Private Chat ⭐)`;
-        cardCore.style.opacity = "1";
-    } else {
-        if (coreSpan) coreSpan.innerHTML = `(Khusus Tim Pengembang 🔒)`;
-        cardCore.style.opacity = "0.85";
+// Buka Core Card jika memiliki akses core / 4 pilar
+function updateCoreCardUI() {
+    const cardCore = document.getElementById("roomCardCore");
+    if (cardCore) {
+        cardCore.style.display = "flex";
+        const coreSpan = cardCore.querySelector("h3 span");
+        if (isCore) {
+            if (coreSpan) coreSpan.innerHTML = `(Private Chat ⭐)`;
+            cardCore.style.opacity = "1";
+        } else {
+            if (coreSpan) coreSpan.innerHTML = `(Khusus Tim Pengembang 🔒)`;
+            cardCore.style.opacity = "0.85";
+        }
     }
 }
+updateCoreCardUI();
 
 listenRoomPreview("public");
 listenRoomPreview("shiritori");
@@ -2595,8 +2629,14 @@ function updateHeaderUserDisplay() {
     const dName = profile.displayName || currentUser;
     
     if (statusEl) {
-        if (isCore) {
-            statusEl.innerHTML = `Akun: <strong style="color: #FF6584;">${dName} (👑 Dev)</strong>`;
+        const curRole = (localStorage.getItem("fournity_user_role") || "").toLowerCase();
+        const curEmail = (localStorage.getItem("nihongoChatEmail") || "").toLowerCase();
+        const isLeadOwner = curEmail.includes("umaedi") || currentUser.toLowerCase() === "umaedi";
+
+        if (isLeadOwner || curRole === "admin") {
+            statusEl.innerHTML = `Akun: <strong style="color: #FFB703;">${dName} (👑 Admin)</strong>`;
+        } else if (isCore || curRole === "core") {
+            statusEl.innerHTML = `Akun: <strong style="color: #FF6584;">${dName} (🛡️ 4 Pilar)</strong>`;
         } else {
             statusEl.innerHTML = `Akun: <strong style="color: #34C759;">${dName}</strong>`;
         }

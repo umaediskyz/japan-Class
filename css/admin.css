@@ -31,7 +31,7 @@
     padding: 0;
 }
 
-body.admin-body {
+html, body.admin-body {
     background-color: var(--admin-bg);
     background-image: 
         radial-gradient(circle at 10% 20%, rgba(255, 46, 77, 0.08) 0%, transparent 45%),
@@ -43,7 +43,10 @@ body.admin-body {
     color: var(--admin-text-main);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100vh;
-    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: clip;
     padding-bottom: 60px;
 }
 
@@ -1070,4 +1073,658 @@ body.admin-body {
 .btn-action-small.btn-action-accent:hover {
     background: rgba(0, 240, 255, 0.18);
     border-color: var(--admin-cyan);
+}
+
+.btn-action-small.btn-action-warning {
+    border-color: rgba(255, 183, 3, 0.35);
+    color: #FFB703;
+    background: rgba(255, 183, 3, 0.08);
+}
+.btn-action-small.btn-action-warning:hover {
+    background: rgba(255, 183, 3, 0.2);
+    border-color: #FFB703;
+}
+
+.btn-action-small.btn-action-danger {
+    border-color: rgba(255, 46, 77, 0.35);
+    color: #FF4D6D;
+    background: rgba(255, 46, 77, 0.08);
+}
+.btn-action-small.btn-action-danger:hover {
+    background: rgba(255, 46, 77, 0.22);
+    border-color: #FF2E4D;
+}
+
+.btn-action-small.btn-action-core {
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #F87171;
+    background: rgba(239, 68, 68, 0.1);
+}
+.btn-action-small.btn-action-core:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: #EF4444;
+}
+
+.admin-role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.admin-role-badge.is-admin {
+    background: linear-gradient(135deg, rgba(255, 183, 3, 0.2), rgba(255, 138, 0, 0.25));
+    border: 1px solid rgba(255, 183, 3, 0.5);
+    color: #FFD166;
+    box-shadow: 0 0 10px rgba(255, 183, 3, 0.25);
+}
+.admin-role-badge.is-core {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.25));
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #FCA5A5;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.25);
+}
+.admin-role-badge.is-member {
+    background: rgba(148, 163, 184, 0.1);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #94A3B8;
+}
+
+.admin-role-select {
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid var(--admin-border);
+    color: #FFFFFF;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 4px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.admin-role-select:focus {
+    border-color: var(--admin-cyan);
+}
+
+/* ==========================================================================
+   CYBER VIEWPORT MODE SWITCHER BAR (MODE HP & DESKTOP)
+   ========================================================================== */
+.cyber-viewport-bar {
+    width: 100%;
+    background: rgba(10, 15, 26, 0.96);
+    border-bottom: 1px solid var(--admin-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 10px 20px;
+    position: sticky;
+    top: 64px;
+    z-index: 990;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+}
+
+.viewport-bar-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.viewport-brand-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--admin-cyan);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.cyber-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--admin-cyan);
+    box-shadow: 0 0 10px var(--admin-cyan);
+    animation: pulseDot 1.5s infinite;
+}
+
+.cyber-switch-group {
+    display: inline-flex;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 12px;
+    padding: 3px;
+    gap: 4px;
+    box-shadow: inset 0 0 12px rgba(0, 240, 255, 0.1);
+}
+
+.cyber-switch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--admin-text-muted);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.cyber-switch-btn:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.cyber-switch-btn.is-active {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.25) 0%, rgba(10, 132, 255, 0.3) 100%);
+    border-color: var(--admin-cyan);
+    color: #FFFFFF;
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+}
+
+.viewport-active-badge {
+    font-size: 11px;
+    color: #94A3B8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* ==========================================================================
+   CYBER MOBILE USER CARDS (OPTIMAL UNTUK SMARTPHONE - ANTI-POTONG)
+   ========================================================================== */
+.cyber-user-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cyber-user-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(10, 15, 29, 0.95) 100%);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-sizing: border-box;
+}
+
+.cyber-user-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--admin-cyan) 0%, transparent 100%);
+}
+
+.cyber-user-card.is-role-admin::before {
+    background: linear-gradient(90deg, #FFB703 0%, #FF8A00 100%);
+}
+
+.cyber-user-card.is-role-core::before {
+    background: linear-gradient(90deg, #FF2E4D 0%, #B71C1C 100%);
+}
+
+.cyber-user-card:hover {
+    border-color: rgba(0, 240, 255, 0.35);
+    box-shadow: 0 10px 30px rgba(0, 240, 255, 0.12);
+}
+
+/* Card Header */
+.cuc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.cuc-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+.cuc-avatar-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--admin-border);
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #0B0F19;
+}
+
+.cuc-avatar-wrap.is-vip {
+    border-color: #FFB703;
+    box-shadow: 0 0 10px rgba(255, 183, 3, 0.6);
+}
+
+.cuc-avatar-wrap.is-ur {
+    border-color: #8B5CF6;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
+}
+
+.cuc-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cuc-name-group {
+    min-width: 0;
+    flex: 1;
+}
+
+.cuc-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.cuc-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #FFFFFF;
+    word-break: break-word;
+}
+
+.cuc-email {
+    font-size: 11px;
+    color: var(--admin-text-muted);
+    display: block;
+    word-break: break-all;
+    margin-top: 2px;
+}
+
+.cuc-role-tag {
+    flex-shrink: 0;
+}
+
+/* Telemetry Metrics Chips in Card */
+.cuc-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.cuc-metric-pill {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 6px 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cuc-metric-lbl {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--admin-text-dim);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.cuc-metric-val {
+    font-size: 12px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* UID Bar with Tap-to-Copy */
+.cuc-uid-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-bottom: 14px;
+    gap: 8px;
+}
+
+.cuc-uid-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: #94A3B8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Role Selector Box (Big & Touch Friendly) */
+.cuc-role-control-box {
+    background: rgba(0, 240, 255, 0.04);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+}
+
+.cuc-control-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--admin-cyan);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.cuc-current-role-txt {
+    font-size: 9.5px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(0, 240, 255, 0.15);
+}
+
+.cyber-touch-role-select {
+    width: 100%;
+    background: #0B1120;
+    border: 1.5px solid var(--admin-cyan);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+    box-sizing: border-box;
+}
+
+.cyber-touch-role-select:focus {
+    box-shadow: 0 0 15px var(--admin-cyan-glow);
+}
+
+/* Action Buttons Grid in Mobile Card */
+.cuc-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.btn-cuc-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    text-align: center;
+}
+
+.btn-cuc-warning {
+    background: rgba(255, 183, 3, 0.12);
+    border-color: rgba(255, 183, 3, 0.35);
+    color: #FFD166;
+}
+
+.btn-cuc-warning:hover {
+    background: rgba(255, 183, 3, 0.25);
+    border-color: #FFB703;
+}
+
+.btn-cuc-accent {
+    background: rgba(0, 240, 255, 0.12);
+    border-color: rgba(0, 240, 255, 0.35);
+    color: var(--admin-cyan);
+}
+
+.btn-cuc-accent:hover {
+    background: rgba(0, 240, 255, 0.25);
+    border-color: var(--admin-cyan);
+}
+
+.btn-cuc-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #CBD5E1;
+}
+
+.btn-cuc-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #FFFFFF;
+}
+
+.btn-cuc-danger {
+    background: rgba(255, 46, 77, 0.12);
+    border-color: rgba(255, 46, 77, 0.35);
+    color: #FF6B81;
+}
+
+.btn-cuc-danger:hover {
+    background: rgba(255, 46, 77, 0.25);
+    border-color: var(--admin-red);
+}
+
+/* Empty / Loading Card */
+.cyber-card-loading, .cyber-card-empty {
+    text-align: center;
+    color: var(--admin-text-dim);
+    padding: 30px 16px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px dashed var(--admin-border);
+    border-radius: 16px;
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   MODE SWITCHING RULES (HP VS DESKTOP)
+   ========================================================================== */
+/* Mode HP Rules (Default) */
+body.is-mode-mobile #adminTableContainer {
+    display: none !important;
+}
+
+body.is-mode-mobile #adminUserCardsMobile {
+    display: flex !important;
+}
+
+body.is-mode-mobile .admin-main-grid {
+    grid-template-columns: 1fr !important;
+}
+
+body.is-mode-mobile .admin-container {
+    padding: 0 12px !important;
+    max-width: 100% !important;
+}
+
+body.is-mode-mobile .admin-table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+body.is-mode-mobile .user-search-wrap {
+    max-width: 100%;
+}
+
+/* Mode Desktop Rules */
+body.is-mode-desktop #adminTableContainer {
+    display: block !important;
+}
+
+body.is-mode-desktop #adminUserCardsMobile {
+    display: none !important;
+}
+
+body.is-mode-desktop .admin-main-grid {
+    grid-template-columns: 1.8fr 1fr;
+}
+
+body.is-mode-desktop .admin-container {
+    max-width: 1400px;
+    padding: 0 24px;
+}
+
+/* ==========================================================================
+   RESPONSIVE ANTI-POTONG BREAKPOINTS
+   ========================================================================== */
+@media (max-width: 992px) {
+    .admin-navbar {
+        padding: 10px 14px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .admin-nav-telemetry {
+        order: 3;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        background: rgba(0, 0, 0, 0.4);
+        padding: 8px;
+        border-radius: 12px;
+        border: 1px solid var(--admin-border);
+    }
+
+    .telemetry-item {
+        align-items: center;
+        text-align: center;
+    }
+
+    .telemetry-label {
+        font-size: 8px;
+    }
+
+    .telemetry-value {
+        font-size: 11px;
+    }
+
+    .admin-nav-actions {
+        gap: 6px;
+    }
+
+    .admin-nav-actions .admin-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    .cyber-viewport-bar {
+        padding: 8px 14px;
+        top: 60px;
+    }
+
+    .viewport-bar-inner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .cyber-switch-group {
+        width: 100%;
+    }
+
+    .cyber-switch-btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .viewport-active-badge {
+        font-size: 10px;
+        justify-content: center;
+    }
+
+    .admin-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .metric-card {
+        padding: 14px;
+    }
+
+    .metric-big-value {
+        font-size: 22px;
+    }
+
+    .room-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .user-filter-pills {
+        overflow-x: auto;
+        padding-bottom: 6px;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .user-filter-pills .filter-pill-btn {
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-nav-brand h1 {
+        font-size: 13.5px;
+    }
+
+    .admin-nav-brand span {
+        display: none;
+    }
+
+    .admin-brand-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 15px;
+    }
+
+    .admin-nav-telemetry {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .cuc-actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cuc-metrics-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
