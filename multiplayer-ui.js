@@ -287,6 +287,10 @@
 
     // 5. BUKA & TUTUP MODAL POPUP SETTING CUSTOM GAME
     function openGameSetupModal(gameType) {
+        if (window.isFirebaseActive && typeof window.openGameSetupModal === 'function' && window.openGameSetupModal !== openGameSetupModal) {
+            window.openGameSetupModal(gameType);
+            return;
+        }
         if (!MULTIPLAYER_GAMES[gameType]) gameType = "kana";
         selectedGameType = gameType;
 
@@ -447,6 +451,7 @@
         const maxBtns = document.querySelectorAll("#modalMaxPlayersSelectorGroup .mp-setting-option-btn");
         maxBtns.forEach(btn => {
             btn.addEventListener("click", function () {
+                if (window.isFirebaseActive) return;
                 maxBtns.forEach(b => b.classList.remove("is-active"));
                 this.classList.add("is-active");
                 selectedMaxPlayers = parseInt(this.dataset.max, 10) || 2;
@@ -462,6 +467,7 @@
         const roundBtns = document.querySelectorAll("#modalRoundsSelectorGroup .mp-setting-option-btn");
         roundBtns.forEach(btn => {
             btn.addEventListener("click", function () {
+                if (window.isFirebaseActive) return;
                 roundBtns.forEach(b => b.classList.remove("is-active"));
                 this.classList.add("is-active");
                 selectedRounds = parseInt(this.dataset.rounds, 10) || 10;
@@ -475,6 +481,7 @@
         const timerBtns = document.querySelectorAll("#modalTimerSelectorGroup .mp-setting-option-btn");
         timerBtns.forEach(btn => {
             btn.addEventListener("click", function () {
+                if (window.isFirebaseActive) return;
                 timerBtns.forEach(b => b.classList.remove("is-active"));
                 this.classList.add("is-active");
                 selectedTimerSeconds = parseFloat(this.dataset.timer) || 5;
@@ -564,6 +571,7 @@
 
     // 8. STANDALONE BOT MATCH ENGINE (Bisa dimainkan di mana saja tanpa server!)
     function launchStandaloneBotMatch(gameType, mode, rounds, timerSec) {
+        if (window.isFirebaseActive) return;
         const views = {
             lobby: document.getElementById("viewLobby"),
             waiting: document.getElementById("viewWaiting"),

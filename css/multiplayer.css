@@ -413,6 +413,17 @@
     border-color: rgba(255, 255, 255, 0.16);
 }
 
+.mp-room-item.is-my-room {
+    background: rgba(255, 209, 102, 0.08);
+    border-color: rgba(255, 209, 102, 0.35);
+}
+
+.mp-room-item.is-my-room .mp-room-btn-join {
+    background: linear-gradient(135deg, #FFD166, #FF9E00);
+    color: #080b11;
+    font-weight: 800;
+}
+
 .mp-room-info {
     display: flex;
     flex-direction: column;
@@ -1022,6 +1033,23 @@
 .mp-btn-rematch:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 30px var(--mp-accent-cyan-glow);
+}
+
+.mp-btn-rematch.mp-rematch-pulse {
+    background: linear-gradient(135deg, #FFD166, #FF9E00) !important;
+    color: #0A0F1D !important;
+    animation: mpPulseRematch 1.2s infinite alternate ease-in-out !important;
+}
+
+@keyframes mpPulseRematch {
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 15px rgba(255, 209, 102, 0.6);
+    }
+    to {
+        transform: scale(1.04);
+        box-shadow: 0 0 30px rgba(255, 209, 102, 0.95);
+    }
 }
 
 .mp-btn-leave {

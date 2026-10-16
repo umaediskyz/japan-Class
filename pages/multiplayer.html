@@ -244,40 +244,51 @@
                 <!-- Battle Question Flashcard -->
                 <div class="mp-flashcard-box" id="battleFlashcardBox">
                     
-                    <!-- Round Header & Timer -->
-                    <div class="mp-round-indicator">
-                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <span class="mp-round-tag" id="battleGameBadge" style="background: rgba(0, 245, 212, 0.15); border-color: var(--mp-accent-cyan); color: var(--mp-accent-cyan);">⚡ KANA SPEED</span>
-                            <span class="mp-round-tag" id="battleRoundText">Ronde 1 / 10</span>
+                    <!-- Container Konten Soal Aktif -->
+                    <div id="battleActiveQuestionContent">
+                        <!-- Round Header & Timer -->
+                        <div class="mp-round-indicator">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span class="mp-round-tag" id="battleGameBadge" style="background: rgba(0, 245, 212, 0.15); border-color: var(--mp-accent-cyan); color: var(--mp-accent-cyan);">⚡ KANA SPEED</span>
+                                <span class="mp-round-tag" id="battleRoundText">Ronde 1 / 10</span>
+                            </div>
+                            <div class="mp-timer-digit">
+                                <span>⏱️</span>
+                                <span id="battleTimerText">05.0s</span>
+                            </div>
                         </div>
-                        <div class="mp-timer-digit">
-                            <span>⏱️</span>
-                            <span id="battleTimerText">05.0s</span>
+
+                        <!-- Timer Bar Track -->
+                        <div class="mp-timer-bar-track">
+                            <div class="mp-timer-bar-fill" id="battleTimerBar" style="width: 100%;"></div>
+                        </div>
+
+                        <!-- Jankenpon Hand Clash Animation Box (Visible in Janken Mode) -->
+                        <div class="janken-clash-box" id="jankenClashBox">
+                            <span class="janken-hand-clash" id="jankenMyHand">✊</span>
+                            <span style="font-weight: 800; color: var(--mp-gold); font-size: 15px;">VS</span>
+                            <span class="janken-hand-clash" id="jankenEnemyHand">✌️</span>
+                        </div>
+
+                        <!-- Giant Target (Kana/Kanji/Prompt) -->
+                        <div class="mp-target-kana" id="battleTargetKana">あ</div>
+                        <div class="mp-target-hint" id="battleTargetHint">Tebak cara baca Romaji yang benar:</div>
+
+                        <!-- 4 Options Grid -->
+                        <div class="mp-options-grid" id="battleOptionsGrid">
+                            <button type="button" class="mp-option-btn" data-opt="a">a</button>
+                            <button type="button" class="mp-option-btn" data-opt="i">i</button>
+                            <button type="button" class="mp-option-btn" data-opt="u">u</button>
+                            <button type="button" class="mp-option-btn" data-opt="e">e</button>
                         </div>
                     </div>
 
-                    <!-- Timer Bar Track -->
-                    <div class="mp-timer-bar-track">
-                        <div class="mp-timer-bar-fill" id="battleTimerBar" style="width: 100%;"></div>
-                    </div>
-
-                    <!-- Jankenpon Hand Clash Animation Box (Visible in Janken Mode) -->
-                    <div class="janken-clash-box" id="jankenClashBox">
-                        <span class="janken-hand-clash" id="jankenMyHand">✊</span>
-                        <span style="font-weight: 800; color: var(--mp-gold); font-size: 15px;">VS</span>
-                        <span class="janken-hand-clash" id="jankenEnemyHand">✌️</span>
-                    </div>
-
-                    <!-- Giant Target (Kana/Kanji/Prompt) -->
-                    <div class="mp-target-kana" id="battleTargetKana">あ</div>
-                    <div class="mp-target-hint" id="battleTargetHint">Tebak cara baca Romaji yang benar:</div>
-
-                    <!-- 4 Options Grid -->
-                    <div class="mp-options-grid" id="battleOptionsGrid">
-                        <button type="button" class="mp-option-btn" data-opt="a">a</button>
-                        <button type="button" class="mp-option-btn" data-opt="i">i</button>
-                        <button type="button" class="mp-option-btn" data-opt="u">u</button>
-                        <button type="button" class="mp-option-btn" data-opt="e">e</button>
+                    <!-- Overlay Selesai Sementara (Hanya tampil saat pemain selesai duluan menunggu lawan) -->
+                    <div id="battleFinishedOverlay" style="display: none; padding: 40px 10px; text-align: center;">
+                        <span style="font-size: 48px;">🏁</span>
+                        <h3 style="color: #fff; margin: 12px 0 6px;">Kamu Telah Selesai!</h3>
+                        <p style="color: var(--mp-gold); font-size: 16px; font-weight: 800;" id="battleFinishedScoreText">Skor Akhir: 0 PTS</p>
+                        <p style="color: #94A3B8; font-size: 13px; margin-top: 8px;">Menunggu pemain lain menyelesaikan pertandingan...</p>
                     </div>
 
                     <!-- Floating Reaction Container -->

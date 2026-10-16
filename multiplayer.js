@@ -263,8 +263,10 @@ const AudioSFX = {
 // ==========================================================================
 function getOrCreatePlayerId() {
     let pid = sessionStorage.getItem("fournity_mp_pid");
-    if (!pid) {
-        pid = "p_" + Math.random().toString(36).substring(2, 9);
+    if (!pid || !window.name || !window.name.startsWith("fournity_tab_")) {
+        const tabToken = "tab_" + Math.random().toString(36).substring(2, 9);
+        window.name = "fournity_tab_" + tabToken;
+        pid = "p_" + tabToken;
         sessionStorage.setItem("fournity_mp_pid", pid);
     }
     return pid;
@@ -633,13 +635,18 @@ onValue(allPresenceRef, (snapshot) => {
 // ==========================================================================
 
 function generateGameQuestions(gameType = "kana", mode = "mixed", totalRounds = 10) {
+    const roundsCount = parseInt(totalRounds, 10) || 10;
+
     if (gameType === "kanji") {
         let pool = [...KANJI_BATTLE_DATA];
         if (mode === "n5") pool = pool.filter(k => k.level === "n5");
         else if (mode === "n4") pool = pool.filter(k => k.level === "n4");
         
         const shuffled = pool.sort(() => Math.random() - 0.5);
-        const selected = shuffled.slice(0, Math.min(totalRounds, shuffled.length));
+        const selected = [];
+        for (let i = 0; i < roundsCount; i++) {
+            selected.push(shuffled[i % shuffled.length]);
+        }
 
         return selected.map(item => {
             const correctAnswer = item.meaning;
@@ -658,16 +665,22 @@ function generateGameQuestions(gameType = "kana", mode = "mixed", totalRounds = 
     }
 
     if (gameType === "janken") {
+        const handsList = [
+            { name: "✊ Batu (Guu)", beats: "✌️ Gunting (Choki)", losesTo: "🖐️ Kertas (Paa)", icon: "✊" },
+            { name: "✌️ Gunting (Choki)", beats: "🖐️ Kertas (Paa)", losesTo: "✊ Batu (Guu)", icon: "✌️" },
+            { name: "🖐️ Kertas (Paa)", beats: "✊ Batu (Guu)", losesTo: "✌️ Gunting (Choki)", icon: "🖐️" }
+        ];
         const rounds = [];
-        const roundsCount = mode === "standard" ? 5 : (mode === "extended" ? 7 : 10);
         for (let i = 1; i <= roundsCount; i++) {
+            const oppHand = handsList[(i - 1 + Math.floor(Math.random() * 3)) % 3];
+            const winningHand = oppHand.losesTo;
             rounds.push({
                 gameType: "janken",
-                kana: "⚔️ じゃんけん ⚔️",
-                subHint: `Ronde ${i}: Siapkan jurus tanganmu!`,
-                hint: "Pilih Batu, Gunting, atau Kertas sebelum waktu habis:",
-                answer: "janken_choice",
-                options: ["✊ Batu (Guu)", "✌️ Gunting (Choki)", "🖐️ Kertas (Paa)"]
+                kana: `⚔️ ${oppHand.icon} ⚔️`,
+                subHint: `Ronde ${i}: Lawan bersiap dengan ${oppHand.name}!`,
+                hint: `Pilih jurus tangan yang MENGALAHKAN ${oppHand.name}:`,
+                answer: winningHand,
+                options: ["✊ Batu (Guu)", "✌️ Gunting (Choki)", "🖐️ Kertas (Paa)"].sort(() => Math.random() - 0.5)
             });
         }
         return rounds;
@@ -675,7 +688,10 @@ function generateGameQuestions(gameType = "kana", mode = "mixed", totalRounds = 
 
     if (gameType === "shiritori") {
         const shuffled = [...SHIRITORI_DATA].sort(() => Math.random() - 0.5);
-        const selected = shuffled.slice(0, Math.min(totalRounds, shuffled.length));
+        const selected = [];
+        for (let i = 0; i < roundsCount; i++) {
+            selected.push(shuffled[i % shuffled.length]);
+        }
 
         return selected.map(item => {
             const options = [item.correct, ...item.wrong].sort(() => Math.random() - 0.5);
@@ -693,7 +709,7 @@ function generateGameQuestions(gameType = "kana", mode = "mixed", totalRounds = 
     if (gameType === "dojo") {
         const shuffled = [...DOJO_REFLEX_DATA].sort(() => Math.random() - 0.5);
         const selected = [];
-        for (let i = 0; i < totalRounds; i++) {
+        for (let i = 0; i < roundsCount; i++) {
             selected.push(shuffled[i % shuffled.length]);
         }
         return selected.map(item => {
@@ -715,7 +731,10 @@ function generateGameQuestions(gameType = "kana", mode = "mixed", totalRounds = 
     else pool = [...HIRAGANA_DATA, ...KATAKANA_DATA];
 
     const shuffledPool = pool.sort(() => Math.random() - 0.5);
-    const selectedList = shuffledPool.slice(0, totalRounds);
+    const selectedList = [];
+    for (let i = 0; i < roundsCount; i++) {
+        selectedList.push(shuffledPool[i % shuffledPool.length]);
+    }
 
     return selectedList.map(item => {
         const correctAnswer = item.romaji;
@@ -961,11 +980,21 @@ onValue(roomsRef, (snapshot) => {
     const rooms = snapshot.val() || {};
     const waitingRooms = [];
 
+    // Purge/filter out stale rooms (> 2 jam atau 0 pemain)
+    const now = Date.now();
     Object.keys(rooms).forEach(rid => {
         const r = rooms[rid];
-        const maxCap = r.maxPlayers || 2;
+        if (!r) return;
+        const maxCap = parseInt(r.maxPlayers, 10) || 2;
         const currentCount = Object.keys(r.players || {}).length;
-        if (r && r.status === "waiting" && currentCount < maxCap) {
+        const isStale = (now - (r.createdAt || 0)) > 2 * 60 * 60 * 1000;
+
+        if (currentCount === 0 || isStale) {
+            remove(ref(db, `multiplayer_rooms/${rid}`)).catch(() => {});
+            return;
+        }
+
+        if (r.status === "waiting" && currentCount < maxCap) {
             waitingRooms.push({ id: rid, ...r, pCount: currentCount, maxCap: maxCap });
         }
     });
@@ -979,25 +1008,26 @@ onValue(roomsRef, (snapshot) => {
     } else {
         listEl.innerHTML = waitingRooms.map(r => {
             const gInfo = MULTIPLAYER_GAMES[r.gameType || "kana"] || MULTIPLAYER_GAMES.kana;
-            // Ambil avatar host asli secara real & dinormalisasi
             const hostPlayer = r.players?.[r.hostId];
             const hostAvatar = normalizeAvatarUrl(hostPlayer?.avatar || getPlayerAvatar(r.hostName, hostPlayer));
+            const isMyRoom = (r.hostId === myId);
+
             return `
-            <div class="mp-room-item">
+            <div class="mp-room-item ${isMyRoom ? 'is-my-room' : ''}">
                 <div class="mp-room-info" style="display: flex; flex-direction: row; align-items: center; gap: 12px;">
                     <img src="${hostAvatar}" alt="${r.hostName}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--mp-accent-cyan); background: #1e293b;" onerror="this.src='../gambar/icon.png'">
                     <div>
                         <div class="mp-room-host">
-                            <span>⛩️ ${r.hostName || "Host"}</span>
+                            <span>⛩️ ${r.hostName || "Host"}${isMyRoom ? ' <strong style="color: var(--mp-gold); font-size: 11px;">(Room Milikmu)</strong>' : ''}</span>
                             <span style="color: var(--mp-accent-cyan); font-weight: 800;">${gInfo.icon} ${gInfo.name}</span>
                         </div>
                         <div class="mp-room-meta">
-                            Kode: <strong style="color: var(--mp-gold);">${r.code}</strong> · ${r.mode?.toUpperCase()} · ${r.totalRounds} Soal · 👥 ${r.pCount}/${r.maxCap} Pemain
+                            Kode: <strong style="color: var(--mp-gold);">${r.code}</strong> · ${(r.mode || "").toUpperCase()} · ${r.totalRounds} Soal · 👥 ${r.pCount}/${r.maxCap} Pemain
                         </div>
                     </div>
                 </div>
                 <button type="button" class="mp-room-btn-join" data-roomid="${r.id}">
-                    Tantang Lawan →
+                    ${isMyRoom ? 'Masuk Lobby Room →' : 'Tantang Lawan →'}
                 </button>
             </div>
             `;
@@ -1026,6 +1056,7 @@ if (btnJoinByCode && inputRoomCode) {
         if (e.key === "Enter") {
             const code = inputRoomCode.value.trim().toUpperCase();
             if (code.length === 4) await joinRoomByCode(code);
+            else alert("Harap masukkan 4 digit kode room!");
         }
     });
 }
@@ -1037,21 +1068,26 @@ async function handleQuickMatch() {
         const snap = await get(ref(db, "multiplayer_rooms"));
         const rooms = snap.val() || {};
         let foundRoomId = null;
+        let latestTime = 0;
 
-        for (const rid of Object.keys(rooms)) {
+        Object.keys(rooms).forEach(rid => {
             const r = rooms[rid];
-            const maxCap = r.maxPlayers || 2;
+            if (!r) return;
+            const maxCap = parseInt(r.maxPlayers, 10) || 2;
             const pCount = Object.keys(r.players || {}).length;
-            if (r && r.status === "waiting" && pCount < maxCap && r.hostId !== myId) {
-                foundRoomId = rid;
-                break;
+            if (r.status === "waiting" && pCount < maxCap && pCount > 0 && r.hostId !== myId) {
+                const roomTime = r.createdAt || 0;
+                if (roomTime >= latestTime) {
+                    latestTime = roomTime;
+                    foundRoomId = rid;
+                }
             }
-        }
+        });
 
         if (foundRoomId) {
             await joinRoomById(foundRoomId);
         } else {
-            // Jika belum ada room terbuka, buat room instan dengan game yang dipilih
+            // Jika belum ada room terbuka, buat room instan dengan setting yang dipilih
             await createRoom(selectedGameType, selectedMode, selectedRounds, selectedMaxPlayers, selectedTimerSeconds, false);
         }
     } catch (e) {
@@ -1067,6 +1103,12 @@ function generateRoomCode() {
 }
 
 async function createRoom(gameType = "kana", mode = "mixed", totalRounds = 10, maxPlayers = 2, timeLimit = 5, withBot = false) {
+    if (currentRoomId) {
+        leaveCurrentRoom();
+    }
+
+    refreshMyIdentity();
+
     const code = generateRoomCode();
     const newRoomRef = push(ref(db, "multiplayer_rooms"));
     const roomId = newRoomRef.key;
@@ -1074,21 +1116,20 @@ async function createRoom(gameType = "kana", mode = "mixed", totalRounds = 10, m
     isHost = true;
     isBotMatch = withBot;
     selectedGameType = gameType;
-    roomMaxPlayers = maxPlayers;
-    roomTimeLimit = timeLimit;
+    selectedMode = mode;
+    selectedRounds = parseInt(totalRounds, 10) || 10;
+    roomMaxPlayers = parseInt(maxPlayers, 10) || 2;
+    roomTimeLimit = parseFloat(timeLimit) || 5.0;
 
-    // Refresh identitas & foto profil asli akun sebelum membuat room
-    refreshMyIdentity();
-
-    const questions = generateGameQuestions(gameType, mode, totalRounds);
+    const questions = generateGameQuestions(gameType, mode, selectedRounds);
 
     const roomPayload = {
         code: code,
         gameType: gameType,
         mode: mode,
-        totalRounds: totalRounds,
-        maxPlayers: maxPlayers,
-        timeLimit: timeLimit,
+        totalRounds: selectedRounds,
+        maxPlayers: roomMaxPlayers,
+        timeLimit: roomTimeLimit,
         status: "waiting",
         hostId: myId,
         hostName: myName,
@@ -1100,6 +1141,7 @@ async function createRoom(gameType = "kana", mode = "mixed", totalRounds = 10, m
                 avatar: myAvatar,
                 score: 0,
                 correctCount: 0,
+                answeredCount: 0,
                 finished: false,
                 reaction: null,
                 isHost: true
@@ -1113,6 +1155,7 @@ async function createRoom(gameType = "kana", mode = "mixed", totalRounds = 10, m
             avatar: "../gambar/aoi_sensei.jpg",
             score: 0,
             correctCount: 0,
+            answeredCount: 0,
             finished: false,
             reaction: null,
             isHost: false
@@ -1128,11 +1171,16 @@ async function createRoom(gameType = "kana", mode = "mixed", totalRounds = 10, m
 }
 
 async function joinRoomById(roomId) {
-    currentRoomId = roomId;
-    isHost = false;
-    isBotMatch = false;
+    if (!roomId || typeof roomId !== "string") {
+        alert("ID room tidak valid.");
+        return;
+    }
 
-    // Pastikan identitas & avatar paling mutakhir
+    if (currentRoomId && currentRoomId !== roomId) {
+        leaveCurrentRoom();
+    }
+
+    // Refresh identitas lokal sebelum join (tanpa menulis ke Firebase room dulu!)
     refreshMyIdentity();
 
     try {
@@ -1143,21 +1191,41 @@ async function joinRoomById(roomId) {
             return;
         }
 
-        const maxCap = r.maxPlayers || 2;
-        const currentCount = Object.keys(r.players || {}).length;
-        if (currentCount >= maxCap) {
+        const maxCap = parseInt(r.maxPlayers, 10) || 2;
+        const players = r.players || {};
+        const isAlreadyIn = !!players[myId];
+        const currentCount = Object.keys(players).length;
+
+        // Cek jika room sudah penuh dan pemain belum ada di dalam room
+        if (!isAlreadyIn && currentCount >= maxCap) {
             alert(`Room sudah penuh (${maxCap} pemain)!`);
             return;
         }
 
+        // Cek jika status room bukan waiting dan pemain belum terdaftar
+        if (!isAlreadyIn && r.status !== "waiting") {
+            alert("Pertandingan di room ini sudah berlangsung!");
+            return;
+        }
+
+        currentRoomId = roomId;
+        isHost = (r.hostId === myId);
+        isBotMatch = !!players["bot_aoi"];
+        selectedGameType = r.gameType || "kana";
+        selectedMode = r.mode || "mixed";
+        selectedRounds = r.totalRounds || 10;
+        roomMaxPlayers = maxCap;
+        roomTimeLimit = r.timeLimit || 5.0;
+
         const playerPayload = {
             name: myName,
             avatar: myAvatar,
-            score: 0,
-            correctCount: 0,
-            finished: false,
+            score: isAlreadyIn ? (players[myId].score || 0) : 0,
+            correctCount: isAlreadyIn ? (players[myId].correctCount || 0) : 0,
+            answeredCount: isAlreadyIn ? (players[myId].answeredCount || 0) : 0,
+            finished: isAlreadyIn ? (players[myId].finished || false) : false,
             reaction: null,
-            isHost: false
+            isHost: isHost
         };
 
         await update(ref(db, `multiplayer_rooms/${roomId}/players/${myId}`), playerPayload);
@@ -1166,28 +1234,47 @@ async function joinRoomById(roomId) {
         subscribeToRoom(roomId);
     } catch (e) {
         console.error("Gagal join room:", e);
+        alert("Gagal bergabung ke room. Periksa koneksi internet Anda.");
     }
 }
 
 async function joinRoomByCode(code) {
+    const cleanCode = (code || "").toString().trim().toUpperCase();
+    if (!cleanCode) {
+        alert("Silakan masukkan 4-digit kode room!");
+        return;
+    }
     try {
         const snap = await get(ref(db, "multiplayer_rooms"));
         const rooms = snap.val() || {};
         let targetId = null;
+        let latestTime = 0;
 
         Object.keys(rooms).forEach(rid => {
-            if (rooms[rid]?.code === code && rooms[rid]?.status === "waiting") {
-                targetId = rid;
+            const r = rooms[rid];
+            if (!r) return;
+            const rCode = (r.code || "").toString().trim().toUpperCase();
+            const pCount = Object.keys(r.players || {}).length;
+            const maxCap = parseInt(r.maxPlayers, 10) || 2;
+            const isAlreadyIn = !!(r.players && r.players[myId]);
+
+            if (rCode === cleanCode && r.status === "waiting" && (pCount < maxCap || isAlreadyIn) && pCount > 0) {
+                const roomTime = r.createdAt || 0;
+                if (roomTime >= latestTime) {
+                    latestTime = roomTime;
+                    targetId = rid;
+                }
             }
         });
 
         if (targetId) {
             await joinRoomById(targetId);
         } else {
-            alert(`Room dengan kode [${code}] tidak ditemukan atau sudah mulai bertanding!`);
+            alert(`Room dengan kode [${cleanCode}] tidak ditemukan, sudah penuh, atau pertandingan telah dimulai!`);
         }
     } catch (e) {
-        console.error(e);
+        console.error("Gagal join by code:", e);
+        alert("Gagal memproses kode room.");
     }
 }
 
@@ -1202,6 +1289,8 @@ window.isFirebaseActive = true;
 // ==========================================================================
 // 10. REALTIME ROOM LISTENER & STATE SYNC
 // ==========================================================================
+let lastEnemyReaction = null;
+
 function subscribeToRoom(roomId) {
     if (roomUnsubscribe) roomUnsubscribe();
 
@@ -1210,6 +1299,21 @@ function subscribeToRoom(roomId) {
         const r = snapshot.val();
         if (!r) {
             // Room was closed or deleted
+            if (views.podium && views.podium.style.display === "block") {
+                if (roomUnsubscribe) { roomUnsubscribe(); roomUnsubscribe = null; }
+                currentRoomId = null;
+                const btnRem = document.getElementById("btnRematch");
+                if (btnRem) {
+                    btnRem.disabled = true;
+                    btnRem.textContent = "🚪 Host Telah Keluar";
+                    btnRem.classList.remove("mp-rematch-pulse");
+                }
+                const sub = document.getElementById("podiumSub");
+                if (sub) {
+                    sub.textContent = "Host telah meninggalkan room. Silakan kembali ke lobby.";
+                }
+                return;
+            }
             alert("Room pertandingan telah ditutup.");
             leaveCurrentRoom();
             return;
@@ -1227,7 +1331,7 @@ function handleRoomStateChange(roomData) {
     roomMaxPlayers = roomData.maxPlayers || 2;
     roomTimeLimit = roomData.timeLimit || 5.0;
 
-    // Deteksi pemain yang terhubung
+    // Deteksi seluruh pemain yang terhubung
     const players = roomData.players || {};
     const playerIds = Object.keys(players);
     const otherPlayerIds = playerIds.filter(id => id !== myId);
@@ -1240,10 +1344,30 @@ function handleRoomStateChange(roomData) {
         enemyCorrectCount = players[enemyId].correctCount || 0;
         enemyFinished = players[enemyId].finished || false;
 
-        // Cek jika lawan mengirim reaction emote
+        // Cek jika lawan mengirim reaction emote (cegah duplikasi)
         if (players[enemyId].reaction) {
-            showFloatingReaction(players[enemyId].reaction);
+            const rx = players[enemyId].reaction;
+            if (rx !== lastEnemyReaction) {
+                lastEnemyReaction = rx;
+                showFloatingReaction(rx);
+                setTimeout(() => { if (lastEnemyReaction === rx) lastEnemyReaction = null; }, 1600);
+            }
         }
+    } else {
+        enemyId = null;
+        enemyName = "Lawan";
+        enemyAvatar = "../gambar/icon.png";
+        enemyScore = 0;
+        enemyCorrectCount = 0;
+        enemyFinished = false;
+    }
+
+    // Deteksi jika lawan kabur/disconnect saat pertandingan berlangsung
+    if (roomData.status === "playing" && !isBotMatch && otherPlayerIds.length === 0 && !myFinished) {
+        alert("Lawanmu telah meninggalkan pertandingan!");
+        myFinished = true;
+        finishMyRace();
+        return;
     }
 
     // Pergantian Tampilan Sesuai Status Room
@@ -1251,7 +1375,8 @@ function handleRoomStateChange(roomData) {
         switchView("waiting");
         updateWaitingRoomUI(roomData);
     } else if (roomData.status === "playing") {
-        if (views.battle.style.display !== "block" && views.podium.style.display !== "block") {
+        // Transisi ke arena bertanding jika belum di arena (termasuk rematch dari podium!)
+        if (views.battle && views.battle.style.display !== "block") {
             startBattleArena();
         }
         updateBattleRaceUI(players);
@@ -1353,10 +1478,18 @@ const btnCopyRoomLink = document.getElementById("btnCopyRoomLink");
 if (btnCopyRoomLink) {
     btnCopyRoomLink.addEventListener("click", () => {
         const code = document.getElementById("waitingRoomCode")?.textContent || "";
-        navigator.clipboard.writeText(code).then(() => {
-            btnCopyRoomLink.textContent = "✓ Disalin!";
-            setTimeout(() => { btnCopyRoomLink.textContent = "📋 Salin"; }, 2000);
-        });
+        const shareUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
+        const shareText = `Ayo tanding bahasa Jepang di Nihongo Fournity! Masukkan kode room: ${code} atau klik link: ${shareUrl}`;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareText).then(() => {
+                btnCopyRoomLink.textContent = "✓ Disalin!";
+                setTimeout(() => { btnCopyRoomLink.textContent = "📋 Salin"; }, 2000);
+            }).catch(() => {
+                prompt("Salin teks undangan ini:", shareText);
+            });
+        } else {
+            prompt("Salin teks undangan ini:", shareText);
+        }
     });
 }
 
@@ -1387,28 +1520,85 @@ function leaveCurrentRoom() {
     }
     if (currentRoomId) {
         if (isHost) {
-            remove(ref(db, `multiplayer_rooms/${currentRoomId}`));
+            remove(ref(db, `multiplayer_rooms/${currentRoomId}`)).catch(() => {});
         } else {
-            remove(ref(db, `multiplayer_rooms/${currentRoomId}/players/${myId}`));
+            remove(ref(db, `multiplayer_rooms/${currentRoomId}/players/${myId}`)).catch(() => {});
         }
         currentRoomId = null;
     }
+    isHost = false;
+    isBotMatch = false;
+    enemyId = null;
+    myFinished = false;
     clearInterval(roundTimerInterval);
     clearTimeout(botAnswerTimeout);
     switchView("lobby");
 }
 
+// Cleanup saat navigasi/tutup tab
+window.addEventListener("beforeunload", () => {
+    if (currentRoomId) {
+        if (isHost) {
+            remove(ref(db, `multiplayer_rooms/${currentRoomId}`)).catch(() => {});
+        } else {
+            remove(ref(db, `multiplayer_rooms/${currentRoomId}/players/${myId}`)).catch(() => {});
+        }
+    }
+});
+
+window.addEventListener("pagehide", () => {
+    if (currentRoomId) {
+        if (isHost) {
+            remove(ref(db, `multiplayer_rooms/${currentRoomId}`)).catch(() => {});
+        } else {
+            remove(ref(db, `multiplayer_rooms/${currentRoomId}/players/${myId}`)).catch(() => {});
+        }
+    }
+});
+
 // ==========================================================================
 // 11. BATTLE ARENA ENGINE (SPEED RACE)
 // ==========================================================================
+let myFinished = false;
+
 function startBattleArena() {
     switchView("battle");
+
+    // Pastikan container soal aktif ditampilkan dan overlay selesai disembunyikan
+    const activeContent = document.getElementById("battleActiveQuestionContent");
+    const finishedOverlay = document.getElementById("battleFinishedOverlay");
+    if (activeContent) activeContent.style.display = "block";
+    if (finishedOverlay) finishedOverlay.style.display = "none";
+
     currentRoundIdx = 0;
     myScore = 0;
     myCorrectCount = 0;
     myStreak = 0;
     maxStreak = 0;
+    myFinished = false;
     reactionTimes = [];
+    botRoundIdx = 0;
+    enemyScore = 0;
+    enemyCorrectCount = 0;
+    enemyFinished = false;
+    isAnswerLocked = false;
+    hasAwardedPodiumForSession = false;
+
+    // Reset floating reactions
+    const rxBox = document.getElementById("floatingReactionBox");
+    if (rxBox) rxBox.innerHTML = "";
+
+    // Reset tombol Rematch di podium ke keadaan awal
+    const btnRem = document.getElementById("btnRematch");
+    if (btnRem) {
+        btnRem.disabled = false;
+        btnRem.textContent = "🔄 Tanding Lagi (Rematch)";
+        btnRem.classList.remove("mp-rematch-pulse");
+    }
+
+    // Bersihkan timer sebelumnya jika ada
+    clearInterval(roundTimerInterval);
+    clearTimeout(botAnswerTimeout);
 
     // Load first question
     loadNextQuestion();
@@ -1506,44 +1696,34 @@ function handleAnswerClick(buttonEl, chosenOpt, correctOpt) {
     const q = roomQuestions[currentRoundIdx];
 
     if (q && q.gameType === "janken") {
-        // Jankenpon Hand Clash
-        const hands = ["✊ Batu (Guu)", "✌️ Gunting (Choki)", "🖐️ Kertas (Paa)"];
-        const botHand = hands[Math.floor(Math.random() * hands.length)];
-
         const clashBox = document.getElementById("jankenClashBox");
         const myHandEl = document.getElementById("jankenMyHand");
         const enHandEl = document.getElementById("jankenEnemyHand");
         if (clashBox && myHandEl && enHandEl) {
             clashBox.style.display = "flex";
             myHandEl.textContent = chosenOpt.split(" ")[0];
-            enHandEl.textContent = botHand.split(" ")[0];
+            enHandEl.textContent = (correctOpt || "✊").split(" ")[0];
         }
 
-        let isWin = false;
-        let isDraw = false;
-        if (chosenOpt.startsWith("✊") && botHand.startsWith("✌️")) isWin = true;
-        else if (chosenOpt.startsWith("✌️") && botHand.startsWith("🖐️")) isWin = true;
-        else if (chosenOpt.startsWith("🖐️") && botHand.startsWith("✊")) isWin = true;
-        else if (chosenOpt.slice(0, 2) === botHand.slice(0, 2)) isDraw = true;
+        const isWin = (chosenOpt === correctOpt);
 
         if (isWin) {
             buttonEl.classList.add("btn-correct");
             AudioSFX.correct();
-            myScore += 120;
+            const speedBonus = Math.floor(currentRoundSecondsLeft * 15);
+            myScore += (100 + speedBonus);
             myCorrectCount++;
             myStreak++;
             if (myStreak > maxStreak) maxStreak = myStreak;
             showFloatingReaction("🔥");
-        } else if (isDraw) {
-            buttonEl.classList.add("btn-correct");
-            AudioSFX.speedBonus();
-            myScore += 40;
-            showFloatingReaction("⚡");
         } else {
             buttonEl.classList.add("btn-wrong");
             AudioSFX.wrong();
             myStreak = 0;
             showFloatingReaction("😭");
+            document.querySelectorAll("#battleOptionsGrid .mp-option-btn").forEach(b => {
+                if (b.dataset.opt === correctOpt) b.classList.add("btn-correct");
+            });
         }
 
         syncMyProgressToFirebase();
@@ -1551,7 +1731,7 @@ function handleAnswerClick(buttonEl, chosenOpt, correctOpt) {
         setTimeout(() => {
             currentRoundIdx++;
             loadNextQuestion();
-        }, 950);
+        }, 850);
         return;
     }
 
@@ -1608,13 +1788,13 @@ function handleTimeOut(correctOpt) {
 
 function syncMyProgressToFirebase() {
     if (!currentRoomId) return;
-    const isFinished = currentRoundIdx >= roomQuestions.length - 1;
 
     update(ref(db, `multiplayer_rooms/${currentRoomId}/players/${myId}`), {
         score: myScore,
         correctCount: myCorrectCount,
-        finished: isFinished
-    });
+        answeredCount: currentRoundIdx,
+        finished: myFinished
+    }).catch(e => console.warn("Sync progress error:", e));
 }
 
 // Render Seluruh Lane Balapan Pemain Real-Time dengan Avatar Asli
@@ -1635,9 +1815,9 @@ function updateBattleRaceUI(players) {
             const p = players[pid];
             const isMe = (pid === myId);
             const pAvatar = normalizeAvatarUrl(isMe ? myAvatar : (p.avatar || getPlayerAvatar(p.name, p)));
-            const pCorrect = p.correctCount || 0;
+            const pAnswered = p.finished ? totalQ : (p.answeredCount || p.correctCount || 0);
             const pScore = p.score || 0;
-            const pPct = Math.min(100, (pCorrect / totalQ) * 100);
+            const pPct = Math.min(100, (pAnswered / totalQ) * 100);
             const color = laneColors[idx % laneColors.length];
 
             return `
@@ -1656,37 +1836,35 @@ function updateBattleRaceUI(players) {
     }
 
     // Cek apakah semua pemain telah menyelesaikan pertandingan
-    const allFinished = playerList.length >= 2 && playerList.every(pid => players[pid]?.finished);
-    if (allFinished && isHost) {
-        update(ref(db, `multiplayer_rooms/${currentRoomId}`), {
-            status: "finished"
-        });
+    const allFinished = playerList.length >= 1 && playerList.every(pid => players[pid]?.finished);
+    if (allFinished && currentRoomId) {
+        if (isHost || playerList.length === 1) {
+            update(ref(db, `multiplayer_rooms/${currentRoomId}`), {
+                status: "finished"
+            }).catch(() => {});
+        }
     }
 }
 
 async function finishMyRace() {
     clearInterval(roundTimerInterval);
+    myFinished = true;
     syncMyProgressToFirebase();
 
-    // Tampilkan overlay selesai sementara menunggu lawan
-    const flashcard = document.getElementById("battleFlashcardBox");
-    if (flashcard) {
-        flashcard.innerHTML = `
-            <div style="padding: 40px 10px;">
-                <span style="font-size: 48px;">🏁</span>
-                <h3 style="color: #fff; margin: 12px 0 6px;">Kamu Telah Selesai!</h3>
-                <p style="color: var(--mp-gold); font-size: 14px; font-weight: 700;">Skor Akhir: ${myScore.toLocaleString()} PTS</p>
-                <p style="color: #94A3B8; font-size: 12px;">Menunggu semua pemain menyelesaikan pertandingan...</p>
-            </div>
-        `;
-    }
+    // Tampilkan overlay selesai sementara menunggu lawan tanpa merusak struktur DOM soal
+    const activeContent = document.getElementById("battleActiveQuestionContent");
+    const finishedOverlay = document.getElementById("battleFinishedOverlay");
+    const finishedScoreText = document.getElementById("battleFinishedScoreText");
+    if (activeContent) activeContent.style.display = "none";
+    if (finishedOverlay) finishedOverlay.style.display = "block";
+    if (finishedScoreText) finishedScoreText.textContent = `Skor Akhir: ${myScore.toLocaleString()} PTS`;
 
     if (isBotMatch || !enemyId) {
         setTimeout(async () => {
             if (currentRoomId) {
                 await update(ref(db, `multiplayer_rooms/${currentRoomId}`), {
                     status: "finished"
-                });
+                }).catch(() => {});
             }
         }, 1200);
     }
@@ -1768,6 +1946,8 @@ function showFloatingReaction(emote) {
 // ==========================================================================
 // 14. VICTORY PODIUM & GAME OVER SCREEN
 // ==========================================================================
+let hasAwardedPodiumForSession = false;
+
 function showPodiumScreen(players) {
     switchView("podium");
     clearInterval(roundTimerInterval);
@@ -1780,7 +1960,8 @@ function showPodiumScreen(players) {
         avatar: (id === myId) ? myAvatar : normalizeAvatarUrl(p.avatar || getPlayerAvatar(p.name, p)),
         score: p.score || 0,
         correctCount: p.correctCount || 0,
-        isMe: (id === myId)
+        isMe: (id === myId),
+        rematchReady: !!p.rematchReady
     })).sort((a, b) => b.score - a.score);
 
     const winner = sortedPlayers[0] || { name: myName, score: myScore };
@@ -1793,21 +1974,21 @@ function showPodiumScreen(players) {
     const myCard = document.getElementById("podiumMyCard");
     const enemyCard = document.getElementById("podiumEnemyCard");
 
-    if (isWinner) {
-        AudioSFX.fanfare();
-        if (trophyIcon) trophyIcon.textContent = "👑";
-        if (podiumTitle) podiumTitle.textContent = "KEMENANGAN TELAK!";
-        if (podiumSub) podiumSub.textContent = "Kamu mengalahkan lawan dengan kecepatan refleks dan ketepatan luar biasa!";
-        if (myCard) myCard.classList.add("winner");
-        if (enemyCard) enemyCard.classList.remove("winner");
-    } else if (isTie) {
+    if (isTie) {
         if (trophyIcon) trophyIcon.textContent = "🤝";
         if (podiumTitle) podiumTitle.textContent = "HASIL IMBANG!";
         if (podiumSub) podiumSub.textContent = "Skor pemain sama persis! Pertarungan yang sangat seru dan sengit!";
         if (myCard) myCard.classList.remove("winner");
         if (enemyCard) enemyCard.classList.remove("winner");
+    } else if (isWinner) {
+        if (!hasAwardedPodiumForSession) AudioSFX.fanfare();
+        if (trophyIcon) trophyIcon.textContent = "👑";
+        if (podiumTitle) podiumTitle.textContent = "KEMENANGAN TELAK!";
+        if (podiumSub) podiumSub.textContent = "Kamu mengalahkan lawan dengan kecepatan refleks dan ketepatan luar biasa!";
+        if (myCard) myCard.classList.add("winner");
+        if (enemyCard) enemyCard.classList.remove("winner");
     } else {
-        AudioSFX.wrong();
+        if (!hasAwardedPodiumForSession) AudioSFX.wrong();
         if (trophyIcon) trophyIcon.textContent = "🥈";
         if (podiumTitle) podiumTitle.textContent = "PERJALANAN HEBAT!";
         if (podiumSub) podiumSub.textContent = `${winner.name} sedikit lebih unggul kali ini. Jangan menyerah, coba tanding ulang!`;
@@ -1855,36 +2036,153 @@ function showPodiumScreen(players) {
     if (rivalSpd) rivalSpd.textContent = `⚡ Rata-rata: 1.6s`;
     if (rivalStr) rivalStr.textContent = `🔥 Max Streak: ${topRival.correctCount}`;
 
-    // EXP Gain
-    const expGain = isWinner ? 120 : (isTie ? 75 : 45);
+    // EXP Gain (diberikan sekali saja per ronde pertandingan)
+    const expGain = (isWinner && !isTie) ? 120 : (isTie ? 75 : 45);
     const expEl = document.getElementById("podiumExpGained");
     if (expEl) expEl.textContent = `+${expGain} XP`;
 
-    // Persist EXP to LocalStorage
-    try {
-        const curExp = Number(localStorage.getItem("trinity_exp") || 80);
-        localStorage.setItem("trinity_exp", curExp + expGain);
-    } catch(e) {}
+    if (!hasAwardedPodiumForSession) {
+        hasAwardedPodiumForSession = true;
+        try {
+            const curExp = Number(localStorage.getItem("trinity_exp") || 80);
+            localStorage.setItem("trinity_exp", curExp + expGain);
+        } catch(e) {}
+    }
+
+    // Update status tombol Rematch berdasarkan kesiapan lawan
+    const btnRematchEl = document.getElementById("btnRematch");
+    if (btnRematchEl) {
+        if (isHost) {
+            const rival = sortedPlayers.find(p => !p.isMe);
+            if (rival && rival.rematchReady) {
+                btnRematchEl.textContent = `🔄 ${rival.name} Siap! Mulai Rematch Sekarang 🔥`;
+                btnRematchEl.classList.add("mp-rematch-pulse");
+                btnRematchEl.disabled = false;
+            } else if (!btnRematchEl.disabled) {
+                btnRematchEl.textContent = "🔄 Tanding Lagi (Rematch)";
+                btnRematchEl.classList.remove("mp-rematch-pulse");
+            }
+        }
+    }
 }
 
 // Rematch & Leave from Podium
 const btnRematch = document.getElementById("btnRematch");
 if (btnRematch) {
     btnRematch.addEventListener("click", async () => {
-        if (isBotMatch) {
-            await createRoom(selectedMode, selectedRounds, true);
-        } else if (currentRoomId && isHost) {
-            const newQuestions = generateGameQuestions(selectedMode, selectedRounds);
-            await update(ref(db, `multiplayer_rooms/${currentRoomId}`), {
-                status: "playing",
-                questions: newQuestions,
-                players: {
-                    [myId]: { name: myName, avatar: myAvatar, score: 0, correctCount: 0, finished: false, isHost: true },
-                    [enemyId]: { name: enemyName, avatar: enemyAvatar, score: 0, correctCount: 0, finished: false, isHost: false }
-                }
-            });
-        } else {
+        if (!currentRoomId) {
             leaveCurrentRoom();
+            return;
+        }
+
+        if (isBotMatch) {
+            btnRematch.disabled = true;
+            btnRematch.textContent = "⏳ Mempersiapkan Ronde...";
+            try {
+                const newQuestions = generateGameQuestions(selectedGameType, selectedMode, selectedRounds);
+                const resetPlayers = {
+                    [myId]: {
+                        name: myName,
+                        avatar: myAvatar,
+                        score: 0,
+                        correctCount: 0,
+                        answeredCount: 0,
+                        finished: false,
+                        reaction: null,
+                        rematchReady: false,
+                        isHost: true
+                    },
+                    "bot_aoi": {
+                        name: "Aoi Sensei 🌸 (AI)",
+                        avatar: "../gambar/aoi_sensei.jpg",
+                        score: 0,
+                        correctCount: 0,
+                        answeredCount: 0,
+                        finished: false,
+                        reaction: null,
+                        rematchReady: true,
+                        isHost: false
+                    }
+                };
+                await update(ref(db, `multiplayer_rooms/${currentRoomId}`), {
+                    status: "playing",
+                    questions: newQuestions,
+                    players: resetPlayers
+                });
+            } catch (e) {
+                console.error("Bot rematch error:", e);
+                await createRoom(selectedGameType, selectedMode, selectedRounds, 2, roomTimeLimit, true);
+            } finally {
+                btnRematch.disabled = false;
+                btnRematch.textContent = "🔄 Tanding Lagi (Rematch)";
+            }
+            return;
+        }
+
+        if (isHost) {
+            btnRematch.disabled = true;
+            btnRematch.textContent = "⏳ Mempersiapkan Ronde...";
+            try {
+                const snap = await get(ref(db, `multiplayer_rooms/${currentRoomId}`));
+                const r = snap.val();
+                if (!r) {
+                    alert("Room sudah tidak aktif.");
+                    leaveCurrentRoom();
+                    return;
+                }
+
+                const currentPlayers = r.players || {};
+                const playerIds = Object.keys(currentPlayers);
+                const otherPlayerIds = playerIds.filter(id => id !== myId);
+
+                // Cek jika lawan sudah tidak ada di room
+                if (otherPlayerIds.length === 0) {
+                    alert("Lawan telah meninggalkan room. Kembali ke lobby untuk mencari pemain baru.");
+                    leaveCurrentRoom();
+                    return;
+                }
+
+                const resetPlayers = {};
+                playerIds.forEach(pid => {
+                    const p = currentPlayers[pid];
+                    resetPlayers[pid] = {
+                        name: p.name || "Pemain",
+                        avatar: p.avatar || "../gambar/icon.png",
+                        score: 0,
+                        correctCount: 0,
+                        answeredCount: 0,
+                        finished: false,
+                        reaction: null,
+                        rematchReady: false,
+                        isHost: (pid === myId)
+                    };
+                });
+
+                const newQuestions = generateGameQuestions(selectedGameType, selectedMode, selectedRounds);
+                await update(ref(db, `multiplayer_rooms/${currentRoomId}`), {
+                    status: "playing",
+                    questions: newQuestions,
+                    players: resetPlayers
+                });
+            } catch (e) {
+                console.error("Rematch error:", e);
+                alert("Gagal memulai tanding ulang.");
+                btnRematch.disabled = false;
+                btnRematch.textContent = "🔄 Tanding Lagi (Rematch)";
+            }
+        } else {
+            // Non-host: beri tahu host bahwa pemain siap tanding ulang
+            btnRematch.disabled = true;
+            btnRematch.textContent = "✓ Siap! Menunggu Host...";
+            try {
+                await update(ref(db, `multiplayer_rooms/${currentRoomId}/players/${myId}`), {
+                    reaction: "🔥",
+                    rematchReady: true
+                });
+            } catch (e) {
+                btnRematch.disabled = false;
+                btnRematch.textContent = "🔄 Tanding Lagi (Rematch)";
+            }
         }
     });
 }
@@ -1894,4 +2192,47 @@ if (btnPodiumLobby) {
     btnPodiumLobby.addEventListener("click", () => {
         leaveCurrentRoom();
     });
+}
+
+// Quick Name Customizer via Profile Chip
+const userChip = document.getElementById("userProfileChip");
+if (userChip) {
+    userChip.style.cursor = "pointer";
+    userChip.title = "Klik untuk ganti nama tampilan";
+    userChip.addEventListener("click", () => {
+        const newName = prompt("Ganti nama panggilan untuk duel multiplayer:", myName);
+        if (newName && newName.trim()) {
+            const clean = newName.trim().slice(0, 16);
+            localStorage.setItem("nihongoChatUser", clean);
+            refreshMyIdentity();
+        }
+    });
+}
+
+// Auto-join via URL query parameter (?code=XXXX atau ?room=RID)
+function checkUrlJoinParams() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get("code");
+        const roomId = urlParams.get("room");
+        if (roomId) {
+            joinRoomById(roomId);
+        } else if (code) {
+            const cleanCode = code.trim().toUpperCase();
+            if (cleanCode.length === 4) {
+                const input = document.getElementById("inputRoomCode");
+                if (input) input.value = cleanCode;
+                joinRoomByCode(cleanCode);
+            }
+        }
+    } catch (e) {
+        console.warn("URL join check error:", e);
+    }
+}
+
+// Panggil saat halaman selesai dimuat
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", checkUrlJoinParams);
+} else {
+    setTimeout(checkUrlJoinParams, 400);
 }
